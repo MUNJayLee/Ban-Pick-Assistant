@@ -1,0 +1,13 @@
+{
+  "name": "honor-data-scraper",
+  "version": "1.0.0",
+  "description": "王者荣耀英雄胜率/数据抓取与合并工具（通用数据源适配）",
+  "type": "module",
+  "scripts": {
+    "fetch": "node src/fetchData.mjs"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}

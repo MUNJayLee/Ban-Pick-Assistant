@@ -1,0 +1,39 @@
+{
+  "sources": [
+    {
+      "name": "天元之弈 - 英雄梯度榜",
+      "type": "json",
+      "url": "https://tianyuanzhiyi.com/api/global/tier?date=TODAY",
+      "method": "GET",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://tianyuanzhiyi.com/tier"
+      },
+      "timeout": 15000,
+      "retries": 3,
+      "mapping": {
+        "resultPath": "tiers",
+        "nameField": "heroName",
+        "tierField": "tierInRole",
+        "tierScoreField": "finalNormalizedTierScore",
+        "roleField": "role",
+        "heroPowerField": "trueHeroPowerInRole",
+        "banField": "highBan",
+        "rankField": "rankInRole",
+        "heroIdField": "heroId",
+        "avatarField": "avatarUrl"
+      }
+    }
+  ],
+  "rateLimit": {
+    "enabled": true,
+    "delayMs": 1000,
+    "retries": 3
+  },
+  "threshold": {
+    "minMatchRate": 0.1,
+    "minHeroCount": 3
+  },
+  "output": "../../src/data/heroes.json"
+}

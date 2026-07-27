@@ -1,0 +1,136 @@
+export type HeroRole =
+  | 'TANK'
+  | 'WARRIOR'
+  | 'ASSASSIN'
+  | 'MAGE'
+  | 'MARKSMAN'
+  | 'SUPPORT';
+
+/** 英雄位置（对局中的分路） */
+export type HeroPosition =
+  | 'CLASH_LANE'    // 对抗路
+  | 'MID_LANE'      // 中路
+  | 'FARM_LANE'     // 发育路
+  | 'JUNGLE'        // 打野
+  | 'ROAM';         // 游走
+
+/** 位置中文映射 */
+export const POSITION_LABELS: Record<HeroPosition, string> = {
+  CLASH_LANE: '对抗路',
+  MID_LANE: '中路',
+  FARM_LANE: '发育路',
+  JUNGLE: '打野',
+  ROAM: '游走',
+};
+
+export interface Hero {
+  id: string;
+  name: string;
+  title: string;
+  /** 职业分类（坦克/战士/刺客/法师/射手/辅助） */
+  roles: HeroRole[];
+  /** 可打位置（对抗路/中路/发育路/打野/游走） */
+  positions?: HeroPosition[];
+  /** 位置标签（中文，如 "对抗路/打野"） */
+  positionLabel?: string;
+  /** 细分定位（如 "法核"、"战边"、"开团辅"） */
+  profession?: string;
+  aiWinRate: number;
+  popularity: number;
+  difficulty: number;
+  counters: string[];
+  counteredBy: string[];
+  synergies: string[];
+  avatar?: string;
+  /** 实时登场率（0-1 小数） */
+  pickRate?: number;
+  /** 实时禁用率（0-1 小数） */
+  banRate?: number;
+  /** 天元之弈梯度评级 (T0, T0.5, T1, T2, T3, T4) */
+  tier?: string;
+  /** 天元之弈梯度评分 (0-100) */
+  tierScore?: number;
+  /** 天元之弈分路标签 (如 "对抗路/打野") — 已迁移为 positionLabel */
+  roleLabel?: string;
+  /** 天元之弈战力值 */
+  heroPower?: number;
+  /** 是否高ban率英雄 */
+  highBan?: boolean;
+  /** 梯度排名 */
+  tierRank?: number;
+}
+
+export type Side = 'BLUE' | 'RED';
+
+export type BpPhase = 'MY_BAN' | 'ENEMY_BAN' | 'PICK' | 'FINISHED';
+
+export interface BpState {
+  userSide: Side;
+  blueBans: string[];
+  redBans: string[];
+  bluePicks: string[];
+  redPicks: string[];
+  /** 当前所处 BP 阶段 */
+  phase: BpPhase;
+  /** 选英雄阶段当前轮次（0-9） */
+  pickTurnIndex: number;
+  /** 标记为"我"的英雄（用于记录个人对局数据） */
+  myHeroId?: string;
+}
+
+export type TurnType = 'BAN' | 'PICK';
+
+export interface Turn {
+  index: number;
+  side: Side;
+  type: TurnType;
+  description: string;
+  /** 是否为盲 Ban（双方互相看不到） */
+  isBlindBan?: boolean;
+}
+
+export interface HeroRecommendation {
+  heroId: string;
+  score: number;
+  reason: string;
+  winRateBonus: number;
+  counterBonus: number;
+  synergyBonus: number;
+  compositionBonus: number;
+  counterPenalty: number;
+  /** 在推荐列表中的排名（从 1 开始） */
+  rank?: number;
+}
+
+export interface CompositionScore {
+  frontline: number;
+  damage: number;
+  control: number;
+  sustain: number;
+  mobility: number;
+}
+
+export type BpRecordResult = 'CORRECT' | 'INCORRECT' | 'PENDING';
+export type ActualResult = 'WIN' | 'LOSE' | 'PENDING';
+
+export interface BpRecord {
+  id: string;
+  timestamp: number;
+  bluePicks: string[];
+  redPicks: string[];
+  blueBans: string[];
+  redBans: string[];
+  bluePower: number;
+  redPower: number;
+  favored: 'BLUE' | 'RED' | 'EVEN';
+  result: BpRecordResult;
+  /** 我使用的英雄 */
+  myHeroId?: string;
+  /** 我所在的阵营 */
+  mySide?: Side;
+  /** 我玩的位置（从英雄 roles 自动推断） */
+  myRole?: HeroRole;
+  /** 我这场实际输赢 */
+  actualResult?: ActualResult;
+  note?: string;
+}
