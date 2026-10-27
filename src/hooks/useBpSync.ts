@@ -17,6 +17,7 @@ export interface BpSyncInfo {
   phaseScore: number;
   userSide: Side | null;
   banCount: number;
+  pickCount: number;
   monitoring: boolean;
   error: string | null;
 }
@@ -26,6 +27,7 @@ interface RawState {
   phase: 'ban' | 'pick' | 'final' | 'other';
   phase_score: number;
   bans: Array<{ side: 'blue' | 'red'; index: number; hero_id: string; confident: boolean }>;
+  picks?: Array<{ side: 'blue' | 'red'; index: number; hero_id: string | null; confident: boolean; empty: boolean }>;
   user_side: 'BLUE' | 'RED' | null;
   monitoring: boolean;
   error: string | null;
@@ -48,6 +50,7 @@ export function useBpSync() {
     phaseScore: 0,
     userSide: null,
     banCount: 0,
+    pickCount: 0,
     monitoring: false,
     error: null,
   });
@@ -55,6 +58,7 @@ export function useBpSync() {
 
   // 上一次的 ban 指纹，用于去重
   const lastBanKey = useRef<string>('');
+  const lastPickKey = useRef<string>('');
   const lastSide = useRef<Side | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -95,6 +99,31 @@ export function useBpSync() {
       }
     }
 
+    // ④ pick 位同步（同样不覆盖手动修改）
+    if (raw.picks && raw.picks.length > 0) {
+      const pkey = raw.picks
+        .map((p) => `${p.side}${p.index}:${p.hero_id ?? ''}`)
+        .sort()
+        .join('|');
+      if (pkey !== lastPickKey.current) {
+        lastPickKey.current = pkey;
+        for (const pk of raw.picks) {
+          if (pk.empty || !pk.hero_id) continue;
+          const side: Side = pk.side === 'blue' ? 'BLUE' : 'RED';
+          const idx = Math.max(0, pk.index - 1);
+          const arr = side === 'BLUE' ? store.bluePicks : store.redPicks;
+          if (arr[idx] && arr[idx] !== pk.hero_id) continue;
+          store.setPickAt(side, idx, pk.hero_id);
+        }
+        // 双方 10 个 pick 全部就位 → 自动进入 FINISHED（触发阵容分析）
+        const st = useBpStore.getState();
+        const filled = [...st.bluePicks, ...st.redPicks].filter(Boolean).length;
+        if (filled >= 10 && st.phase !== 'FINISHED') {
+          useBpStore.setState({ phase: 'FINISHED' });
+        }
+      }
+    }
+
     setInfo({
       connected: true,
       device: raw.device,
@@ -102,6 +131,7 @@ export function useBpSync() {
       phaseScore: raw.phase_score,
       userSide: raw.user_side,
       banCount: raw.bans?.length ?? 0,
+      pickCount: (raw.picks || []).filter((p) => !p.empty && p.hero_id).length,
       monitoring: raw.monitoring,
       error: raw.error,
     });

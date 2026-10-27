@@ -33,7 +33,7 @@ from pydantic import BaseModel
 
 import recognize_screenshot as R
 from live_recognize import (
-    FeatureBank, detect_phase, recognize_bans, format_bans, normalize, detect_user_side,
+    FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize, detect_user_side,
     _run, CREATE_NO_WINDOW, DEFAULT_ADB, TARGET_WIDTH, CONFIDENT_GAP,
 )
 
@@ -49,6 +49,7 @@ _state = {
     'phase_score': 0.0,
     'bans': [],              # [{side,index,hero_id,name,score,gap,confident}]
     'user_side': None,       # 'BLUE' / 'RED' / None（我方阵营）
+    'picks': [],             # [{side,index,hero_id,name,confident,empty}]
     'monitoring': False,
     'last_update': None,
     'error': None,
@@ -162,6 +163,7 @@ def _bp_worker(interval=2.0):
     bank = get_bank()
     prev_phase = None
     prev_bans_key = None
+    prev_picks_key = None
     while not _bp_stop.is_set():
         try:
             with _lock:
@@ -192,10 +194,21 @@ def _bp_worker(interval=2.0):
                     update_state(bans=bans)
                     print('[%s] %s' % (datetime.now().strftime('%H:%M:%S'),
                                        format_bans(bans)))
-            elif phase == 'final':
+                prev_picks_key = None
+            elif phase in ('pick', 'final'):
+                picks = recognize_picks(img, bank)
+                pkey = tuple((x['side'], x['index'], x['hero_id']) for x in picks)
+                if pkey != prev_picks_key:
+                    prev_picks_key = pkey
+                    update_state(picks=picks)
+                    n_blue = sum(1 for x in picks if x['side'] == 'blue' and x['hero_id'])
+                    n_red = sum(1 for x in picks if x['side'] == 'red' and x['hero_id'])
+                    print('[%s] picks: 我方 %d / 敌方 %d' % (
+                        datetime.now().strftime('%H:%M:%S'), n_blue, n_red))
                 prev_bans_key = None
             else:
                 prev_bans_key = None
+                prev_picks_key = None
         except Exception as e:
             update_state(error=str(e))
             time.sleep(3)
@@ -287,15 +300,20 @@ def api_recognize_once():
     phase, score = detect_phase(img)
     side = detect_user_side(img) if phase in ('ban', 'pick', 'final') else None
     bans = []
-    if phase == 'ban':
-        try:
-            bans = recognize_bans(img, get_bank())
-        except Exception:
-            bans = []
+    picks = []
+    bank = get_bank()
+    try:
+        if phase == 'ban':
+            bans = recognize_bans(img, bank)
+        elif phase in ('pick', 'final'):
+            picks = recognize_picks(img, bank)
+    except Exception:
+        pass
     update_state(phase=phase, phase_score=round(score, 2),
-                 user_side=side, bans=bans, error=None)
+                 user_side=side, bans=bans, picks=picks, error=None)
     return {'ok': True, 'phase': phase, 'user_side': side,
-            'ban_count': len(bans), 'bans': bans}
+            'ban_count': len(bans), 'bans': bans,
+            'pick_count': sum(1 for x in picks if x['hero_id']), 'picks': picks}
 
 
 @app.post('/api/bp/start')

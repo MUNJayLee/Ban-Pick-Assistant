@@ -162,5 +162,11 @@ export interface BpRecord {
   myRole?: HeroRole;
   /** 我这场实际输赢 */
   actualResult?: ActualResult;
+  /** 对局评分（王者结算界面 0~16 分，用于精细复盘） */
+  rating?: number;
+  /** 本局是否 MVP */
+  isMvp?: boolean;
+  /** 是否金牌/银牌（结算界面标记） */
+  medal?: 'GOLD' | 'SILVER' | 'BRONZE';
   note?: string;
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Trophy,
   AlertTriangle,
@@ -44,6 +44,10 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
   const { myHeroId, setMyHero } = useBpStore();
   const [note, setNote] = useState('');
   const [actualResult, setActualResult] = useState<ActualResult>('PENDING');
+  const [rating, setRating] = useState<string>('');
+  const [isMvp, setIsMvp] = useState(false);
+  const [medal, setMedal] = useState<'GOLD' | 'SILVER' | 'BRONZE' | undefined>(undefined);
+  const draftCreated = useRef(false);
 
   const existingRecord = useMemo(
     () =>
@@ -59,8 +63,25 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
   useEffect(() => {
     if (existingRecord) {
       setActualResult(existingRecord.actualResult ?? 'PENDING');
+      setRating(existingRecord.rating != null ? String(existingRecord.rating) : '');
+      setIsMvp(!!existingRecord.isMvp);
+      setMedal(existingRecord.medal);
     }
   }, [existingRecord?.id]);
+
+  // ADB 识别到 BP 完成后自动建一条草稿记录（只建一次，避免重复）
+  useEffect(() => {
+    if (
+      state.phase === 'FINISHED' &&
+      !existingRecord &&
+      !draftCreated.current &&
+      state.bluePicks.filter(Boolean).length === 5 &&
+      state.redPicks.filter(Boolean).length === 5
+    ) {
+      draftCreated.current = true;
+      addRecord(buildRecordPayload('PENDING'));
+    }
+  }, [state.phase, existingRecord]);
 
   const myHero = myHeroId ? getHeroById(myHeroId) : undefined;
   const mySide: Side | undefined = myHeroId
@@ -88,6 +109,9 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     mySide,
     myRole: myHero?.roles[0],
     actualResult: actual === 'PENDING' ? undefined : actual,
+    rating: rating.trim() === '' ? undefined : Number(rating),
+    isMvp: isMvp || undefined,
+    medal: medal,
     note: note || undefined,
   });
 
@@ -355,6 +379,65 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* 对局评分 / MVP / 奖牌（精细复盘） */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <span className="text-[11px] text-ui-muted flex-shrink-0">对局评分：</span>
+            <input
+              type="number"
+              min={0}
+              max={16}
+              step={0.1}
+              value={rating}
+              placeholder="如 12.5"
+              onChange={(e) => {
+                const v = e.target.value;
+                setRating(v);
+                if (existingRecord) {
+                  const num = v.trim() === '' ? undefined : Number(v);
+                  updateRecord(existingRecord.id, { rating: num });
+                }
+              }}
+              className="w-20 px-2 py-1 rounded-lg bg-ui-surface/60 border border-white/10 text-xs text-ui-text outline-none focus:border-ui-primary/40"
+            />
+            <button
+              onClick={() => {
+                const next = !isMvp;
+                setIsMvp(next);
+                if (existingRecord) updateRecord(existingRecord.id, { isMvp: next || undefined });
+              }}
+              className={cn(
+                'px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors',
+                isMvp
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-400/40'
+                  : 'bg-ui-surface/40 text-ui-muted border-white/8 hover:border-white/15'
+              )}
+            >
+              MVP
+            </button>
+            {(['GOLD', 'SILVER', 'BRONZE'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => {
+                  const next = medal === m ? undefined : m;
+                  setMedal(next);
+                  if (existingRecord) updateRecord(existingRecord.id, { medal: next });
+                }}
+                className={cn(
+                  'px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors',
+                  medal === m
+                    ? m === 'GOLD'
+                      ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/40'
+                      : m === 'SILVER'
+                      ? 'bg-slate-400/20 text-slate-200 border-slate-300/40'
+                      : 'bg-orange-700/20 text-orange-300 border-orange-500/40'
+                    : 'bg-ui-surface/40 text-ui-muted border-white/8 hover:border-white/15'
+                )}
+              >
+                {m === 'GOLD' ? '金牌' : m === 'SILVER' ? '银牌' : '铜牌'}
+              </button>
+            ))}
           </div>
 
           {/* 自动判定结果展示 */}

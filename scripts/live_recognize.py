@@ -330,6 +330,52 @@ def detect_bp(img):
     }
 
 
+def recognize_picks(img, bank, empty_std=20.0):
+    """识别左右各 5 个 pick 位（方形头像）。
+
+    坐标基准（1920x864 归一化画面，实测自巅峰赛截图）：
+      x = 1920*0.0859 ≈ 165（我方）/ 对称位置（敌方）
+      y = 864*0.1713 + 864*0.1620*i  （第 i 个，0-based）
+      size = 1920*0.0469 ≈ 90
+
+    空位判断：空 pick 位是深色均匀背景，灰度标准差很低（实测 11 vs 有头像 44~66）。
+
+    返回 [{side, index, hero_id, name, score, gap, confident, empty}, ...]
+    """
+    H, W = img.shape[:2]
+    picks = []
+    for side, x_ratio in (('blue', 0.0859), ('red', 1.0 - 0.0859)):
+        x = int(round(W * x_ratio))
+        for i in range(5):
+            cy = int(round(H * (0.1713 + 0.1620 * i)))
+            half = max(8, int(round(W * 0.0234)))
+            y0, y1 = max(0, cy - half), min(H, cy + half)
+            x0, x1 = max(0, x - half), min(W, x + half)
+            crop = img[y0:y1, x0:x1]
+            if crop.size == 0:
+                continue
+            gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+            if float(gray.std()) < empty_std:
+                picks.append({'side': side, 'index': i + 1, 'hero_id': None,
+                              'name': '', 'score': 0.0, 'gap': 0.0,
+                              'confident': False, 'empty': True})
+                continue
+            fused = bank.fuse([bank.ranks(crop)])
+            top = fused[0]
+            second = fused[1] if len(fused) > 1 else (None, 0)
+            gap = top[1] - second[1]
+            picks.append({
+                'side': side, 'index': i + 1,
+                'hero_id': top[0],
+                'name': bank.name.get(top[0], top[0]),
+                'score': round(top[1], 4),
+                'gap': round(gap, 4),
+                'confident': gap >= CONFIDENT_GAP,
+                'empty': False,
+            })
+    return picks
+
+
 def detect_user_side(img, red_threshold=1.8):
     """判断我方阵营（左侧菱形框颜色）。
 

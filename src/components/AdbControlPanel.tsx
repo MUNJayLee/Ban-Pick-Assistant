@@ -167,6 +167,10 @@ export function AdbControlPanel({ adb, onOpenConfig }: Props) {
           <span className="text-ui-muted">已识别 ban</span>
           <span className="text-ui-text">{info.banCount}</span>
         </div>
+        <div className="flex items-center justify-between">
+          <span className="text-ui-muted">已识别 pick</span>
+          <span className="text-ui-text">{info.pickCount}</span>
+        </div>
       </div>
 
       {info.error && (

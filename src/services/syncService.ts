@@ -32,6 +32,9 @@ export async function uploadBpRecord(record: BpRecord): Promise<void> {
     my_hero_id: record.myHeroId ?? null,
     my_side: record.mySide ?? null,
     my_role: record.myRole ?? null,
+    rating: record.rating ?? null,
+    is_mvp: record.isMvp ?? null,
+    medal: record.medal ?? null,
     note: record.note ?? null,
     app_version: APP_VERSION,
   };
