@@ -124,6 +124,9 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     ...state.bluePicks.map((id) => ({ id, side: 'BLUE' as Side })),
     ...state.redPicks.map((id) => ({ id, side: 'RED' as Side })),
   ];
+  // 我方已选优先展示（确认「我的英雄」时避免在双方 10 个里找错）
+  const userSidePicks = allPicks.filter((p) => p.side === state.userSide);
+  const enemySidePicks = allPicks.filter((p) => p.side !== state.userSide);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 animate-fade-in">
@@ -189,34 +192,68 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
                 </div>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {allPicks.map(({ id, side }) => {
-                const hero = getHeroById(id);
-                const isMe = myHeroId === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setMyHero(isMe ? undefined : id)}
-                    className={cn(
-                      'relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all',
-                      isMe
-                        ? 'bg-ui-accent/25 text-ui-accent border-ui-accent/50 shadow-md shadow-ui-accent/10 scale-105 ring-2 ring-ui-accent/30'
-                        : side === 'BLUE'
-                        ? 'bg-ui-primary/10 text-ui-primary-light/80 border-ui-primary/15 hover:bg-ui-primary/20 hover:border-ui-primary/30 hover:scale-102'
-                        : 'bg-ui-danger/10 text-ui-danger-light/80 border-ui-danger/15 hover:bg-ui-danger/20 hover:border-ui-danger/30 hover:scale-102'
-                    )}
-                  >
-                    {isMe && (
-                      <>
-                        <Crown className="w-3.5 h-3.5 text-ui-accent" />
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-ui-accent rounded-full border border-white/30" />
-                      </>
-                    )}
-                    {hero?.name || id}
-                  </button>
-                );
-              })}
-            </div>
+            {userSidePicks.length > 0 && (
+              <div className="mb-2">
+                <p className="text-[10px] text-ui-muted/80 mb-1.5">
+                  我方（{state.userSide === 'BLUE' ? '蓝方' : '红方'}）已选 · 点一下确认你的英雄
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {userSidePicks.map(({ id }) => {
+                    const hero = getHeroById(id);
+                    const isMe = myHeroId === id;
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => setMyHero(isMe ? undefined : id)}
+                        className={cn(
+                          'relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all',
+                          isMe
+                            ? 'bg-ui-accent/25 text-ui-accent border-ui-accent/50 shadow-md shadow-ui-accent/10 scale-105 ring-2 ring-ui-accent/30'
+                            : 'bg-ui-primary/10 text-ui-primary-light/80 border-ui-primary/20 hover:bg-ui-primary/20 hover:border-ui-primary/40 hover:scale-105',
+                        )}
+                      >
+                        {isMe && (
+                          <>
+                            <Crown className="w-3.5 h-3.5 text-ui-accent" />
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-ui-accent rounded-full border border-white/30" />
+                          </>
+                        )}
+                        {hero?.name || id}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {enemySidePicks.length > 0 && (
+              <details className="mt-1">
+                <summary className="text-[10px] text-ui-muted/70 cursor-pointer hover:text-ui-muted select-none">
+                  敌方已选（点错阵营时用）
+                </summary>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {enemySidePicks.map(({ id }) => {
+                    const hero = getHeroById(id);
+                    const isMe = myHeroId === id;
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => setMyHero(isMe ? undefined : id)}
+                        className={cn(
+                          'relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all',
+                          isMe
+                            ? 'bg-ui-accent/25 text-ui-accent border-ui-accent/50 ring-2 ring-ui-accent/30'
+                            : 'bg-ui-danger/10 text-ui-danger-light/70 border-ui-danger/15 hover:bg-ui-danger/20 hover:border-ui-danger/30',
+                        )}
+                      >
+                        {isMe && <Crown className="w-3.5 h-3.5" />}
+                        {hero?.name || id}
+                      </button>
+                    );
+                  })}
+                </div>
+              </details>
+            )}
           </div>
         )}
 
