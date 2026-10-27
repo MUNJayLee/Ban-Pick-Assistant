@@ -101,3 +101,7 @@ training_data/_debug/
 # 诊断截图
 /lock_*.png
 /_lock_*.png
+
+# 大模型（可用脚本重新生成）
+/models/*.onnx
+/models/*.pth

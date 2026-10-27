@@ -521,43 +521,52 @@ class App:
         threading.Thread(target=work, daemon=True).start()
 
     def _recog_loop(self):
+        """自动识别循环：OCR 阶段识别 → ban 识别（pick 识别待步骤二）"""
         try:
             load_modules()
             bank = self._get_bank()
+            self.log('特征库就绪（%d 个）' % len(bank.ids))
+            self._last_phase = None
+            self._last_bans_key = None
+            self._current_bans = []
 
-            state, stable, recognized, silent = 'IDLE', 0, False, 0
-            self._last_attempt = 0.0
             while not self.recog_stop.is_set():
                 try:
                     raw = LR.capture(ADB, self.serial)
                     img = LR.normalize(raw)
-                    bp = LR.detect_bp(img)
 
-                    if bp['is_bp']:
-                        stable += 1
-                        silent = 0
-                        if state != 'IN_BP':
-                            state = 'IN_BP'
-                            self.log('进入 BP 界面（左%d 右%d 锁%d 顶部V=%.0f）' % (
-                                len(bp['left']), len(bp['right']), bp['locks'], bp['top_v']))
-                        # 5 秒冷却：误触发时不会每秒刷屏，真 BP 时也不会错过
-                        if stable >= 2 and not recognized and (time.time() - self._last_attempt) > 5:
-                            self._last_attempt = time.time()
-                            recognized = self._do_recognize(img, bp, bank)
+                    # ① 阶段识别（OCR：禁英雄 / 等待其他玩家选择 / 最后调整）
+                    phase, pscore = LR.detect_phase(img)
+                    if phase != self._last_phase:
+                        self._last_phase = phase
+                        self.log('阶段: %s' % phase)
+
+                    # ② 按阶段识别内容
+                    if phase == 'ban':
+                        bans = LR.recognize_bans(img, bank)
+                        key = tuple((b['side'], b['hero_id']) for b in bans)
+                        if key != self._last_bans_key:
+                            self._last_bans_key = key
+                            self._current_bans = bans
+                            msg = LR.format_bans(bans)
+                            self.log(msg)
+                            self.show_result('===== %s =====\n%s' % (
+                                datetime.now().strftime('%H:%M:%S'), msg), '')
+                    elif phase == 'pick':
+                        pass  # 步骤二：pick 位识别
+                    elif phase == 'final':
+                        pass  # 已由阶段日志提示
                     else:
-                        silent += 1
-                        stable = 0
-                        if state == 'IN_BP' and silent >= 3:
-                            state = 'IDLE'
-                            recognized = False
-                            self.log('离开 BP 界面，继续监听')
+                        self._last_bans_key = None
                 except Exception as e:
                     import traceback
                     tb = traceback.format_exc().strip().splitlines()
                     loc = next((l.strip() for l in reversed(tb) if 'line ' in l), '')
-                    self.log('抓帧异常: %s  [%s]' % (e, loc))
-                    time.sleep(2)
-                for _ in range(10):
+                    self.log('识别异常: %s  [%s]' % (e, loc))
+                    time.sleep(3)
+
+                # 轮询间隔（约 2 秒）
+                for _ in range(20):
                     if self.recog_stop.is_set():
                         break
                     time.sleep(0.1)

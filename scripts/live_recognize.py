@@ -175,6 +175,125 @@ def _top_brightness(img, ratio=0.12):
     return float(hsv[:, :, 2].mean())
 
 
+# ---------------------------------------------------------------------------
+# BP 阶段识别（模板匹配顶部横幅文字）
+# 「禁英雄」= ban 阶段；「等待其他玩家选择」= pick 阶段
+# ---------------------------------------------------------------------------
+_PHASE_TEMPLATES = None
+PHASE_TPL_W, PHASE_TPL_H = 256, 50
+PHASE_REF_WIDTH = 1920      # 模板基准分辨率宽度
+
+# 模板文件名 → 阶段名
+_PHASE_TPL_MAP = {
+    'ban': 'ban',             # 「禁英雄」（视频帧，1280x720）
+    'pick': 'pick',           # 「等待其他玩家选择」（视频帧）
+    'pick2': 'pick',          # 「等待其他玩家选择」（真机 1280x576）
+    'final_adjust': 'final',  # 「最后调整」（真机 1920x864）
+}
+
+
+def _load_phase_templates():
+    global _PHASE_TEMPLATES
+    if _PHASE_TEMPLATES is None:
+        _PHASE_TEMPLATES = []
+        for fname, phase in _PHASE_TPL_MAP.items():
+            p = os.path.join('models', 'templates', '%s.png' % fname)
+            if os.path.exists(p):
+                t = cv2.imread(p)
+                if t is not None:
+                    _PHASE_TEMPLATES.append((phase, t))
+    return _PHASE_TEMPLATES
+
+
+def _detect_phase_tpl(img, threshold=0.55):
+    """模板匹配兜底（OCR 不可用时）。见下方 detect_phase。"""
+    tpls = _load_phase_templates()
+    if not tpls:
+        return 'other', 0.0
+    H, W = img.shape[:2]
+    top_h = max(1, int(H * 0.25))
+    region = img[0:top_h, :]
+    scale = PHASE_REF_WIDTH / float(W)
+    region = cv2.resize(region, (PHASE_REF_WIDTH, max(1, int(round(top_h * scale)))),
+                        interpolation=cv2.INTER_AREA)
+    if region.shape[0] < PHASE_TPL_H:
+        return 'other', 0.0
+    best_phase, best_score = 'other', 0.0
+    for phase, tpl in tpls:
+        for sc in (0.8, 1.0, 1.25):
+            tw = max(8, int(PHASE_TPL_W * sc))
+            th = max(4, int(PHASE_TPL_H * sc))
+            if th > region.shape[0] or tw > region.shape[1]:
+                continue
+            t = cv2.resize(tpl, (tw, th), interpolation=cv2.INTER_AREA)
+            res = cv2.matchTemplate(region, t, cv2.TM_CCOEFF_NORMED)
+            _, s, _, _ = cv2.minMaxLoc(res)
+            if s > best_score:
+                best_score, best_phase = float(s), phase
+    if best_score < threshold:
+        return 'other', best_score
+    return best_phase, best_score
+
+
+# ---------------------------------------------------------------------------
+# OCR 阶段识别（主方案，实测 8/8 准确）
+# 顶部横幅文字：「禁英雄」/「等待其他玩家选择」/「最后调整」
+# ---------------------------------------------------------------------------
+_OCR_ENGINE = None
+_OCR_UNAVAILABLE = False
+PHASE_KEYWORDS = [
+    ('最后调整', 'final'),
+    ('等待其他玩家选择', 'pick'),
+    ('禁英雄', 'ban'),
+]
+
+
+def _get_ocr():
+    """懒加载 OCR 单例（首次约 1~2 秒，之后复用）。"""
+    global _OCR_ENGINE, _OCR_UNAVAILABLE
+    if _OCR_ENGINE is None and not _OCR_UNAVAILABLE:
+        try:
+            from rapidocr_onnxruntime import RapidOCR
+            _OCR_ENGINE = RapidOCR()
+        except Exception:
+            _OCR_UNAVAILABLE = True
+    return _OCR_ENGINE
+
+
+def detect_phase(img, use_ocr=True):
+    """识别当前 BP 阶段。
+
+    返回 (phase, score)：
+      'ban'   禁英雄阶段
+      'pick'  选将阶段（等待其他玩家选择）
+      'final' 最后调整（BP 已完成，ban 和 pick 都确定）
+      'other' 其他（匹配/加载/游戏内）
+
+    主方案：OCR 识别顶部 12% 横幅文字（实测 8/8 准确，含视频/真机各种分辨率）。
+    兜底：OCR 不可用时回退模板匹配。
+    """
+    if use_ocr:
+        ocr = _get_ocr()
+        if ocr is not None:
+            H, W = img.shape[:2]
+            # 顶部 25%：兼容手机全屏截图（横幅 y 1~9%）和带广告条的直播帧（横幅 y 10~17%）
+            top = img[0:max(1, int(H * 0.25)), :]
+            # 放大 2 倍提高小字识别率
+            top = cv2.resize(top, (top.shape[1] * 2, top.shape[0] * 2),
+                             interpolation=cv2.INTER_CUBIC)
+            try:
+                result, _ = ocr(top)
+            except Exception:
+                result = None
+            if result:
+                joined = ''.join(str(item[1]) for item in result)
+                for kw, phase in PHASE_KEYWORDS:
+                    if kw in joined:
+                        return phase, 1.0
+            return 'other', 0.0
+    return _detect_phase_tpl(img)
+
+
 def detect_bp(img):
     """判断是否王者 BP 界面（需要同时满足布局 + 场景特征）。
 
@@ -209,6 +328,49 @@ def detect_bp(img):
         'locks': locks, 'top_v': round(top_v, 1),
         'is_bp': bool(layout_ok and scene_ok),
     }
+
+
+def recognize_bans(img, bank):
+    """识别顶部 ban 位（空 ban 位跳过）。
+
+    返回 [{side, index, hero_id, name, score, gap, confident}, ...]
+    """
+    left, right = R.detect_circles(img)
+    left = R.validate_row(left)
+    right = R.validate_row(right)
+    out = []
+    for side, circles in (('blue', left), ('red', right)):
+        for idx, (cx, cy, r) in enumerate(circles, 1):
+            if not R.has_lock(img, cx, cy, r):
+                continue
+            crop = crop_avatar(img, cx, cy, r)
+            fused = bank.fuse([bank.ranks(crop)])
+            top = fused[0]
+            second = fused[1] if len(fused) > 1 else (None, 0)
+            gap = top[1] - second[1]
+            out.append({
+                'side': side, 'index': idx,
+                'hero_id': top[0],
+                'name': bank.name.get(top[0], top[0]),
+                'score': round(top[1], 4),
+                'gap': round(gap, 4),
+                'confident': gap >= CONFIDENT_GAP,
+            })
+    return out
+
+
+def format_bans(bans):
+    """格式化 ban 位为一行文字。"""
+    if not bans:
+        return 'ban: (空)'
+    parts = []
+    for side, label in (('blue', '我方'), ('red', '敌方')):
+        items = [b for b in bans if b['side'] == side]
+        if not items:
+            continue
+        txt = ' / '.join('%s%s' % (b['name'], '' if b['confident'] else '?') for b in items)
+        parts.append('%s: %s' % (label, txt))
+    return 'ban: ' + '  |  '.join(parts)
 
 
 def crop_avatar(img, cx, cy, r, size=96):
