@@ -244,7 +244,10 @@ _OCR_UNAVAILABLE = False
 PHASE_KEYWORDS = [
     ('最后调整', 'final'),
     ('等待其他玩家选择', 'pick'),
+    ('请选择您的', 'pick'),        # 真机 pick 阶段实际文案
     ('禁英雄', 'ban'),
+    ('等待其他玩家禁用', 'ban'),   # 真机 ban 阶段实际文案（推测）
+    ('禁用英雄', 'ban'),
 ]
 _PHASE_CACHE = {'sig': None, 'phase': 'other', 'score': 0.0}
 
@@ -314,7 +317,7 @@ def detect_phase_fast_ocr(img):
     if ocr is None:
         return 'other', 0.0
     H, W = img.shape[:2]
-    top = img[0:max(1, int(H * 0.25)), :]
+    top = img[0:max(1, int(H * 0.35)), :]
     top = cv2.resize(top, (top.shape[1] * 2, top.shape[0] * 2),
                      interpolation=cv2.INTER_CUBIC)
     try:
@@ -344,11 +347,11 @@ def detect_phase(img, use_ocr=True):
     global _PHASE_CACHE
     H, W = img.shape[:2]
     # ① 帧差缓存：顶部横幅几乎没变 → 复用上次 OCR 结果（毫秒级）
-    top = img[0:max(1, int(H * 0.25)), :]
+    top = img[0:max(1, int(H * 0.35)), :]
     sig = cv2.resize(top, (160, 45), interpolation=cv2.INTER_AREA).astype(np.float32)
     if _PHASE_CACHE['sig'] is not None:
         diff = float(np.abs(sig - _PHASE_CACHE['sig']).mean())
-        if diff < 5.0:
+        if diff < 3.0:
             return _PHASE_CACHE['phase'], _PHASE_CACHE['score']
     if not use_ocr:
         return _detect_phase_tpl(img)
@@ -680,10 +683,10 @@ def detect_user_side(img, red_threshold=1.8):
 
 # ban 位固定坐标（1920x864 基准实测，真机截图验证）
 # 左侧 5 个：x=0.0729~0.1927（间距约 0.030），顶部 y=0.044，半径 0.012W
-BAN_X_RATIOS = [0.0729, 0.1026, 0.1318, 0.1630, 0.1927]
+BAN_X_RATIOS = [0.0722, 0.1022, 0.1322, 0.1622, 0.1909]
 BAN_Y_RATIO = 0.044
 BAN_R_RATIO = 0.012
-BAN_EMPTY_STD = 20.0   # 空 ban 位灰度标准差阈值（空位 8~18 / 有头像 48~68）
+BAN_EMPTY_STD = 15.0   # 空 ban 位灰度标准差阈值（真机实测：空位 6~8 / 有头像 19~55）
 
 
 def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):

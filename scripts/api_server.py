@@ -187,7 +187,7 @@ def _diag_frame(img, tag):
         # 清理旧的
         import glob
         files = sorted(glob.glob(os.path.join(_DIAG_DIR, 'live_*.png')))
-        for old in files[:-40]:
+        for old in files[:-80]:
             try:
                 os.remove(old)
             except Exception:
@@ -240,7 +240,7 @@ def _bp_worker(interval=2.0):
                 bans = recognize_bans(img, bank)
                 _diag_log('ban 识别: %d 个 | %s' % (
                     len(bans), format_bans(bans) if bans else '(空)'))
-                if time.time() - last_diag_frame > 3:
+                if time.time() - last_diag_frame > 2:
                     last_diag_frame = time.time()
                     _diag_frame(img, 'ban')
                 key = tuple((b['side'], b['hero_id']) for b in bans)
@@ -278,6 +278,10 @@ def _bp_worker(interval=2.0):
             else:
                 prev_bans_key = None
                 prev_picks_key = None
+                # 非 BP 阶段也存帧（诊断：万一 ban 被误判成 other，也能回看）
+                if time.time() - last_diag_frame > 2:
+                    last_diag_frame = time.time()
+                    _diag_frame(img, 'other')
                 # 非 BP 阶段：定期检测对局结算界面（OCR 较慢，6 秒一次）
                 if time.time() - last_result_check > 6:
                     last_result_check = time.time()
