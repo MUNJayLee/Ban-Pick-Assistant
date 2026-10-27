@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Home } from '@/pages/Home';
 import { HeroDetail } from '@/pages/HeroDetail';
 import { Dashboard } from '@/pages/Dashboard';
+import { Console } from '@/pages/Console';
 import { setHeroesData } from '@/services/heroService';
 import { isTauri } from '@/lib/utils';
 
@@ -96,6 +97,7 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/console" element={<Console />} />
           <Route path="/hero/:heroId" element={<HeroDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
