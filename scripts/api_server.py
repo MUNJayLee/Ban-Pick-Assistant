@@ -356,6 +356,20 @@ def api_select_device(req: DeviceReq):
     return {'ok': True, 'device': req.serial}
 
 
+def _valid_ip(ip: str) -> bool:
+    """校验 IPv4 格式且每段 0~255。"""
+    parts = ip.split('.')
+    if len(parts) != 4:
+        return False
+    for part in parts:
+        if not part.isdigit():
+            return False
+        n = int(part)
+        if n < 0 or n > 255:
+            return False
+    return True
+
+
 class DeviceConnectPayload(BaseModel):
     ip: str
     port: int = 5555
@@ -365,7 +379,7 @@ class DeviceConnectPayload(BaseModel):
 def api_device_connect(payload: DeviceConnectPayload):
     """通过 WiFi 连接设备（adb connect <ip>:<port>）。"""
     ip = (payload.ip or '').strip()
-    if not re.match(r'^\d{1,3}(\.\d{1,3}){3}$', ip):
+    if not _valid_ip(ip):
         raise HTTPException(status_code=400, detail='IP 格式不正确（示例 192.168.3.62）')
     port = int(payload.port or 5555)
     target = '%s:%d' % (ip, port)
@@ -375,7 +389,9 @@ def api_device_connect(payload: DeviceConnectPayload):
         out = (r.stdout or b'').decode('utf-8', 'ignore').strip()
         err = (r.stderr or b'').decode('utf-8', 'ignore').strip()
     except Exception as e:
-        raise HTTPException(status_code=500, detail='执行 adb 失败: %s' % e)
+        # 连接失败（超时/不可达）不应 500，返回 200 + ok=false
+        return {'ok': False, 'target': target,
+                'message': '连接失败: %s' % e}
     low = (out + ' ' + err).lower()
     ok = ('connected' in low and 'cannot' not in low and 'failed' not in low) \
         or 'already connected' in low
@@ -389,7 +405,7 @@ def api_device_connect(payload: DeviceConnectPayload):
 def api_device_disconnect(payload: DeviceConnectPayload):
     """断开 WiFi 设备（adb disconnect <ip>:<port>）。"""
     ip = (payload.ip or '').strip()
-    if not re.match(r'^\d{1,3}(\.\d{1,3}){3}$', ip):
+    if not _valid_ip(ip):
         raise HTTPException(status_code=400, detail='IP 格式不正确')
     target = '%s:%d' % (ip, int(payload.port or 5555))
     adb = find_adb() or DEFAULT_ADB
@@ -397,7 +413,11 @@ def api_device_disconnect(payload: DeviceConnectPayload):
         r = _run([adb, 'disconnect', target], capture_output=True, timeout=15)
         out = (r.stdout or b'').decode('utf-8', 'ignore').strip()
     except Exception as e:
-        raise HTTPException(status_code=500, detail='执行 adb 失败: %s' % e)
+        return {'ok': False, 'target': target,
+                'message': '断开失败: %s' % e}
+    # 断开成功 → 清空当前选中设备（避免前端仍显示已连接）
+    with _lock:
+        _state['device'] = None
     return {'ok': True, 'target': target, 'message': out or '已断开'}
 
 
