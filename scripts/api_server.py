@@ -247,6 +247,8 @@ def _bp_worker(interval=2.0):
                 if key != prev_bans_key:
                     prev_bans_key = key
                     update_state(bans=bans)
+                    # 每次 ban 结果变化都存帧（红方 ban 可能只持续几秒，靠定时间隔会漏）
+                    _diag_frame(img, 'ban')
                     print('[%s] %s' % (datetime.now().strftime('%H:%M:%S'),
                                        format_bans(bans)))
                 prev_picks_key = None
