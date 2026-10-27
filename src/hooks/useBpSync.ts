@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBpStore } from '@/store/bpStore';
+import { useBpRecordStore } from '@/store/bpRecordStore';
 import type { Side } from '@/types';
 
 const API = 'http://127.0.0.1:8900';
@@ -18,6 +19,7 @@ export interface BpSyncInfo {
   userSide: Side | null;
   banCount: number;
   pickCount: number;
+  gameResult: { result: 'WIN' | 'LOSE' | null; isMvp: boolean; delta: number | null } | null;
   monitoring: boolean;
   error: string | null;
 }
@@ -28,6 +30,14 @@ interface RawState {
   phase_score: number;
   bans: Array<{ side: 'blue' | 'red'; index: number; hero_id: string; confident: boolean }>;
   picks?: Array<{ side: 'blue' | 'red'; index: number; hero_id: string | null; confident: boolean; empty: boolean }>;
+  game_result?: {
+    is_result: boolean;
+    result: 'WIN' | 'LOSE' | null;
+    is_mvp: boolean;
+    delta: number | null;
+    my_hero_id?: string | null;
+    my_hero_name?: string | null;
+  } | null;
   user_side: 'BLUE' | 'RED' | null;
   monitoring: boolean;
   error: string | null;
@@ -51,6 +61,7 @@ export function useBpSync() {
     userSide: null,
     banCount: 0,
     pickCount: 0,
+    gameResult: null,
     monitoring: false,
     error: null,
   });
@@ -124,6 +135,32 @@ export function useBpSync() {
       }
     }
 
+    // ⑤ 对局结算自动回填：找最近 15 分钟内仍为 PENDING 的记录
+    if (raw.game_result?.is_result && raw.game_result.result) {
+      try {
+        const resultStore = useBpRecordStore.getState();
+        const now = Date.now();
+        const target = resultStore.records.find(
+          (r) => r.actualResult === 'PENDING' && now - r.timestamp < 15 * 60 * 1000,
+        );
+        if (target) {
+          resultStore.updateRecord(target.id, {
+            actualResult: raw.game_result.result === 'WIN' ? 'WIN' : 'LOSE',
+            isMvp: raw.game_result.is_mvp || undefined,
+          });
+        }
+        // 结算界面识别到玩家英雄（MVP 画面）→ 自动标记「我的英雄」
+        if (raw.game_result.my_hero_id) {
+          const bp = useBpStore.getState();
+          if (!bp.myHeroId) {
+            bp.setMyHero(raw.game_result.my_hero_id);
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
     setInfo({
       connected: true,
       device: raw.device,
@@ -132,6 +169,9 @@ export function useBpSync() {
       userSide: raw.user_side,
       banCount: raw.bans?.length ?? 0,
       pickCount: (raw.picks || []).filter((p) => !p.empty && p.hero_id).length,
+      gameResult: raw.game_result?.is_result
+        ? { result: raw.game_result.result, isMvp: raw.game_result.is_mvp, delta: raw.game_result.delta }
+        : null,
       monitoring: raw.monitoring,
       error: raw.error,
     });

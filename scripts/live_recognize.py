@@ -330,6 +330,96 @@ def detect_bp(img):
     }
 
 
+def detect_result_hero(img, bank):
+    """从结算界面识别玩家自己使用的英雄（MVP 圆形头像）。
+
+    结算界面玩家英雄头像位置固定（实测：x=0.378W, y=0.497H, r=0.032W）。
+    MVP 画面识别准确（圆形遮罩后 3/3 一致，如猪八戒 0.0543）；
+    非 MVP 画面该位置无头像，会给出低置信结果，调用方应跳过。
+
+    返回 {'hero_id','name','score','gap','confident'} 或 None
+    """
+    H, W = img.shape[:2]
+    cx, cy = int(W * 0.378), int(H * 0.497)
+    r = max(12, int(W * 0.032))
+    rr = max(10, int(r * 0.85))
+    x0, x1 = max(0, cx - rr), min(W, cx + rr)
+    y0, y1 = max(0, cy - rr), min(H, cy + rr)
+    crop = img[y0:y1, x0:x1].copy()
+    if crop.size == 0:
+        return None
+    h, w = crop.shape[:2]
+    mask = np.zeros((h, w), np.uint8)
+    cv2.circle(mask, (w // 2, h // 2), max(4, min(h, w) // 2 - 2), 255, -1)
+    masked = cv2.bitwise_and(crop, crop, mask=mask)
+    crop2 = cv2.resize(masked, (96, 96))
+    fused = bank.fuse([bank.ranks(crop2)])
+    top = fused[0]
+    second = fused[1] if len(fused) > 1 else (None, 0)
+    gap = top[1] - second[1]
+    return {
+        'hero_id': top[0],
+        'name': bank.name.get(top[0], top[0]),
+        'score': round(top[1], 4),
+        'gap': round(gap, 4),
+        # 圆形遮罩后 gap 偏小，结算头像用专用阈值（实测正解 0.0021，误判 ≤0.0009）
+        'confident': gap >= 0.0015,
+    }
+
+
+def detect_game_result(img):
+    """识别对局结算界面（王者巅峰赛/排位）。
+
+    依据（实测 OCR 结果）：
+      - 结算界面特征：出现「巅峰积分」「点击此处继续」「全场最佳」
+      - 胜负：巅峰积分变化符号（如 2201(+13) = 赢，2201(-10) = 输）
+      - MVP：出现「MVP」或「你就是全场最佳」
+
+    返回 {'is_result', 'result', 'is_mvp', 'delta', 'texts'}
+    """
+    ocr = _get_ocr()
+    empty = {'is_result': False, 'result': None, 'is_mvp': False,
+             'delta': None, 'texts': []}
+    if ocr is None:
+        return empty
+    H, W = img.shape[:2]
+    # 结算信息集中在中间区域（去掉顶部广告/状态栏和底部）
+    crop = img[int(H * 0.08):int(H * 0.86), :]
+    if crop.size == 0:
+        return empty
+    crop = cv2.resize(crop, (crop.shape[1] * 2, crop.shape[0] * 2),
+                      interpolation=cv2.INTER_CUBIC)
+    try:
+        result, _ = ocr(crop)
+    except Exception:
+        return empty
+    if not result:
+        return empty
+    texts = [str(item[1]) for item in result]
+    joined = ' '.join(texts)
+
+    is_result = any(k in joined for k in
+                    ('巅峰积分', '点击此处继续', '全场最佳', '对局结算', '战绩详情'))
+    if not is_result:
+        return empty
+
+    is_mvp = ('MVP' in joined.upper()) or ('全场最佳' in joined)
+
+    # 巅峰积分变化：取第一个「数字(±N)」模式（最靠前的就是积分）
+    import re
+    delta = None
+    result_side = None
+    m = re.search(r'\d{2,5}\s*[（(]\s*([+\-−±])\s*(\d+)\s*[)）]', joined)
+    if m:
+        sign, num = m.group(1), int(m.group(2))
+        if sign == '+':
+            result_side, delta = 'WIN', num
+        elif sign in '-−':
+            result_side, delta = 'LOSE', -num
+    return {'is_result': True, 'result': result_side, 'is_mvp': is_mvp,
+            'delta': delta, 'texts': texts}
+
+
 def recognize_picks(img, bank, empty_std=20.0):
     """识别左右各 5 个 pick 位（方形头像）。
 

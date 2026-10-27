@@ -33,7 +33,8 @@ from pydantic import BaseModel
 
 import recognize_screenshot as R
 from live_recognize import (
-    FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize, detect_user_side,
+    FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize,
+    detect_user_side, detect_game_result, detect_result_hero,
     _run, CREATE_NO_WINDOW, DEFAULT_ADB, TARGET_WIDTH, CONFIDENT_GAP,
 )
 
@@ -50,6 +51,7 @@ _state = {
     'bans': [],              # [{side,index,hero_id,name,score,gap,confident}]
     'user_side': None,       # 'BLUE' / 'RED' / None（我方阵营）
     'picks': [],             # [{side,index,hero_id,name,confident,empty}]
+    'game_result': None,     # {is_result,result,is_mvp,delta} 对局结算
     'monitoring': False,
     'last_update': None,
     'error': None,
@@ -164,6 +166,7 @@ def _bp_worker(interval=2.0):
     prev_phase = None
     prev_bans_key = None
     prev_picks_key = None
+    last_result_check = 0.0
     while not _bp_stop.is_set():
         try:
             with _lock:
@@ -177,7 +180,10 @@ def _bp_worker(interval=2.0):
             phase, pscore = detect_phase(img)
             if phase != prev_phase:
                 prev_phase = phase
-                update_state(phase=phase, phase_score=round(pscore, 2), error=None)
+                updates = {'phase': phase, 'phase_score': round(pscore, 2), 'error': None}
+                if phase == 'ban':
+                    updates['game_result'] = None  # 新一局开始，清空上一局结算
+                update_state(**updates)
 
             # 阵营识别（左侧框颜色）——只在 BP 界面才判断，避免其他游戏误判
             side = detect_user_side(img) if phase in ('ban', 'pick', 'final') else None
@@ -209,6 +215,24 @@ def _bp_worker(interval=2.0):
             else:
                 prev_bans_key = None
                 prev_picks_key = None
+                # 非 BP 阶段：定期检测对局结算界面（OCR 较慢，6 秒一次）
+                if time.time() - last_result_check > 6:
+                    last_result_check = time.time()
+                    gr = detect_game_result(img)
+                    if gr['is_result']:
+                        # MVP 画面尝试识别玩家自己的英雄（圆形头像）
+                        my_hero = None
+                        if gr['is_mvp']:
+                            h = detect_result_hero(img, bank)
+                            if h and h['confident']:
+                                my_hero = h
+                        gr['my_hero_id'] = my_hero['hero_id'] if my_hero else None
+                        gr['my_hero_name'] = my_hero['name'] if my_hero else None
+                        update_state(game_result=gr)
+                        print('[%s] 结算: %s mvp=%s delta=%s 我的英雄=%s' % (
+                            datetime.now().strftime('%H:%M:%S'),
+                            gr['result'], gr['is_mvp'], gr['delta'],
+                            gr.get('my_hero_name') or '-'))
         except Exception as e:
             update_state(error=str(e))
             time.sleep(3)
@@ -309,11 +333,26 @@ def api_recognize_once():
             picks = recognize_picks(img, bank)
     except Exception:
         pass
+    # 非 BP 界面时，手动识别也尝试检测结算
+    game_result = None
+    if phase == 'other':
+        gr = detect_game_result(img)
+        if gr['is_result']:
+            my_hero = None
+            if gr['is_mvp']:
+                h = detect_result_hero(img, bank)
+                if h and h['confident']:
+                    my_hero = h
+            gr['my_hero_id'] = my_hero['hero_id'] if my_hero else None
+            gr['my_hero_name'] = my_hero['name'] if my_hero else None
+            game_result = gr
     update_state(phase=phase, phase_score=round(score, 2),
-                 user_side=side, bans=bans, picks=picks, error=None)
+                 user_side=side, bans=bans, picks=picks,
+                 game_result=game_result, error=None)
     return {'ok': True, 'phase': phase, 'user_side': side,
             'ban_count': len(bans), 'bans': bans,
-            'pick_count': sum(1 for x in picks if x['hero_id']), 'picks': picks}
+            'pick_count': sum(1 for x in picks if x['hero_id']), 'picks': picks,
+            'game_result': game_result}
 
 
 @app.post('/api/bp/start')
