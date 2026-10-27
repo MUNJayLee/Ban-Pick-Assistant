@@ -364,7 +364,10 @@ def main():
     print('  http://%s:%d' % (args.host, args.port))
     print('  文档: http://%s:%d/docs' % (args.host, args.port))
     print('=' * 62)
-    uvicorn.run(app, host=args.host, port=args.port, log_level='warning')
+    # pythonw 等无控制台环境下 stdout 可能为 None，uvicorn 默认日志会报错；
+    # 这里显式把日志配置成「只输出 warning 且写 stderr（可能为 None 时跳过）」。
+    uvicorn.run(app, host=args.host, port=args.port,
+                log_level='warning', log_config=None, access_log=False)
 
 
 if __name__ == '__main__':
