@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, Swords, Sparkles, NotebookText, X, Ban, Settings } from 'lucide-react';
+import { BarChart3, Swords, Sparkles, NotebookText, X, Ban } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
 import { BpHeader } from '@/components/BpHeader';
 import { BpStage } from '@/components/BpStage';
@@ -9,7 +9,7 @@ import { TurnIndicator } from '@/components/TurnIndicator';
 import { AnalysisSummary } from '@/components/AnalysisSummary';
 import { DataDashboard } from '@/components/DataDashboard';
 import { BpRecords } from '@/components/BpRecords';
-import { AdbStatusBar } from '@/components/AdbStatusBar';
+import { AdbControlPanel } from '@/components/AdbControlPanel';
 import { AdbPreview } from '@/components/AdbPreview';
 import { DeviceConfigModal } from '@/components/DeviceConfigModal';
 import { useBpSync } from '@/hooks/useBpSync';
@@ -191,15 +191,6 @@ export function Home() {
         </div>
 
         <div className="flex items-center gap-2">
-          <AdbStatusBar adb={adb} />
-          <button
-            onClick={() => setShowDeviceConfig(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-white/12 text-ui-muted hover:text-ui-text hover:border-white/25 bg-white/5 transition-colors"
-            title="ADB 接入与调试"
-          >
-            <Settings className="w-3.5 h-3.5" />
-            设备配置
-          </button>
           <div className="flex items-center bg-ui-surface rounded-xl p-1 border border-white/8 shadow-surface">
           <TabButton
             active={activeTab === 'bp'}
@@ -249,45 +240,9 @@ export function Home() {
 
           <main className="flex-1 flex flex-col md:flex-row min-h-0">
             {/* 左侧栏：ADB 实时画面 */}
-            <aside className="w-full md:w-60 lg:w-72 flex-none border-b md:border-b-0 md:border-r border-white/5 p-3 md:overflow-y-auto max-h-[220px] md:max-h-none overflow-y-auto space-y-3">
+            <aside className="w-full md:w-60 lg:w-72 flex-none border-b md:border-b-0 md:border-r border-white/5 p-3 md:overflow-y-auto max-h-[260px] md:max-h-none overflow-y-auto space-y-3">
               <AdbPreview adb={adb} />
-
-              {/* 识别状态 */}
-              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                <h3 className="text-[11px] font-semibold text-ui-muted mb-2">识别状态</h3>
-                <div className="space-y-1.5 text-[11px]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-muted">连接</span>
-                    <span className={cn(adb.info.connected ? 'text-emerald-400' : 'text-ui-muted')}>
-                      {adb.info.connected ? '已连接' : '未连接'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-muted">监听</span>
-                    <span className={cn(adb.info.monitoring ? 'text-emerald-400' : 'text-ui-muted')}>
-                      {adb.info.monitoring ? '运行中' : '已停止'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-muted">阶段</span>
-                    <span className="text-ui-text">
-                      {adb.info.phase === 'ban' ? '禁用' : adb.info.phase === 'pick' ? '选将' : adb.info.phase === 'final' ? '已完成' : '待机'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-muted">我方阵营</span>
-                    <span className={cn(
-                      adb.info.userSide === 'BLUE' ? 'text-sky-400' : adb.info.userSide === 'RED' ? 'text-rose-400' : 'text-ui-muted',
-                    )}>
-                      {adb.info.userSide === 'BLUE' ? '蓝方' : adb.info.userSide === 'RED' ? '红方' : '未识别'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-ui-muted">已识别 ban</span>
-                    <span className="text-ui-text">{adb.info.banCount}</span>
-                  </div>
-                </div>
-              </div>
+              <AdbControlPanel adb={adb} onOpenConfig={() => setShowDeviceConfig(true)} />
             </aside>
 
             {/* 右侧：BP 界面 */}
