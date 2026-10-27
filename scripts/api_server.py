@@ -256,6 +256,21 @@ def _bp_worker(interval=2.0):
                 if time.time() - last_diag_frame > 2:
                     last_diag_frame = time.time()
                     _diag_frame(img, 'pick')
+                # 补识别 ban：ban 阶段红方 ban 位可能延迟显示/不显示，
+                # 到 pick/final 阶段顶部 ban 位一定齐全，补上缺失的
+                try:
+                    bans_now = recognize_bans(img, bank)
+                    with _lock:
+                        cur_bans = list(_state['bans'])
+                    cur_red = [b for b in cur_bans if b['side'] == 'red']
+                    new_red = [b for b in bans_now if b['side'] == 'red']
+                    if len(new_red) > len(cur_red):
+                        # 合并：保留蓝方，红方用新识别的
+                        merged = [b for b in cur_bans if b['side'] == 'blue'] + new_red
+                        update_state(bans=merged)
+                        _diag_log('pick 阶段补 ban: 红方 %d -> %d' % (len(cur_red), len(new_red)))
+                except Exception:
+                    pass
                 picks = recognize_picks_cached(img, bank)
                 pkey = tuple((x['side'], x['index'], x['hero_id']) for x in picks)
                 if pkey != prev_picks_key:
