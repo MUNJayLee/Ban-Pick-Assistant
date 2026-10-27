@@ -27,14 +27,14 @@ export interface RecommendationWeights {
 }
 
 export const PICK_WEIGHTS: RecommendationWeights = {
-  version: 0.25,
-  counter: 0.18,
-  synergy: 0.1,
-  antiSynergy: 0.08,
-  position: 0.25,
-  pressure: 0.07,
-  gap: 0.15,
-  penalty: 0.2,
+  version: 0.20,      // 版本强度（天元之弈 tierScore）
+  counter: 0.22,      // 克制敌方（对线胜率 + 敌核加权）
+  synergy: 0.10,      // 协同我方
+  antiSynergy: 0.06,  // 冲突我方（负向）
+  position: 0.12,     // 分路适配（缺位优先，已由 positionFit 处理）
+  pressure: 0.04,     // 抢位压力
+  gap: 0.06,          // 阵容结构缺口
+  penalty: 0.20,      // 被克制（负向，同样用对线胜率）
 };
 
 /** Ban 阶段权重：版本强度 + 对我方威胁 + 对方抢位概率。 */

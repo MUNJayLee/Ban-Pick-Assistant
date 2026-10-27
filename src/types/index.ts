@@ -60,6 +60,25 @@ export interface Hero {
   highBan?: boolean;
   /** 梯度排名 */
   tierRank?: number;
+  /** 对线胜率（来自天元之弈 laneMatchups，含 winRate/advantageIndex） */
+  laneMatchups?: Array<{
+    heroName: string;
+    winRate: number;
+    advantageIndex: number;
+    totalMatches: number;
+  }>;
+  /** 克制详情（带优势指数，比 counters 更精细） */
+  counterDetails?: Array<{
+    heroName: string;
+    advantageIndex: number;
+    totalMatches: number;
+  }>;
+  /** 被克制详情（带优势指数） */
+  counteredByDetails?: Array<{
+    heroName: string;
+    advantageIndex: number;
+    totalMatches: number;
+  }>;
 }
 
 export type Side = 'BLUE' | 'RED';

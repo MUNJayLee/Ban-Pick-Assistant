@@ -1,0 +1,6569 @@
+{
+  "heroes": [
+    {
+      "id": "haiyue",
+      "name": "海月",
+      "title": "永夜之心",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.58,
+      "popularity": 2.2,
+      "counters": [
+        "jinchan",
+        "yunzhongjun",
+        "fei",
+        "geya"
+      ],
+      "counteredBy": [
+        "aguduo",
+        "yuanliuzhizi_tank",
+        "guiguzi",
+        "mengtian"
+      ],
+      "synergies": [
+        "chengyaojin",
+        "dunshan",
+        "liyuanfang",
+        "yadianna"
+      ],
+      "pickRate": 0.0659,
+      "banRate": 0.1474,
+      "tierScore": 100,
+      "tier": "T0",
+      "roleLabel": "中路",
+      "heroPower": 17994.2,
+      "highBan": true,
+      "tierRank": 1,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6b9fe870275a03952b9ce9d126dec834.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "lvbu",
+        "baiqi",
+        "yuanliuzhizi_tank",
+        "zhongkui"
+      ]
+    },
+    {
+      "id": "dunshan",
+      "name": "盾山",
+      "title": "无尽之盾",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.579568,
+      "popularity": 1.4,
+      "difficulty": 6,
+      "counters": [
+        "yao",
+        "zhuangzhou",
+        "yuanliuzhizi_mage",
+        "direnjie"
+      ],
+      "counteredBy": [
+        "dianwei",
+        "taiyizhenren"
+      ],
+      "synergies": [
+        "taiyizhenren",
+        "yadianna",
+        "dianwei",
+        "haiyue"
+      ],
+      "pickRate": 0.04190000000000001,
+      "banRate": 0.3181,
+      "tierScore": 99.73,
+      "tier": "T0",
+      "roleLabel": "游走",
+      "heroPower": 18190.3,
+      "highBan": true,
+      "tierRank": 2,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/08e774e39abfd27614b60ca63a4f3894.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "cang",
+        "yuanliuzhizi_tank",
+        "sunquan",
+        "yuanliuzhizi_marksman"
+      ]
+    },
+    {
+      "id": "aoyin",
+      "name": "敖隐",
+      "title": "",
+      "roles": [
+        "MARKSMAN",
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.576448,
+      "popularity": 3.3,
+      "difficulty": 3,
+      "counters": [
+        "lvbu",
+        "chengyaojin",
+        "yalian",
+        "donghuangtaiyi"
+      ],
+      "counteredBy": [
+        "sunce",
+        "jiangziya",
+        "hainuo",
+        "daqiao"
+      ],
+      "synergies": [
+        "aguduo",
+        "yuanliuzhizi_support",
+        "milaidi",
+        "shangguanwaner"
+      ],
+      "pickRate": 0.0989,
+      "banRate": 0.2982,
+      "tierScore": 97.78,
+      "tier": "T0",
+      "roleLabel": "发育路",
+      "heroPower": 18428.5,
+      "highBan": true,
+      "tierRank": 3,
+      "avatar": "https://img.pvp.mcxssg.net/hero/allin.webp",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "带线射",
+      "antiSynergies": [
+        "yuanliuzhizi_mage",
+        "daji",
+        "niumo",
+        "jiangziya"
+      ]
+    },
+    {
+      "id": "shaosiyuan",
+      "name": "少司缘",
+      "title": "",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.57272,
+      "popularity": 3.6,
+      "difficulty": 3,
+      "counters": [
+        "mingzhiyin",
+        "lianpo",
+        "yingzheng",
+        "makeboluo"
+      ],
+      "counteredBy": [
+        "sunce",
+        "dunshan",
+        "xiahoudun",
+        "haiyue"
+      ],
+      "synergies": [
+        "daqiao",
+        "guanyu",
+        "liyuanfang",
+        "yuange"
+      ],
+      "pickRate": 0.10890000000000001,
+      "banRate": 0.2908,
+      "tierScore": 95.45,
+      "tier": "T0",
+      "roleLabel": "游走",
+      "heroPower": 18521.1,
+      "highBan": true,
+      "tierRank": 4,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/003c20c2c9df52a97dd6f9080669f728.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "zhangliang",
+        "liubang",
+        "daji",
+        "lvbu"
+      ]
+    },
+    {
+      "id": "guanyu",
+      "name": "关羽",
+      "title": "一骑当千",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.553184,
+      "popularity": 1.4,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "chengyaojin",
+        "miyue",
+        "yuanliuzhizi_mage"
+      ],
+      "counteredBy": [
+        "yuanliuzhizi_tank",
+        "haiyue",
+        "gaojianli",
+        "lubanqihao"
+      ],
+      "synergies": [
+        "diaochan",
+        "mengqi",
+        "gaojianli",
+        "mengya"
+      ],
+      "pickRate": 0.043,
+      "banRate": 0.0148,
+      "tierScore": 83.24,
+      "tier": "T0",
+      "roleLabel": "对抗路",
+      "heroPower": 17585.6,
+      "highBan": true,
+      "tierRank": 5,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/e624bf0f1ab70cfcedb3daf5c938c33f.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "milaidi",
+        "zhaohuaizhen",
+        "donghuangtaiyi",
+        "jinchan"
+      ]
+    },
+    {
+      "id": "yuanliuzhizi_support",
+      "name": "元流之子(辅助)",
+      "title": "万象为相",
+      "roles": [
+        "SUPPORT"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.5510079999999999,
+      "popularity": 0.5,
+      "counters": [
+        "zhuangzhou",
+        "yao",
+        "daji",
+        "duoliya"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "guiguzi",
+        "lubanqihao",
+        "guanyu"
+      ],
+      "synergies": [
+        "wuzetian",
+        "lanlingwang",
+        "aoyin",
+        "haiyue"
+      ],
+      "pickRate": 0.0149,
+      "banRate": 0.0063,
+      "tierScore": 81.88,
+      "tier": "T0",
+      "roleLabel": "游走",
+      "heroPower": 17740.5,
+      "highBan": true,
+      "tierRank": 6,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/812cc9ca5fcc6a10317bc7e6146b5ed0.jpg",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "xiahoudun",
+        "mozi",
+        "liubang",
+        "wangzhaojun"
+      ]
+    },
+    {
+      "id": "machao",
+      "name": "马超",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.5490079999999999,
+      "popularity": 1.9,
+      "difficulty": 3,
+      "counters": [
+        "yalian",
+        "lvbu",
+        "liubei",
+        "xiahoudun"
+      ],
+      "counteredBy": [
+        "shangguanwaner",
+        "dunshan",
+        "pangu",
+        "gongbenwucang"
+      ],
+      "synergies": [
+        "xiahoudun",
+        "yunzhongjun",
+        "sunce",
+        "luna"
+      ],
+      "pickRate": 0.0579,
+      "banRate": 0.0148,
+      "tierScore": 80.63,
+      "tier": "T0",
+      "roleLabel": "打野/对抗路",
+      "heroPower": 17847,
+      "highBan": true,
+      "tierRank": 7,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/bd3d4a537a416ab073534c7a885f5f65.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/对抗路",
+      "profession": "边核/野核",
+      "antiSynergies": [
+        "liubei",
+        "chengyaojin",
+        "liushan",
+        "libai"
+      ]
+    },
+    {
+      "id": "jing",
+      "name": "镜",
+      "title": "破镜之刃",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.546976,
+      "popularity": 1,
+      "difficulty": 9,
+      "counters": [
+        "milaidi",
+        "anqila",
+        "jiangziya",
+        "yuanliuzhizi_mage"
+      ],
+      "counteredBy": [
+        "haiyue",
+        "zhouyu",
+        "yadianna",
+        "luna"
+      ],
+      "synergies": [
+        "guiguzi",
+        "shangguanwaner",
+        "miyue",
+        "jialuo"
+      ],
+      "pickRate": 0.030899999999999997,
+      "banRate": 0.0068000000000000005,
+      "tierScore": 79.36,
+      "tier": "T0",
+      "roleLabel": "打野",
+      "heroPower": 17930.3,
+      "highBan": true,
+      "tierRank": 8,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/bc6f3cb01667191514710a1c78fb1405.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "milaidi",
+        "daji",
+        "jiangziya",
+        "wangzhaojun"
+      ]
+    },
+    {
+      "id": "peiqinhu",
+      "name": "裴擒虎",
+      "title": "虎",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.5466880000000001,
+      "popularity": 0.9,
+      "difficulty": 3,
+      "counters": [
+        "zhuangzhou",
+        "jinchan",
+        "yuanliuzhizi_tank",
+        "caiwenji"
+      ],
+      "counteredBy": [
+        "luna",
+        "mengqi",
+        "sunce",
+        "shangguanwaner"
+      ],
+      "synergies": [
+        "gaojianli",
+        "sunbin",
+        "mengtian",
+        "jiangziya"
+      ],
+      "pickRate": 0.026000000000000002,
+      "banRate": 0.0040999999999999995,
+      "tierScore": 79.18,
+      "tier": "T0",
+      "roleLabel": "打野",
+      "heroPower": 17643.7,
+      "highBan": true,
+      "tierRank": 9,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/257b18154040244f7f9a779420ad37a9.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "milaidi",
+        "caiwenji",
+        "chengyaojin",
+        "lvbu"
+      ]
+    },
+    {
+      "id": "daqiao",
+      "name": "大乔",
+      "title": "沧海之曜",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.54344,
+      "popularity": 2.9,
+      "difficulty": 7,
+      "counters": [
+        "lvbu",
+        "guiguzi",
+        "caiwenji",
+        "yixing"
+      ],
+      "counteredBy": [
+        "niumo",
+        "damo",
+        "jixiaoman",
+        "luna"
+      ],
+      "synergies": [
+        "dunshan",
+        "taiyizhenren",
+        "zhangliang",
+        "bailixuance"
+      ],
+      "pickRate": 0.08689999999999999,
+      "banRate": 0.2734,
+      "tierScore": 77.15,
+      "tier": "T0",
+      "roleLabel": "中路/游走",
+      "heroPower": 17655.1,
+      "highBan": true,
+      "tierRank": 10,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/fa848b78aedb9bc0970de1ff9fb00d3e.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "中路/游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "ganjiangmoxie",
+        "yingzheng",
+        "chengyaojin",
+        "shenmengxi"
+      ]
+    },
+    {
+      "id": "shenmengxi",
+      "name": "沈梦溪",
+      "title": "爆弹怪猫",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.530304,
+      "popularity": 0.9,
+      "counters": [
+        "chengyaojin",
+        "caiwenji",
+        "wangzhaojun",
+        "donghuangtaiyi"
+      ],
+      "counteredBy": [
+        "guanyu",
+        "geya",
+        "luna",
+        "lubandashi"
+      ],
+      "synergies": [
+        "yunzhongjun",
+        "shaosiyuan",
+        "dunshan",
+        "dianwei"
+      ],
+      "pickRate": 0.027999999999999997,
+      "banRate": 0.0073,
+      "tierScore": 68.94,
+      "tier": "T0.5",
+      "roleLabel": "中路",
+      "heroPower": 17086.1,
+      "highBan": false,
+      "tierRank": 11,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/55d651231deddb45c9f5960e2200015a.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "xishi",
+        "zhugeliang",
+        "jialuo",
+        "daqiao"
+      ]
+    },
+    {
+      "id": "yuanliuzhizi_marksman",
+      "name": "元流之子(射手)",
+      "title": "万象为相",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.528816,
+      "popularity": 2,
+      "counters": [
+        "yuanliuzhizi_mage",
+        "caiwenji",
+        "jinchan",
+        "daji"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "guanyu",
+        "lubandashi",
+        "jing"
+      ],
+      "synergies": [
+        "haiyue",
+        "donghuangtaiyi",
+        "zhouyu",
+        "gaojianli"
+      ],
+      "pickRate": 0.061,
+      "banRate": 0.008199999999999999,
+      "tierScore": 68.01,
+      "tier": "T0.5",
+      "roleLabel": "发育路",
+      "heroPower": 16920.6,
+      "highBan": false,
+      "tierRank": 12,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_skin_128x128/33226db3cf0cb41c439247204f18aba0.jpg",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "lixin",
+        "dunshan",
+        "chengyaojin",
+        "wangzhaojun"
+      ]
+    },
+    {
+      "id": "nvwa",
+      "name": "女娲",
+      "title": "",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.527744,
+      "popularity": 1.5,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "xiahoudun",
+        "wangzhaojun",
+        "jialuo"
+      ],
+      "counteredBy": [
+        "haiyue",
+        "diaochan",
+        "yadianna",
+        "dunshan"
+      ],
+      "synergies": [
+        "shaosiyuan",
+        "guiguzi",
+        "zhangliang",
+        "yadianna"
+      ],
+      "pickRate": 0.045,
+      "banRate": 0.0183,
+      "tierScore": 67.34,
+      "tier": "T0.5",
+      "roleLabel": "中路",
+      "heroPower": 17193.8,
+      "highBan": false,
+      "tierRank": 13,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/dd762c67aa539fb42bc9c548d09c6cbf.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "mingzhiyin",
+        "hainuo",
+        "xishi",
+        "xiahoudun"
+      ]
+    },
+    {
+      "id": "change",
+      "name": "嫦娥",
+      "title": "",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.522496,
+      "popularity": 1,
+      "difficulty": 3,
+      "counters": [
+        "yingzheng",
+        "jiangziya",
+        "yuanliuzhizi_assassin",
+        "yao"
+      ],
+      "counteredBy": [
+        "zhouyu",
+        "aguduo",
+        "laofuzi",
+        "mengya"
+      ],
+      "synergies": [
+        "dunshan",
+        "yadianna",
+        "pangu",
+        "lubanqihao"
+      ],
+      "pickRate": 0.028900000000000002,
+      "banRate": 0.0054,
+      "tierScore": 64.06,
+      "tier": "T0.5",
+      "roleLabel": "中路",
+      "heroPower": 16748.1,
+      "highBan": false,
+      "tierRank": 14,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/88b39bf46dd3770586c14a6ee3e494c7.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "mingzhiyin",
+        "chengyaojin",
+        "duoliya",
+        "hainuo"
+      ]
+    },
+    {
+      "id": "lubandashi",
+      "name": "鲁班大师",
+      "title": "神匠",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.5216,
+      "popularity": 0.4,
+      "difficulty": 7,
+      "counters": [
+        "chengyaojin",
+        "sunbin",
+        "lvbu",
+        "wangzhaojun"
+      ],
+      "counteredBy": [
+        "libai",
+        "direnjie",
+        "gaojianli",
+        "zhouyu"
+      ],
+      "synergies": [
+        "dasiming",
+        "mengqi",
+        "mengya",
+        "daqiao"
+      ],
+      "pickRate": 0.0109,
+      "banRate": 0.011899999999999999,
+      "tierScore": 63.5,
+      "tier": "T0.5",
+      "roleLabel": "游走",
+      "heroPower": 17079.6,
+      "highBan": false,
+      "tierRank": 15,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/5d8def836ac782c7280b2b11226e6d85.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "daji",
+        "jinchan",
+        "jialuo",
+        "baiqi"
+      ]
+    },
+    {
+      "id": "ying",
+      "name": "影",
+      "title": "离群之刺",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.519744,
+      "popularity": 2.5,
+      "counters": [
+        "donghuangtaiyi",
+        "lvbu",
+        "jinchan",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "mengtian",
+        "diaochan",
+        "sunbin",
+        "sunce"
+      ],
+      "synergies": [
+        "yase",
+        "guiguzi",
+        "luna",
+        "dunshan"
+      ],
+      "pickRate": 0.075,
+      "banRate": 0.013300000000000001,
+      "tierScore": 62.34,
+      "tier": "T0.5",
+      "roleLabel": "对抗路",
+      "heroPower": 16953.8,
+      "highBan": false,
+      "tierRank": 16,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/7de5bd0dfdba2c1a8af8c627b58a0452.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边/战野",
+      "antiSynergies": [
+        "mengtian",
+        "liushan",
+        "caiwenji",
+        "laofuzi"
+      ]
+    },
+    {
+      "id": "sikongzhen",
+      "name": "司空震",
+      "title": "雷霆之王",
+      "roles": [
+        "MARKSMAN",
+        "WARRIOR"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.518432,
+      "popularity": 2.7,
+      "counters": [
+        "zhongkui",
+        "chengyaojin",
+        "lianpo",
+        "zhaohuaizhen"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "dunshan",
+        "lubanqihao",
+        "yase"
+      ],
+      "synergies": [
+        "miyue",
+        "baiqi",
+        "lubanqihao",
+        "dunshan"
+      ],
+      "pickRate": 0.0799,
+      "banRate": 0.0154,
+      "tierScore": 61.52,
+      "tier": "T0.5",
+      "roleLabel": "对抗路",
+      "heroPower": 16972,
+      "highBan": false,
+      "tierRank": 17,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/44cc658c2168372b5aea0c9325f35359.png",
+      "positions": [
+        "CLASH_LANE",
+        "FARM_LANE"
+      ],
+      "positionLabel": "对抗路/发育路",
+      "profession": "边核",
+      "antiSynergies": [
+        "yingzheng",
+        "wangzhaojun",
+        "sunbin",
+        "jialuo"
+      ]
+    },
+    {
+      "id": "yuange",
+      "name": "元歌",
+      "title": "无间傀儡",
+      "roles": [
+        "MARKSMAN",
+        "WARRIOR"
+      ],
+      "difficulty": 5,
+      "aiWinRate": 0.515552,
+      "popularity": 0.9,
+      "counters": [
+        "wangzhaojun",
+        "daji",
+        "baiqi",
+        "lvbu"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "machao",
+        "liubei",
+        "lubanqihao"
+      ],
+      "synergies": [
+        "yase",
+        "milaidi",
+        "caiwenji",
+        "yunzhongjun"
+      ],
+      "pickRate": 0.026000000000000002,
+      "banRate": 0.0063,
+      "tierScore": 59.72,
+      "tier": "T1",
+      "roleLabel": "对抗路",
+      "heroPower": 16712.6,
+      "highBan": false,
+      "tierRank": 18,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/3f3ad1bd9eb7c6238faf964d6e187b7f.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "自保射/战边",
+      "antiSynergies": [
+        "xiangyu",
+        "donghuangtaiyi",
+        "zhongkui",
+        "anqila"
+      ]
+    },
+    {
+      "id": "wuzetian",
+      "name": "武则天",
+      "title": "女帝",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.51464,
+      "popularity": 2,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "xiahoudun",
+        "zhongkui",
+        "niumo"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "yadianna",
+        "yalian",
+        "geya"
+      ],
+      "synergies": [
+        "yuanliuzhizi_support",
+        "zhangliang",
+        "dunshan",
+        "mengqi"
+      ],
+      "pickRate": 0.059000000000000004,
+      "banRate": 0.0070999999999999995,
+      "tierScore": 59.15,
+      "tier": "T1",
+      "roleLabel": "中路",
+      "heroPower": 16497.8,
+      "highBan": false,
+      "tierRank": 19,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/804003144058a714a993f5d7127dc9b1.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "niumo",
+        "yuanliuzhizi_tank",
+        "donghuangtaiyi",
+        "makeboluo"
+      ]
+    },
+    {
+      "id": "sulie",
+      "name": "苏烈",
+      "title": "",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.5143679999999999,
+      "popularity": 1,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "jiangziya",
+        "daji",
+        "yingzheng"
+      ],
+      "counteredBy": [
+        "makeboluo",
+        "lanlingwang",
+        "mengya",
+        "yadianna"
+      ],
+      "synergies": [
+        "gaojianli",
+        "mengya",
+        "daqiao",
+        "hainuo"
+      ],
+      "pickRate": 0.028900000000000002,
+      "banRate": 0.0184,
+      "tierScore": 58.98,
+      "tier": "T1",
+      "roleLabel": "游走",
+      "heroPower": 16560.5,
+      "highBan": false,
+      "tierRank": 20,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/150cd9c92bb84a7728f323eb6fbf76f8.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "mozi",
+        "lianpo",
+        "wangzhaojun",
+        "liubang"
+      ]
+    },
+    {
+      "id": "gongsunli",
+      "name": "公孙离",
+      "title": "幻舞玲珑",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.513616,
+      "popularity": 1.7,
+      "difficulty": 9,
+      "counters": [
+        "makeboluo",
+        "niumo",
+        "zhenji",
+        "zhuwujing"
+      ],
+      "counteredBy": [
+        "zhuangzhou",
+        "haiyue",
+        "libai",
+        "aguduo"
+      ],
+      "synergies": [
+        "zhongwuyan",
+        "liyuanfang",
+        "sangqi",
+        "guanyu"
+      ],
+      "pickRate": 0.052000000000000005,
+      "banRate": 0.0127,
+      "tierScore": 58.51,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 17627.5,
+      "highBan": false,
+      "tierRank": 21,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/9f52a86f333b309e0cfdfdd7b39735b9.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "自保射",
+      "antiSynergies": [
+        "yase",
+        "wangzhaojun",
+        "zhongkui",
+        "yuanliuzhizi_tank"
+      ]
+    },
+    {
+      "id": "kuangtie",
+      "name": "狂铁",
+      "title": "战车意志",
+      "roles": [
+        "TANK",
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.513568,
+      "popularity": 1.9,
+      "difficulty": 6,
+      "counters": [
+        "sunbin",
+        "yaoao",
+        "ganjiangmoxie",
+        "zhangfei"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "dianwei",
+        "niumo",
+        "pangu"
+      ],
+      "synergies": [
+        "lanlingwang",
+        "xishi",
+        "jialuo",
+        "sunshangxiang"
+      ],
+      "pickRate": 0.055999999999999994,
+      "banRate": 0.008199999999999999,
+      "tierScore": 58.48,
+      "tier": "T1",
+      "roleLabel": "对抗路",
+      "heroPower": 16509.4,
+      "highBan": false,
+      "tierRank": 22,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/683c28526d717781556705774532dfc9.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "坦边",
+      "antiSynergies": [
+        "nezha",
+        "daji",
+        "lianpo",
+        "yaoao"
+      ]
+    },
+    {
+      "id": "buzhihuowu",
+      "name": "不知火舞",
+      "title": "火舞",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.510848,
+      "popularity": 1,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "yao",
+        "yuanliuzhizi_mage",
+        "gongbenwucang"
+      ],
+      "counteredBy": [
+        "gaojianli",
+        "yase",
+        "dasiming",
+        "daji"
+      ],
+      "synergies": [
+        "hainuo",
+        "zhongwuyan",
+        "jialuo",
+        "yaoao"
+      ],
+      "pickRate": 0.029900000000000003,
+      "banRate": 0.0055000000000000005,
+      "tierScore": 56.78,
+      "tier": "T1",
+      "roleLabel": "中路",
+      "heroPower": 16622.2,
+      "highBan": false,
+      "tierRank": 23,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/5d742c4c2d41290a920bbe63c5f6ec7f.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "lanlingwang",
+        "chengyaojin",
+        "yalian",
+        "yunzhongjun"
+      ]
+    },
+    {
+      "id": "geya",
+      "name": "戈娅",
+      "title": "",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.510736,
+      "popularity": 0.9,
+      "difficulty": 3,
+      "counters": [
+        "zhongwuyan",
+        "milaidi",
+        "zhuwujing",
+        "makeboluo"
+      ],
+      "counteredBy": [
+        "haiyue",
+        "laixiao",
+        "aoyin",
+        "yadianna"
+      ],
+      "synergies": [
+        "ake",
+        "lanlingwang",
+        "sunce",
+        "guiguzi"
+      ],
+      "pickRate": 0.027000000000000003,
+      "banRate": 0.0087,
+      "tierScore": 56.71,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 17117.3,
+      "highBan": false,
+      "tierRank": 24,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/8cbae1fbbeb9736fea5cc29e10be7b23.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "野核",
+      "antiSynergies": [
+        "dunshan",
+        "chengyaojin",
+        "liubei",
+        "sunbin"
+      ]
+    },
+    {
+      "id": "dayu",
+      "name": "大禹",
+      "title": "治水圣王",
+      "roles": [
+        "SUPPORT"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.510624,
+      "popularity": 1.4,
+      "counters": [
+        "niumo",
+        "chengyaojin",
+        "jinchan",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "zhouyu",
+        "haiyue",
+        "lubandashi"
+      ],
+      "synergies": [
+        "taiyizhenren",
+        "yalian",
+        "diaochan",
+        "zhangliang"
+      ],
+      "pickRate": 0.040999999999999995,
+      "banRate": 0.028900000000000002,
+      "tierScore": 56.64,
+      "tier": "T1",
+      "roleLabel": "游走",
+      "heroPower": 16284.3,
+      "highBan": false,
+      "tierRank": 25,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/07a35a3f4aead80e05ffa028fa1769d9.jpg",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "均衡辅",
+      "antiSynergies": [
+        "xiangyu",
+        "liubang",
+        "wangzhaojun",
+        "lubanqihao"
+      ]
+    },
+    {
+      "id": "aguduo",
+      "name": "阿古朵",
+      "title": "山林之子",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.509408,
+      "popularity": 0.9,
+      "counters": [
+        "makeboluo",
+        "yingzheng",
+        "zhongkui",
+        "daji"
+      ],
+      "counteredBy": [
+        "caiwenji",
+        "dunshan",
+        "shangguanwaner",
+        "mengya"
+      ],
+      "synergies": [
+        "zhongwuyan",
+        "duoliya",
+        "aoyin",
+        "haiyue"
+      ],
+      "pickRate": 0.027000000000000003,
+      "banRate": 0.0078000000000000005,
+      "tierScore": 55.88,
+      "tier": "T1",
+      "roleLabel": "打野/发育路(次分路)",
+      "heroPower": 16391.7,
+      "highBan": false,
+      "tierRank": 26,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/69045457de9c54c7fc559155a10742f8.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "射野",
+      "antiSynergies": [
+        "chengyaojin",
+        "fei",
+        "kai",
+        "xinmoliuer"
+      ]
+    },
+    {
+      "id": "ailin",
+      "name": "艾琳",
+      "title": "",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.508752,
+      "popularity": 5.3,
+      "difficulty": 3,
+      "counters": [
+        "lianpo",
+        "wangzhaojun",
+        "chengyaojin",
+        "milaidi"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "zhouyu",
+        "zhuangzhou",
+        "guiguzi"
+      ],
+      "synergies": [
+        "ake",
+        "lanlingwang",
+        "haiyue",
+        "daji"
+      ],
+      "pickRate": 0.158,
+      "banRate": 0.0276,
+      "tierScore": 55.47,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 16399.7,
+      "highBan": false,
+      "tierRank": 27,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/c60893e14d47772231045f2523c631b3.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "donghuangtaiyi",
+        "zhongkui",
+        "yuanliuzhizi_tank",
+        "mozi"
+      ]
+    },
+    {
+      "id": "xiaoqiao",
+      "name": "小乔",
+      "title": "恋之微风",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.508,
+      "popularity": 8.7,
+      "difficulty": 4,
+      "counters": [
+        "sunbin",
+        "yuanliuzhizi_mage",
+        "lvbu",
+        "liushan"
+      ],
+      "counteredBy": [
+        "mengya",
+        "ake",
+        "yalian",
+        "zhuangzhou"
+      ],
+      "synergies": [
+        "jialuo",
+        "mengya",
+        "libai",
+        "yuanliuzhizi_support"
+      ],
+      "pickRate": 0.2619,
+      "banRate": 0.0131,
+      "tierScore": 55,
+      "tier": "T1",
+      "roleLabel": "中路",
+      "heroPower": 16636.2,
+      "highBan": false,
+      "tierRank": 28,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/34ca070ab867be1157b81b688be18cbb.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "lianpo",
+        "lvbu",
+        "duoliya",
+        "caiwenji"
+      ]
+    },
+    {
+      "id": "bailishouyue",
+      "name": "百里守约",
+      "title": "静谧之眼",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.507888,
+      "popularity": 4.5,
+      "difficulty": 7,
+      "counters": [
+        "lanlingwang",
+        "jiangziya",
+        "ganjiangmoxie",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "yuanliuzhizi_support",
+        "simayi",
+        "nakelulu",
+        "dunshan"
+      ],
+      "synergies": [
+        "taiyizhenren",
+        "guiguzi",
+        "zhongwuyan",
+        "dunshan"
+      ],
+      "pickRate": 0.135,
+      "banRate": 0.0458,
+      "tierScore": 54.93,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 16408.2,
+      "highBan": false,
+      "tierRank": 29,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6cfcac884fd4c19ce315aa4069fd4637.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "自保射",
+      "antiSynergies": [
+        "xiahoudun",
+        "wangzhaojun",
+        "lixin",
+        "milaidi"
+      ]
+    },
+    {
+      "id": "zhugeliang",
+      "name": "诸葛亮",
+      "title": "绝代智谋",
+      "roles": [
+        "MAGE",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.507504,
+      "popularity": 2.8,
+      "difficulty": 7,
+      "counters": [
+        "liushan",
+        "lianpo",
+        "lvbu",
+        "jiangziya"
+      ],
+      "counteredBy": [
+        "mingzhiyin",
+        "chengyaojin",
+        "zhouyu",
+        "dunshan"
+      ],
+      "synergies": [
+        "zhuangzhou",
+        "yunzhongjun",
+        "guanyu",
+        "pangu"
+      ],
+      "pickRate": 0.085,
+      "banRate": 0.029500000000000002,
+      "tierScore": 54.69,
+      "tier": "T1",
+      "roleLabel": "中路/打野(次分路)",
+      "heroPower": 16424.6,
+      "highBan": false,
+      "tierRank": 30,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a55ee7738de67afa5cae26681886149f.png",
+      "positions": [
+        "MID_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "中路/打野",
+      "profession": "法核/野核",
+      "antiSynergies": [
+        "yingzheng",
+        "ganjiangmoxie",
+        "chengyaojin",
+        "shenmengxi"
+      ]
+    },
+    {
+      "id": "taiyizhenren",
+      "name": "太乙真人",
+      "title": "太乙",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.506688,
+      "popularity": 0.2,
+      "difficulty": 3,
+      "counters": [
+        "xiahoudun",
+        "jinchan",
+        "jiangziya",
+        "sunce"
+      ],
+      "counteredBy": [
+        "jialuo",
+        "mengtian",
+        "aguduo",
+        "machao"
+      ],
+      "synergies": [
+        "dunshan",
+        "mengya",
+        "dayu",
+        "yuanlan"
+      ],
+      "pickRate": 0.006999999999999999,
+      "banRate": 0.0051,
+      "tierScore": 54.18,
+      "tier": "T1",
+      "roleLabel": "游走",
+      "heroPower": 16353,
+      "highBan": false,
+      "tierRank": 31,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/9e6b87a95c5f90d64680920803064aaa.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "游走/中路",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "milaidi",
+        "yuanliuzhizi_tank",
+        "direnjie",
+        "yaoao"
+      ]
+    },
+    {
+      "id": "yangyuhuan",
+      "name": "杨玉环",
+      "title": "霓裳风华",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.506096,
+      "popularity": 0.8,
+      "difficulty": 3,
+      "counters": [
+        "jinchan",
+        "niumo",
+        "lvbu",
+        "makeboluo"
+      ],
+      "counteredBy": [
+        "caiwenji",
+        "zhouyu",
+        "dunshan",
+        "juyoujing"
+      ],
+      "synergies": [
+        "guiguzi",
+        "mengqi",
+        "wuzetian",
+        "lvbu"
+      ],
+      "pickRate": 0.024,
+      "banRate": 0.002,
+      "tierScore": 53.81,
+      "tier": "T1",
+      "roleLabel": "中路/游走",
+      "heroPower": 16372.7,
+      "highBan": false,
+      "tierRank": 32,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/fbc0edb1377a58ca21ac15a21eedbfc3.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "中路/游走",
+      "profession": "大法核",
+      "antiSynergies": [
+        "wangzhaojun",
+        "jiangziya",
+        "ganjiangmoxie",
+        "yingzheng"
+      ]
+    },
+    {
+      "id": "cang",
+      "name": "苍",
+      "title": "天狼游侠",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.5059359999999999,
+      "popularity": 0.7,
+      "counters": [
+        "jiangziya",
+        "chengyaojin",
+        "daji",
+        "yao"
+      ],
+      "counteredBy": [
+        "mengtian",
+        "zhuangzhou",
+        "yuanliuzhizi_support",
+        "yuanliuzhizi_tank"
+      ],
+      "synergies": [
+        "zhongwuyan",
+        "simayi",
+        "yadianna",
+        "duoliya"
+      ],
+      "pickRate": 0.0199,
+      "banRate": 0.0015,
+      "tierScore": 53.71,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 16300,
+      "highBan": false,
+      "tierRank": 33,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/157a6eb0f21421656a1e5bbc89612c04.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "caiwenji",
+        "dunshan",
+        "lixin",
+        "sunbin"
+      ]
+    },
+    {
+      "id": "chicha",
+      "name": "蚩奼",
+      "title": "五兵轮替",
+      "roles": [
+        "MARKSMAN",
+        "WARRIOR"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.505504,
+      "popularity": 1.9,
+      "counters": [
+        "niumo",
+        "jinchan",
+        "zhaoyun",
+        "zhouyu"
+      ],
+      "counteredBy": [
+        "dasiming",
+        "haiyue",
+        "liubei",
+        "donghuangtaiyi"
+      ],
+      "synergies": [
+        "guiguzi",
+        "aguduo",
+        "zhouyu",
+        "dianwei"
+      ],
+      "pickRate": 0.057,
+      "banRate": 0.020499999999999997,
+      "tierScore": 53.44,
+      "tier": "T1",
+      "roleLabel": "发育路/对抗路(次分路)",
+      "heroPower": 16749.9,
+      "highBan": false,
+      "tierRank": 34,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/f4b2ae49cb70dc7f5ab5f4ff983d6d8d.jpg",
+      "positions": [
+        "CLASH_LANE",
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路/对抗路",
+      "profession": "边核/带线射",
+      "antiSynergies": [
+        "laixiao",
+        "niumo",
+        "daji",
+        "bailishouyue"
+      ]
+    },
+    {
+      "id": "sunwukong",
+      "name": "孙悟空",
+      "title": "齐天大圣",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.504544,
+      "popularity": 5.6,
+      "difficulty": 5,
+      "counters": [
+        "daji",
+        "sunquan",
+        "niumo",
+        "yuanliuzhizi_assassin"
+      ],
+      "counteredBy": [
+        "damo",
+        "taiyizhenren",
+        "yingzheng",
+        "aguduo"
+      ],
+      "synergies": [
+        "zhuangzhou",
+        "yuanliuzhizi_mage",
+        "miyue",
+        "mengya"
+      ],
+      "pickRate": 0.16690000000000002,
+      "banRate": 0.0277,
+      "tierScore": 52.84,
+      "tier": "T1",
+      "roleLabel": "打野",
+      "heroPower": 16208,
+      "highBan": false,
+      "tierRank": 35,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/1766c0d296abbcaaa51b83d5606a9209.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "lvbu",
+        "wangzhaojun",
+        "yao",
+        "aguduo"
+      ]
+    },
+    {
+      "id": "xialuote",
+      "name": "夏洛特",
+      "title": "玫瑰剑士",
+      "roles": [
+        "WARRIOR"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.504192,
+      "popularity": 1.1,
+      "counters": [
+        "jialuo",
+        "wangzhaojun",
+        "caiwenji",
+        "yuanliuzhizi_mage"
+      ],
+      "counteredBy": [
+        "donghuangtaiyi",
+        "zhangliang",
+        "yase",
+        "lanlingwang"
+      ],
+      "synergies": [
+        "daji",
+        "donghuangtaiyi",
+        "yunzhongjun",
+        "taiyizhenren"
+      ],
+      "pickRate": 0.0329,
+      "banRate": 0.0019,
+      "tierScore": 52.62,
+      "tier": "T1",
+      "roleLabel": "对抗路",
+      "heroPower": 16425.9,
+      "highBan": false,
+      "tierRank": 36,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/74f666fc3b63fcd5c61c8aa7e3685d67.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "yuanlan",
+        "jialuo",
+        "yao",
+        "zhuwujing"
+      ]
+    },
+    {
+      "id": "fei",
+      "name": "暃",
+      "title": "玉城之子",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.50408,
+      "popularity": 0.9,
+      "counters": [
+        "liushan",
+        "jiangziya",
+        "lvbu",
+        "anqila"
+      ],
+      "counteredBy": [
+        "sunbin",
+        "dianwei",
+        "haiyue",
+        "dasiming"
+      ],
+      "synergies": [
+        "daqiao",
+        "zhangliang",
+        "dunshan",
+        "gaojianli"
+      ],
+      "pickRate": 0.027999999999999997,
+      "banRate": 0.0032,
+      "tierScore": 52.55,
+      "tier": "T1",
+      "roleLabel": "打野",
+      "heroPower": 16427,
+      "highBan": false,
+      "tierRank": 37,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/98794a4627040c9b9b8a24627f8e24bd.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "milaidi",
+        "jinchan",
+        "zhuangzhou",
+        "aguduo"
+      ]
+    },
+    {
+      "id": "caocao",
+      "name": "曹操",
+      "title": "鲜血枭雄",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.503648,
+      "popularity": 1.2,
+      "difficulty": 5,
+      "counters": [
+        "donghuangtaiyi",
+        "yao",
+        "wangzhaojun",
+        "yuanliuzhizi_mage"
+      ],
+      "counteredBy": [
+        "chengyaojin",
+        "dunshan",
+        "guanyu",
+        "luna"
+      ],
+      "synergies": [
+        "daji",
+        "ake",
+        "simayi",
+        "guiguzi"
+      ],
+      "pickRate": 0.037000000000000005,
+      "banRate": 0.0034000000000000002,
+      "tierScore": 52.28,
+      "tier": "T1",
+      "roleLabel": "对抗路",
+      "heroPower": 16426.8,
+      "highBan": false,
+      "tierRank": 38,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/ec9b1a87486d7379cf56048ddbd7ea43.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "sunbin",
+        "xiangyu",
+        "wangzhaojun",
+        "jialuo"
+      ]
+    },
+    {
+      "id": "luna",
+      "name": "露娜",
+      "title": "月光之女",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "difficulty": 5,
+      "aiWinRate": 0.503616,
+      "popularity": 0.6,
+      "counters": [
+        "milaidi",
+        "wangzhaojun",
+        "duoliya",
+        "lianpo"
+      ],
+      "counteredBy": [
+        "daji",
+        "dunshan",
+        "yunzhongjun",
+        "lubanqihao"
+      ],
+      "synergies": [
+        "lubanqihao",
+        "bianque",
+        "guanyu",
+        "zhongkui"
+      ],
+      "pickRate": 0.0189,
+      "banRate": 0.0012,
+      "tierScore": 52.26,
+      "tier": "T1",
+      "roleLabel": "打野",
+      "heroPower": 16310.9,
+      "highBan": false,
+      "tierRank": 39,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/58032baaaa081f5b949c92bda24c8936.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "donghuangtaiyi",
+        "anqila",
+        "xiangyu",
+        "shangguanwaner"
+      ]
+    },
+    {
+      "id": "xinmoliuer",
+      "name": "心魔六耳",
+      "title": "心魔裂变",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.502432,
+      "popularity": 7.9,
+      "counters": [
+        "xiahoudun",
+        "milaidi",
+        "yuanliuzhizi_mage",
+        "chengyaojin"
+      ],
+      "counteredBy": [
+        "zhuangzhou",
+        "liubei",
+        "donghuangtaiyi",
+        "guiguzi"
+      ],
+      "synergies": [
+        "sunce",
+        "haiyue"
+      ],
+      "pickRate": 0.23600000000000002,
+      "banRate": 0.5375,
+      "tierScore": 51.52,
+      "tier": "T1",
+      "roleLabel": "打野/对抗路",
+      "heroPower": 16612.4,
+      "highBan": false,
+      "tierRank": 40,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/4a0d7a67ea2d08d1f988f63cf6bf1a41.jpg",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/对抗路",
+      "profession": "战边/战野",
+      "antiSynergies": [
+        "donghuangtaiyi",
+        "wangzhaojun",
+        "ganjiangmoxie",
+        "jinchan"
+      ]
+    },
+    {
+      "id": "wangwei",
+      "name": "王维",
+      "title": "",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.5,
+      "popularity": 5.0,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "caiwenji",
+        "jiangziya",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "yuanliuzhizi_tank",
+        "makeboluo",
+        "guanyu",
+        "yadianna"
+      ],
+      "synergies": [
+        "yadianna",
+        "mengqi",
+        "dunshan",
+        "yuanlan"
+      ],
+      "pickRate": 0.0,
+      "banRate": 0.0,
+      "tierScore": 52.11,
+      "tier": "T1",
+      "roleLabel": "中路",
+      "heroPower": 14697.4,
+      "highBan": false,
+      "tierRank": 40,
+      "avatar": "https://game.gtimg.cn/images/yxzj/img201606/heroimg/138/138.jpg",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "yao",
+        "jialuo",
+        "lvbu",
+        "hainuo"
+      ]
+    },
+    {
+      "id": "xishi",
+      "name": "西施",
+      "title": "沉鱼",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.501776,
+      "popularity": 3.1,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "duoliya",
+        "sangqi",
+        "jiangziya"
+      ],
+      "counteredBy": [
+        "yadianna",
+        "lubanqihao",
+        "dunshan",
+        "pangu"
+      ],
+      "synergies": [
+        "sangqi",
+        "donghuangtaiyi",
+        "yunzhongjun",
+        "dianwei"
+      ],
+      "pickRate": 0.09300000000000001,
+      "banRate": 0.1366,
+      "tierScore": 51.11,
+      "tier": "T1",
+      "roleLabel": "中路/游走(次分路)",
+      "heroPower": 16493.5,
+      "highBan": false,
+      "tierRank": 41,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/3064d787cff7276d4203aabe22d13fcb.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "中路/游走",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "shenmengxi",
+        "nvwa",
+        "huangzhong",
+        "makeboluo"
+      ]
+    },
+    {
+      "id": "sunshangxiang",
+      "name": "孙尚香",
+      "title": "千金重弩",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.500336,
+      "popularity": 4.4,
+      "difficulty": 6,
+      "counters": [
+        "yuanliuzhizi_mage",
+        "dianwei",
+        "dasiming",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "yadianna",
+        "dunshan",
+        "buzhihuowu",
+        "jinchan"
+      ],
+      "synergies": [
+        "dianwei",
+        "miyue",
+        "dasiming",
+        "dunshan"
+      ],
+      "pickRate": 0.1319,
+      "banRate": 0.0152,
+      "tierScore": 50.21,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 16362.6,
+      "highBan": false,
+      "tierRank": 42,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/26eafb2fd87c502c33075becae739bab.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "caiwenji",
+        "lixin",
+        "duoliya",
+        "anqila"
+      ]
+    },
+    {
+      "id": "kongkonger",
+      "name": "空空儿",
+      "title": "空空如也",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.500288,
+      "popularity": 0.2,
+      "counters": [
+        "yuanliuzhizi_mage",
+        "lvbu",
+        "anqila",
+        "nakelulu"
+      ],
+      "counteredBy": [
+        "gaojianli",
+        "luna",
+        "xiangyu",
+        "dianwei"
+      ],
+      "synergies": [
+        "ake",
+        "jinchan",
+        "luna",
+        "dianwei"
+      ],
+      "pickRate": 0.006,
+      "banRate": 0.0092,
+      "tierScore": 50.18,
+      "tier": "T1",
+      "roleLabel": "游走",
+      "heroPower": 16325.2,
+      "highBan": false,
+      "tierRank": 43,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_skin_128x128/d042d5a61ffe49a4c69d919a8f6ae977.jpg",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "liubang",
+        "daji",
+        "yuanliuzhizi_tank",
+        "yaoao"
+      ]
+    },
+    {
+      "id": "nezha",
+      "name": "哪吒",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.49924799999999997,
+      "popularity": 2.1,
+      "difficulty": 3,
+      "counters": [
+        "chengyaojin",
+        "yalian",
+        "lvbu",
+        "lianpo"
+      ],
+      "counteredBy": [
+        "miyue",
+        "diaochan",
+        "liubei",
+        "yuange"
+      ],
+      "synergies": [
+        "donghuangtaiyi",
+        "yuanliuzhizi_tank",
+        "yase",
+        "mengqi"
+      ],
+      "pickRate": 0.063,
+      "banRate": 0.11800000000000001,
+      "tierScore": 49.53,
+      "tier": "T1",
+      "roleLabel": "对抗路/打野(次分路)",
+      "heroPower": 16107.7,
+      "highBan": false,
+      "tierRank": 44,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/3cf90fbadc687703ddb39b7886672644.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "对抗路/打野",
+      "profession": "战野/战边",
+      "antiSynergies": [
+        "baiqi",
+        "kuangtie",
+        "jixiaoman",
+        "laofuzi"
+      ]
+    },
+    {
+      "id": "laofuzi",
+      "name": "老夫子",
+      "title": "万古长明",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.49862399999999996,
+      "popularity": 0.7,
+      "difficulty": 6,
+      "counters": [
+        "jinchan",
+        "yingzheng",
+        "liushan",
+        "yuanlan"
+      ],
+      "counteredBy": [
+        "donghuangtaiyi",
+        "mengya",
+        "mengtian",
+        "zhouyu"
+      ],
+      "synergies": [
+        "lixin",
+        "daqiao",
+        "simayi",
+        "lubanqihao"
+      ],
+      "pickRate": 0.0209,
+      "banRate": 0.0051,
+      "tierScore": 49.14,
+      "tier": "T1",
+      "roleLabel": "对抗路",
+      "heroPower": 16019.2,
+      "highBan": false,
+      "tierRank": 45,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a2b2dfc4b3852efe0dc87bfc079a24d9.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "niumo",
+        "donghuangtaiyi",
+        "lianpo",
+        "ying"
+      ]
+    },
+    {
+      "id": "zhangfei",
+      "name": "张飞",
+      "title": "禁血狂兽",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.494656,
+      "popularity": 1.9,
+      "difficulty": 5,
+      "counters": [
+        "xiahoudun",
+        "milaidi",
+        "jinchan",
+        "zhongkui"
+      ],
+      "counteredBy": [
+        "luna",
+        "diaochan",
+        "lubanqihao",
+        "sunshangxiang"
+      ],
+      "synergies": [
+        "laixiao",
+        "gaojianli",
+        "diaochan",
+        "makeboluo"
+      ],
+      "pickRate": 0.0579,
+      "banRate": 0.02,
+      "tierScore": 46.66,
+      "tier": "T1",
+      "roleLabel": "游走",
+      "heroPower": 16180.5,
+      "highBan": false,
+      "tierRank": 46,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/8d404a78ebeedb60cb660d5338b26dc5.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "liubang",
+        "xiahoudun",
+        "xiangyu",
+        "lvbu"
+      ]
+    },
+    {
+      "id": "luyana",
+      "name": "卢雅那",
+      "title": "",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.49384,
+      "popularity": 5,
+      "difficulty": 3,
+      "counters": [
+        "ganjiangmoxie",
+        "yuanliuzhizi_tank",
+        "liubei",
+        "wangzhaojun"
+      ],
+      "counteredBy": [
+        "makeboluo",
+        "donghuangtaiyi",
+        "yunzhongjun",
+        "libai"
+      ],
+      "synergies": [
+        "guiguzi",
+        "ake",
+        "luna",
+        "sunce"
+      ],
+      "pickRate": 0,
+      "banRate": 0,
+      "tierScore": 46.15,
+      "tier": "T1",
+      "roleLabel": "发育路",
+      "heroPower": 16055.9,
+      "highBan": false,
+      "tierRank": 47,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/aed9c716b4ea6e37f66eb60b32f2d38a.jpg",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "antiSynergies": [
+        "chengyaojin",
+        "ganjiangmoxie",
+        "yao",
+        "zhuangzhou"
+      ]
+    },
+    {
+      "id": "yuji",
+      "name": "虞姬",
+      "title": "森之风灵",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.491936,
+      "popularity": 5.1,
+      "difficulty": 3,
+      "counters": [
+        "duoliya",
+        "jinchan",
+        "jiangziya",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "xiahoudun",
+        "shangguanwaner",
+        "mengya",
+        "luna"
+      ],
+      "synergies": [
+        "jiangziya",
+        "kai",
+        "yase",
+        "gaojianli"
+      ],
+      "pickRate": 0.1519,
+      "banRate": 0.1482,
+      "tierScore": 44.96,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15928.4,
+      "highBan": false,
+      "tierRank": 48,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/8edbd888e498ead9120d7fc48196bd57.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "抗压射",
+      "antiSynergies": [
+        "lixin",
+        "lvbu",
+        "ake",
+        "niumo"
+      ]
+    },
+    {
+      "id": "zhaoyun",
+      "name": "赵云",
+      "title": "苍天翔龙",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.490096,
+      "popularity": 4.3,
+      "difficulty": 3,
+      "counters": [
+        "jiangziya",
+        "ganjiangmoxie",
+        "yuanliuzhizi_mage",
+        "wangzhaojun"
+      ],
+      "counteredBy": [
+        "yadianna",
+        "lanlingwang",
+        "liubei",
+        "niumo"
+      ],
+      "synergies": [
+        "diaochan",
+        "huangzhong",
+        "dunshan",
+        "huamulan"
+      ],
+      "pickRate": 0.128,
+      "banRate": 0.0126,
+      "tierScore": 43.81,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 16101.8,
+      "highBan": false,
+      "tierRank": 49,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/4108fe3d4326c7585c81fb30dbe14047.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "wangzhaojun",
+        "jinchan",
+        "chengyaojin",
+        "yuanliuzhizi_mage"
+      ]
+    },
+    {
+      "id": "mengtian",
+      "name": "蒙恬",
+      "title": "秩序统将",
+      "roles": [
+        "TANK",
+        "WARRIOR"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.488544,
+      "popularity": 0.5,
+      "counters": [
+        "liubei",
+        "jialuo",
+        "laofuzi",
+        "yuanliuzhizi_mage"
+      ],
+      "counteredBy": [
+        "chengyaojin",
+        "yalian",
+        "shangguanwaner",
+        "lvbu"
+      ],
+      "synergies": [
+        "zhuangzhou",
+        "mengqi",
+        "jialuo",
+        "zhongkui"
+      ],
+      "pickRate": 0.0149,
+      "banRate": 0.0176,
+      "tierScore": 42.84,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15841.8,
+      "highBan": false,
+      "tierRank": 50,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/ccae305c933244dbf0ec0a81ea0a4fd3.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "坦边",
+      "antiSynergies": [
+        "jinchan",
+        "xiangyu",
+        "ying",
+        "jiangziya"
+      ]
+    },
+    {
+      "id": "lixin",
+      "name": "李信",
+      "title": "",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.487984,
+      "popularity": 10,
+      "difficulty": 3,
+      "counters": [
+        "liushan",
+        "laofuzi",
+        "liubei",
+        "yalian"
+      ],
+      "counteredBy": [
+        "gongsunli",
+        "makeboluo",
+        "sangqi",
+        "luna"
+      ],
+      "synergies": [
+        "laofuzi",
+        "guiguzi",
+        "yase",
+        "lvbu"
+      ],
+      "pickRate": 0.3079,
+      "banRate": 0.2818,
+      "tierScore": 42.49,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15855.5,
+      "highBan": false,
+      "tierRank": 51,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/526247a6f22df879a418cb743f43f8e4.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "自保射",
+      "antiSynergies": [
+        "sunquan",
+        "jiangziya",
+        "direnjie",
+        "yuji"
+      ]
+    },
+    {
+      "id": "diaochan",
+      "name": "貂蝉",
+      "title": "绝世舞姬",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.487024,
+      "popularity": 3.1,
+      "difficulty": 7,
+      "counters": [
+        "niumo",
+        "sunce",
+        "ganjiangmoxie",
+        "lanlingwang"
+      ],
+      "counteredBy": [
+        "yase",
+        "miyue",
+        "zhangliang",
+        "liyuanfang"
+      ],
+      "synergies": [
+        "sunce",
+        "guanyu",
+        "guiguzi",
+        "yalian"
+      ],
+      "pickRate": 0.092,
+      "banRate": 0.0582,
+      "tierScore": 41.89,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 16134.7,
+      "highBan": false,
+      "tierRank": 52,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/017e5cbb3e23e95eef02ff038366b246.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "大法核",
+      "antiSynergies": [
+        "hainuo",
+        "yuanliuzhizi_tank",
+        "donghuangtaiyi",
+        "yangyuhuan"
+      ]
+    },
+    {
+      "id": "yangjian",
+      "name": "杨戬",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.486144,
+      "popularity": 1.5,
+      "difficulty": 3,
+      "counters": [
+        "lvbu",
+        "guiguzi",
+        "lianpo",
+        "damo"
+      ],
+      "counteredBy": [
+        "ake",
+        "gaojianli",
+        "miyue",
+        "dasiming"
+      ],
+      "synergies": [
+        "milaidi",
+        "liyuanfang",
+        "zhouyu",
+        "aguduo"
+      ],
+      "pickRate": 0.046,
+      "banRate": 0.0049,
+      "tierScore": 41.34,
+      "tier": "T2",
+      "roleLabel": "打野/对抗路",
+      "heroPower": 16100.2,
+      "highBan": false,
+      "tierRank": 53,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/edc1c65a4b8548496422e735335e221b.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "对抗路/打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "yalian",
+        "yaoao",
+        "jinchan",
+        "daji"
+      ]
+    },
+    {
+      "id": "hanxin",
+      "name": "韩信",
+      "title": "国士无双",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.485344,
+      "popularity": 1.9,
+      "difficulty": 9,
+      "counters": [
+        "chengyaojin",
+        "jiangziya",
+        "lvbu",
+        "lanlingwang"
+      ],
+      "counteredBy": [
+        "liyuanfang",
+        "zhongwuyan",
+        "yase",
+        "liubei"
+      ],
+      "synergies": [
+        "liyuanfang",
+        "ganjiangmoxie",
+        "yase",
+        "mengtian"
+      ],
+      "pickRate": 0.055999999999999994,
+      "banRate": 0.0049,
+      "tierScore": 40.84,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 16003.8,
+      "highBan": false,
+      "tierRank": 54,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d4bf4e331816915727abce7b635c231c.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "yingzheng",
+        "milaidi",
+        "yuanliuzhizi_mage",
+        "wangzhaojun"
+      ]
+    },
+    {
+      "id": "kai",
+      "name": "铠",
+      "title": "破灭刃锋",
+      "roles": [
+        "WARRIOR",
+        "TANK",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.48503999999999997,
+      "popularity": 4.1,
+      "difficulty": 5,
+      "counters": [
+        "jinchan",
+        "yao",
+        "pangu",
+        "wangzhaojun"
+      ],
+      "counteredBy": [
+        "zhuangzhou",
+        "shangguanwaner",
+        "nakelulu",
+        "taiyizhenren"
+      ],
+      "synergies": [
+        "lubanqihao",
+        "laixiao",
+        "diaochan",
+        "dunshan"
+      ],
+      "pickRate": 0.12390000000000001,
+      "banRate": 0.0781,
+      "tierScore": 40.65,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15960.8,
+      "highBan": false,
+      "tierRank": 55,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/c992232c2a2913f36eeb0c7efa75c5e4.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野/坦野",
+      "antiSynergies": [
+        "niumo",
+        "zhongwuyan",
+        "yao",
+        "liushan"
+      ]
+    },
+    {
+      "id": "huamulan",
+      "name": "花木兰",
+      "title": "传说之刃",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.483568,
+      "popularity": 1,
+      "difficulty": 8,
+      "counters": [
+        "wangzhaojun",
+        "xiangyu",
+        "jinchan",
+        "sangqi"
+      ],
+      "counteredBy": [
+        "mengya",
+        "guiguzi",
+        "yase",
+        "lubandashi"
+      ],
+      "synergies": [
+        "zhouyu",
+        "jialuo",
+        "yuanliuzhizi_assassin",
+        "liubei"
+      ],
+      "pickRate": 0.030899999999999997,
+      "banRate": 0.0012,
+      "tierScore": 39.73,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15951.3,
+      "highBan": false,
+      "tierRank": 56,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d1f370b5edbb8e9d1b7816c9c962b2b5.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "yuanliuzhizi_tank",
+        "daji",
+        "zhongkui",
+        "liushan"
+      ]
+    },
+    {
+      "id": "bailixuance",
+      "name": "百里玄策",
+      "title": "玄策",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.48263999999999996,
+      "popularity": 1.1,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "wangzhaojun",
+        "anqila",
+        "zhuwujing"
+      ],
+      "counteredBy": [
+        "yunzhongjun",
+        "sunce",
+        "guiguzi",
+        "liubei"
+      ],
+      "synergies": [
+        "xiahoudun",
+        "zhouyu",
+        "dunshan",
+        "daqiao"
+      ],
+      "pickRate": 0.0329,
+      "banRate": 0.0027,
+      "tierScore": 39.15,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 16018.3,
+      "highBan": false,
+      "tierRank": 57,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/765b900a87ea13f31636accef030a37a.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "yuanliuzhizi_mage",
+        "daji",
+        "kongkonger",
+        "liushan"
+      ]
+    },
+    {
+      "id": "liubang",
+      "name": "刘邦",
+      "title": "",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.481792,
+      "popularity": 0.9,
+      "difficulty": 3,
+      "counters": [
+        "zhangliang",
+        "zhouyu",
+        "yuanlan",
+        "zhenji"
+      ],
+      "counteredBy": [
+        "jialuo",
+        "yadianna",
+        "pangu",
+        "haiyue"
+      ],
+      "synergies": [
+        "zhouyu",
+        "dianwei",
+        "mengtian",
+        "daqiao"
+      ],
+      "pickRate": 0.026000000000000002,
+      "banRate": 0.010700000000000001,
+      "tierScore": 38.62,
+      "tier": "T2",
+      "roleLabel": "游走",
+      "heroPower": 15820.7,
+      "highBan": false,
+      "tierRank": 58,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/8b8d3e63dab2074594dd2bcd7b9c1941.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "kongkonger",
+        "zhangfei",
+        "jialuo",
+        "milaidi"
+      ]
+    },
+    {
+      "id": "yunyao",
+      "name": "云缨",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.48086399999999996,
+      "popularity": 1.9,
+      "difficulty": 3,
+      "counters": [
+        "liushan",
+        "daji",
+        "milaidi",
+        "zhongkui"
+      ],
+      "counteredBy": [
+        "zhouyu",
+        "dunshan",
+        "kai",
+        "luna"
+      ],
+      "synergies": [
+        "liushan",
+        "yuanliuzhizi_tank",
+        "sunshangxiang",
+        "zhugeliang"
+      ],
+      "pickRate": 0.0579,
+      "banRate": 0.0086,
+      "tierScore": 38.04,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15874.5,
+      "highBan": false,
+      "tierRank": 59,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/30938fe055f715ee6c5836f77faf157f.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "zhongkui",
+        "liyuanfang",
+        "makeboluo",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "direnjie",
+      "name": "狄仁杰",
+      "title": "断案大师",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.480336,
+      "popularity": 3.2,
+      "difficulty": 5,
+      "counters": [
+        "zhongkui",
+        "chengyaojin",
+        "liushan",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "zhouyu",
+        "guiguzi",
+        "shangguanwaner"
+      ],
+      "synergies": [
+        "dunshan",
+        "xishi",
+        "daji",
+        "mengqi"
+      ],
+      "pickRate": 0.0949,
+      "banRate": 0.012199999999999999,
+      "tierScore": 37.71,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15535.8,
+      "highBan": false,
+      "tierRank": 60,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/b4cf09d64dc9631525f68933c579a4ea.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "lixin",
+        "yuanliuzhizi_tank",
+        "zhongwuyan",
+        "taiyizhenren"
+      ]
+    },
+    {
+      "id": "juyoujing",
+      "name": "橘右京",
+      "title": "神梦一刀",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.480272,
+      "popularity": 0.7,
+      "counters": [
+        "yao",
+        "yingzheng",
+        "liushan",
+        "miyue"
+      ],
+      "counteredBy": [
+        "lanlingwang",
+        "jinchan",
+        "mengya",
+        "buzhihuowu"
+      ],
+      "synergies": [
+        "mengqi",
+        "donghuangtaiyi",
+        "guiguzi",
+        "huangzhong"
+      ],
+      "pickRate": 0.0199,
+      "banRate": 0.0023,
+      "tierScore": 37.67,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15703.8,
+      "highBan": false,
+      "tierRank": 61,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/0df5f0e5d5fca2e6cd5c47a2e36e737c.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "liyuanfang",
+        "yangjian",
+        "yao",
+        "zhaohuaizhen"
+      ]
+    },
+    {
+      "id": "yixing",
+      "name": "弈星",
+      "title": "天元之弈",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.480128,
+      "popularity": 0.9,
+      "counters": [
+        "yuanliuzhizi_mage",
+        "xiangyu",
+        "lvbu",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "sangqi",
+        "yadianna",
+        "makeboluo",
+        "daqiao"
+      ],
+      "synergies": [
+        "mengya",
+        "guiguzi",
+        "liyuanfang",
+        "yalian"
+      ],
+      "pickRate": 0.027999999999999997,
+      "banRate": 0.008199999999999999,
+      "tierScore": 37.58,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15796.7,
+      "highBan": false,
+      "tierRank": 62,
+      "avatar": "https://img.pvp.mcxssg.net/hero/yixing.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "makeboluo",
+        "yangyuhuan",
+        "duoliya",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "miyue",
+      "name": "芈月",
+      "title": "永恒之月",
+      "roles": [
+        "WARRIOR",
+        "TANK"
+      ],
+      "aiWinRate": 0.480032,
+      "popularity": 2.1,
+      "difficulty": 3,
+      "counters": [
+        "duoliya",
+        "yingzheng",
+        "yuanlan",
+        "yalian"
+      ],
+      "counteredBy": [
+        "guanyu",
+        "juyoujing",
+        "gongbenwucang",
+        "shangguanwaner"
+      ],
+      "synergies": [
+        "ake",
+        "sikongzhen",
+        "yadianna",
+        "sunshangxiang"
+      ],
+      "pickRate": 0.064,
+      "banRate": 0.15710000000000002,
+      "tierScore": 37.52,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15900,
+      "highBan": false,
+      "tierRank": 63,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a4b9287c42e29abaa48264c9cb72f1d0.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "开除",
+      "antiSynergies": [
+        "simayi",
+        "daji",
+        "yao",
+        "yixing"
+      ]
+    },
+    {
+      "id": "dasiming",
+      "name": "大司命",
+      "title": "肃归之戈",
+      "roles": [
+        "WARRIOR",
+        "TANK",
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.479744,
+      "popularity": 5.7,
+      "counters": [
+        "chengyaojin",
+        "jinchan",
+        "yao",
+        "zhaohuaizhen"
+      ],
+      "counteredBy": [
+        "jialuo",
+        "miyue",
+        "liyuanfang",
+        "aguduo"
+      ],
+      "synergies": [
+        "sunshangxiang",
+        "lubandashi",
+        "lubanqihao",
+        "shangguanwaner"
+      ],
+      "pickRate": 0.171,
+      "banRate": 0.1177,
+      "tierScore": 37.34,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15960.9,
+      "highBan": false,
+      "tierRank": 64,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/4a09dbb5e27f5b851bdb9573e55f96a8.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野/坦野",
+      "antiSynergies": [
+        "sunbin",
+        "anqila",
+        "miyue",
+        "yase"
+      ]
+    },
+    {
+      "id": "mozi",
+      "name": "墨子",
+      "title": "",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.479632,
+      "popularity": 5.8,
+      "difficulty": 3,
+      "counters": [
+        "jialuo",
+        "lvbu",
+        "caiwenji",
+        "yalian"
+      ],
+      "counteredBy": [
+        "guanyu",
+        "sunce",
+        "diaochan",
+        "shangguanwaner"
+      ],
+      "synergies": [
+        "huangzhong",
+        "lanlingwang",
+        "daqiao",
+        "pangu"
+      ],
+      "pickRate": 0.17489999999999997,
+      "banRate": 0.573,
+      "tierScore": 37.27,
+      "tier": "T2",
+      "roleLabel": "游走",
+      "heroPower": 15903.4,
+      "highBan": false,
+      "tierRank": 65,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/deb788f3a436229b41fcbf80a867c6dc.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "游走/中路",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "yuanliuzhizi_tank",
+        "chengyaojin",
+        "wangzhaojun",
+        "yuanliuzhizi_support"
+      ]
+    },
+    {
+      "id": "houyi",
+      "name": "后羿",
+      "title": "半神之弓",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.47931199999999996,
+      "popularity": 9.3,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "jinchan",
+        "caiwenji",
+        "lvbu"
+      ],
+      "counteredBy": [
+        "niumo",
+        "dianwei",
+        "dunshan",
+        "xiangyu"
+      ],
+      "synergies": [
+        "dunshan",
+        "yadianna",
+        "shangguanwaner",
+        "guiguzi"
+      ],
+      "pickRate": 0.2779,
+      "banRate": 0.019799999999999998,
+      "tierScore": 37.07,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15709.8,
+      "highBan": false,
+      "tierRank": 66,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/7e1fc4519ceeff9db430f9062d3df4ac.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "yao",
+        "lixin",
+        "jinchan",
+        "yingzheng"
+      ]
+    },
+    {
+      "id": "zhuwujing",
+      "name": "猪八戒",
+      "title": "八戒",
+      "roles": [
+        "TANK",
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.478688,
+      "popularity": 3.3,
+      "difficulty": 3,
+      "counters": [
+        "chengyaojin",
+        "yuanliuzhizi_mage",
+        "yuanlan",
+        "jinchan"
+      ],
+      "counteredBy": [
+        "xiahoudun",
+        "lanlingwang",
+        "mengya",
+        "yunzhongjun"
+      ],
+      "synergies": [
+        "libai",
+        "sunbin",
+        "wuzetian",
+        "sunshangxiang"
+      ],
+      "pickRate": 0.0989,
+      "banRate": 0.0215,
+      "tierScore": 36.68,
+      "tier": "T2",
+      "roleLabel": "对抗路/打野",
+      "heroPower": 15444.7,
+      "highBan": false,
+      "tierRank": 67,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/88e065b76825b915b0c870c61f0c7fa5.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "对抗路/打野",
+      "profession": "坦野/坦边",
+      "antiSynergies": [
+        "lanlingwang",
+        "lvbu",
+        "baiqi",
+        "yase"
+      ]
+    },
+    {
+      "id": "libai",
+      "name": "李白",
+      "title": "青莲剑仙",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.478608,
+      "popularity": 1.3,
+      "difficulty": 8,
+      "counters": [
+        "guiguzi",
+        "zhongwuyan",
+        "nakelulu",
+        "zhuwujing"
+      ],
+      "counteredBy": [
+        "zhouyu",
+        "yase",
+        "yunyao",
+        "zhangliang"
+      ],
+      "synergies": [
+        "mengya",
+        "zhuwujing",
+        "dunshan",
+        "damo"
+      ],
+      "pickRate": 0.039,
+      "banRate": 0.0040999999999999995,
+      "tierScore": 36.63,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15756,
+      "highBan": false,
+      "tierRank": 68,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/f045632c97798f99af6e4128a3dcc185.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "zhongwuyan",
+        "makeboluo",
+        "zhangliang",
+        "bianque"
+      ]
+    },
+    {
+      "id": "hainuo",
+      "name": "海诺",
+      "title": "命运之引",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.478352,
+      "popularity": 1.4,
+      "counters": [
+        "zhuangzhou",
+        "daji",
+        "lianpo",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "zhangliang",
+        "yunzhongjun",
+        "diaochan"
+      ],
+      "synergies": [
+        "buzhihuowu",
+        "liushan",
+        "yuanliuzhizi_tank",
+        "dunshan"
+      ],
+      "pickRate": 0.043,
+      "banRate": 0.0403,
+      "tierScore": 36.47,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15740,
+      "highBan": false,
+      "tierRank": 69,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/9103305595e15945b4407c5b059bed7c.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "diaochan",
+        "sangqi",
+        "liyuanfang",
+        "yalian"
+      ]
+    },
+    {
+      "id": "jixiaoman",
+      "name": "姬小满",
+      "title": "小满",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.478,
+      "popularity": 0.6,
+      "difficulty": 3,
+      "counters": [
+        "lvbu",
+        "pangu",
+        "yingzheng",
+        "zhuwujing"
+      ],
+      "counteredBy": [
+        "donghuangtaiyi",
+        "zhangliang",
+        "haiyue",
+        "yase"
+      ],
+      "synergies": [
+        "huangzhong",
+        "simayi",
+        "dianwei",
+        "dunshan"
+      ],
+      "pickRate": 0.017,
+      "banRate": 0.001,
+      "tierScore": 36.25,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15924.3,
+      "highBan": false,
+      "tierRank": 70,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/39063d2f2001f5b80bdaf8b1b424ca32.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "liushan",
+        "yadianna",
+        "yuanliuzhizi_assassin",
+        "yangjian"
+      ]
+    },
+    {
+      "id": "shangguanwaner",
+      "name": "上官婉儿",
+      "title": "惊鸿之笔",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.47798399999999996,
+      "popularity": 0.6,
+      "difficulty": 9,
+      "counters": [
+        "jiangziya",
+        "zhongkui",
+        "lianpo",
+        "wangzhaojun"
+      ],
+      "counteredBy": [
+        "zhongwuyan",
+        "luna",
+        "gongsunli",
+        "mengqi"
+      ],
+      "synergies": [
+        "makeboluo",
+        "lubanqihao",
+        "mengqi",
+        "huangzhong"
+      ],
+      "pickRate": 0.0189,
+      "banRate": 0.01,
+      "tierScore": 36.24,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15710.6,
+      "highBan": false,
+      "tierRank": 71,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6efb8edfbc4e88de8b2f9cf354d50b92.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "大法核",
+      "antiSynergies": [
+        "liushan",
+        "luna",
+        "daqiao",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "laixiao",
+      "name": "莱西奥",
+      "title": "",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.47771199999999997,
+      "popularity": 1.5,
+      "difficulty": 3,
+      "counters": [
+        "jinchan",
+        "lvbu",
+        "yuanliuzhizi_tank",
+        "zhongkui"
+      ],
+      "counteredBy": [
+        "yao",
+        "liyuanfang",
+        "haiyue",
+        "laofuzi"
+      ],
+      "synergies": [
+        "yadianna",
+        "liubei",
+        "libai",
+        "sunce"
+      ],
+      "pickRate": 0.045,
+      "banRate": 0.0023,
+      "tierScore": 36.07,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15904.4,
+      "highBan": false,
+      "tierRank": 72,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/4014aa3796668575b18818a08b1cd60f.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "自保射",
+      "antiSynergies": [
+        "liushan",
+        "ake",
+        "chicha",
+        "donghuangtaiyi"
+      ]
+    },
+    {
+      "id": "gongbenwucang",
+      "name": "宫本武藏",
+      "title": "宫本",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.47726399999999997,
+      "popularity": 3.8,
+      "difficulty": 3,
+      "counters": [
+        "chengyaojin",
+        "sunbin",
+        "miyue",
+        "jinchan"
+      ],
+      "counteredBy": [
+        "pangu",
+        "yadianna",
+        "jialuo",
+        "zhouyu"
+      ],
+      "synergies": [
+        "guiguzi",
+        "huamulan",
+        "daqiao",
+        "houyi"
+      ],
+      "pickRate": 0.11289999999999999,
+      "banRate": 0.1244,
+      "tierScore": 35.79,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15763.3,
+      "highBan": false,
+      "tierRank": 73,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a191e2249f728ca99c93ee76e1a76f6b.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "niumo",
+        "jialuo",
+        "lianpo",
+        "zhaohuaizhen"
+      ]
+    },
+    {
+      "id": "sunquan",
+      "name": "孙权",
+      "title": "",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.47697599999999996,
+      "popularity": 5.9,
+      "difficulty": 3,
+      "counters": [
+        "chengyaojin",
+        "yingzheng",
+        "yuanliuzhizi_assassin",
+        "nakelulu"
+      ],
+      "counteredBy": [
+        "liyuanfang",
+        "yase",
+        "liubei",
+        "jialuo"
+      ],
+      "synergies": [
+        "zhuangzhou",
+        "pangu",
+        "guanyu",
+        "dasiming"
+      ],
+      "pickRate": 0.17800000000000002,
+      "banRate": 0.1431,
+      "tierScore": 35.61,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 16164.6,
+      "highBan": false,
+      "tierRank": 74,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/3bd3a3aa4134c9f4bc7899b2ace87aca.jpg",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "lixin",
+        "duoliya",
+        "caiwenji",
+        "dunshan"
+      ]
+    },
+    {
+      "id": "lubanqihao",
+      "name": "鲁班七号",
+      "title": "机关造物",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.47687999999999997,
+      "popularity": 6.3,
+      "difficulty": 4,
+      "counters": [
+        "lvbu",
+        "zhenji",
+        "xishi",
+        "ganjiangmoxie"
+      ],
+      "counteredBy": [
+        "ake",
+        "pangu",
+        "shangguanwaner",
+        "yuanliuzhizi_tank"
+      ],
+      "synergies": [
+        "liyuanfang",
+        "shangguanwaner",
+        "dianwei",
+        "yadianna"
+      ],
+      "pickRate": 0.1889,
+      "banRate": 0.011399999999999999,
+      "tierScore": 35.55,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15575.5,
+      "highBan": false,
+      "tierRank": 75,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/0cf5b1269357589da5a2669f2ec50ee5.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "xiangyu",
+        "liubang",
+        "mozi",
+        "dayu"
+      ]
+    },
+    {
+      "id": "damo",
+      "name": "达摩",
+      "title": "",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.47676799999999997,
+      "popularity": 0.6,
+      "difficulty": 3,
+      "counters": [
+        "caiwenji",
+        "makeboluo",
+        "lvbu",
+        "duoliya"
+      ],
+      "counteredBy": [
+        "yingzheng",
+        "guiguzi",
+        "yangjian",
+        "xiangyu"
+      ],
+      "synergies": [
+        "gaojianli",
+        "diaochan",
+        "yingzheng",
+        "libai"
+      ],
+      "pickRate": 0.0189,
+      "banRate": 0.0006,
+      "tierScore": 35.48,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15467.2,
+      "highBan": false,
+      "tierRank": 76,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/b1bd6be870a67ae05117a72ac2d2d622.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "xiangyu",
+        "lianpo",
+        "zhaohuaizhen",
+        "jinchan"
+      ]
+    },
+    {
+      "id": "zhenji",
+      "name": "甄姬",
+      "title": "洛神降临",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.476512,
+      "popularity": 4.4,
+      "difficulty": 3,
+      "counters": [
+        "duoliya",
+        "liushan",
+        "baiqi",
+        "jiangziya"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "yunzhongjun",
+        "ake",
+        "yao"
+      ],
+      "synergies": [
+        "zhangliang",
+        "mengya",
+        "miyue",
+        "ake"
+      ],
+      "pickRate": 0.1319,
+      "banRate": 0.0197,
+      "tierScore": 35.32,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15585,
+      "highBan": false,
+      "tierRank": 77,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/e33330f3d3474039865320ab5a8dc8bc.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "lvbu",
+        "caiwenji",
+        "yaoao",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "dianwei",
+      "name": "典韦",
+      "title": "狂战士",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.476128,
+      "popularity": 2.7,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "niumo",
+        "wangzhaojun",
+        "houyi"
+      ],
+      "counteredBy": [
+        "sunshangxiang",
+        "luna",
+        "miyue",
+        "zhugeliang"
+      ],
+      "synergies": [
+        "lvbu",
+        "lubanqihao",
+        "dunshan",
+        "sunshangxiang"
+      ],
+      "pickRate": 0.08199999999999999,
+      "banRate": 0.027200000000000002,
+      "tierScore": 35.08,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15609,
+      "highBan": false,
+      "tierRank": 78,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6c26aaf4879df2a8556f4d37d4f2d334.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "sangqi",
+        "zhongwuyan",
+        "sunquan",
+        "yingzheng"
+      ]
+    },
+    {
+      "id": "bianque",
+      "name": "扁鹊",
+      "title": "善恶怪医",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.475328,
+      "popularity": 3.6,
+      "counters": [
+        "yuanliuzhizi_tank",
+        "xiangyu",
+        "daji",
+        "jinchan"
+      ],
+      "counteredBy": [
+        "milaidi",
+        "jialuo",
+        "mengya",
+        "guiguzi"
+      ],
+      "synergies": [
+        "luna",
+        "simayi",
+        "mengqi",
+        "taiyizhenren"
+      ],
+      "pickRate": 0.10800000000000001,
+      "banRate": 0.1036,
+      "tierScore": 34.58,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15797.1,
+      "highBan": false,
+      "tierRank": 79,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/108670756151e491bc9f3758b2b0b6df.jpg",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "大法核",
+      "antiSynergies": [
+        "caiwenji",
+        "mengya",
+        "yalian",
+        "sangqi"
+      ]
+    },
+    {
+      "id": "sunce",
+      "name": "孙策",
+      "title": "光明之海",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.474224,
+      "popularity": 2,
+      "difficulty": 6,
+      "counters": [
+        "zhouyu",
+        "lvbu",
+        "anqila",
+        "mengya"
+      ],
+      "counteredBy": [
+        "diaochan",
+        "taiyizhenren",
+        "makeboluo",
+        "yadianna"
+      ],
+      "synergies": [
+        "liyuanfang",
+        "diaochan",
+        "gaojianli",
+        "wangzhaojun"
+      ],
+      "pickRate": 0.0599,
+      "banRate": 0.0038,
+      "tierScore": 33.89,
+      "tier": "T2",
+      "roleLabel": "对抗路",
+      "heroPower": 15374.5,
+      "highBan": false,
+      "tierRank": 80,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a8e4d5c74e0d9b33ab595391135845d3.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "yaoao",
+        "nakelulu",
+        "ganjiangmoxie",
+        "sunwukong"
+      ]
+    },
+    {
+      "id": "yao",
+      "name": "瑶",
+      "title": "鹿灵守心",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.474224,
+      "popularity": 8.3,
+      "difficulty": 3,
+      "counters": [
+        "laixiao",
+        "zhenji",
+        "zhuwujing",
+        "nezha"
+      ],
+      "counteredBy": [
+        "dunshan",
+        "pangu",
+        "juyoujing",
+        "mengqi"
+      ],
+      "synergies": [
+        "yunzhongjun",
+        "guanyu",
+        "sunce",
+        "daqiao"
+      ],
+      "pickRate": 0.25,
+      "banRate": 0.3601,
+      "tierScore": 33.89,
+      "tier": "T2",
+      "roleLabel": "游走",
+      "heroPower": 15579.1,
+      "highBan": false,
+      "tierRank": 81,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6a2b0b9639d6df7e371101d5dde87a78.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "houyi",
+        "miyue",
+        "luyana",
+        "kai"
+      ]
+    },
+    {
+      "id": "yadianna",
+      "name": "雅典娜",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.473856,
+      "popularity": 0.3,
+      "difficulty": 3,
+      "counters": [
+        "niumo",
+        "yunzhongjun",
+        "yuanliuzhizi_assassin",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "jialuo",
+        "liyuanfang",
+        "yase",
+        "luna"
+      ],
+      "synergies": [
+        "jialuo",
+        "zhongwuyan",
+        "dunshan",
+        "xiangyu"
+      ],
+      "pickRate": 0.0089,
+      "banRate": 0.0003,
+      "tierScore": 33.66,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15278.4,
+      "highBan": false,
+      "tierRank": 82,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/38ef965b650a7d05b792662d16c02e5b.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "wangzhaojun",
+        "ganjiangmoxie",
+        "jixiaoman",
+        "zhuwujing"
+      ]
+    },
+    {
+      "id": "simayi",
+      "name": "司马懿",
+      "title": "寂灭之心",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.473696,
+      "popularity": 1.1,
+      "counters": [
+        "zhouyu",
+        "mengya",
+        "yingzheng",
+        "liubei"
+      ],
+      "counteredBy": [
+        "jiangziya",
+        "yunzhongjun",
+        "haiyue",
+        "libai"
+      ],
+      "synergies": [
+        "yingzheng",
+        "jinchan",
+        "sunce",
+        "jixiaoman"
+      ],
+      "pickRate": 0.032,
+      "banRate": 0.0126,
+      "tierScore": 33.56,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15868.1,
+      "highBan": false,
+      "tierRank": 83,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/f202d13c524512e80e62733ba4955000.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "miyue",
+        "zhongwuyan",
+        "makeboluo",
+        "duoliya"
+      ]
+    },
+    {
+      "id": "gaojianli",
+      "name": "高渐离",
+      "title": "",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.473184,
+      "popularity": 0.7,
+      "difficulty": 3,
+      "counters": [
+        "chengyaojin",
+        "daji",
+        "kongkonger",
+        "yuanliuzhizi_assassin"
+      ],
+      "counteredBy": [
+        "mengqi",
+        "wuzetian",
+        "dasiming",
+        "miyue"
+      ],
+      "synergies": [
+        "sunce",
+        "mengya",
+        "damo",
+        "liubei"
+      ],
+      "pickRate": 0.0219,
+      "banRate": 0.002,
+      "tierScore": 33.24,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15375,
+      "highBan": false,
+      "tierRank": 84,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/486826e952d81c18e7015f07c2c1e9e3.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "大法核",
+      "antiSynergies": [
+        "kongkonger",
+        "zhaohuaizhen",
+        "kai",
+        "gongsunli"
+      ]
+    },
+    {
+      "id": "yuanlan",
+      "name": "澜",
+      "title": "鲨之猎刃",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.472576,
+      "popularity": 3.2,
+      "difficulty": 3,
+      "counters": [
+        "wangzhaojun",
+        "lvbu",
+        "sangqi",
+        "bianque"
+      ],
+      "counteredBy": [
+        "liyuanfang",
+        "miyue",
+        "mengqi",
+        "zhuwujing"
+      ],
+      "synergies": [
+        "zhangliang",
+        "taiyizhenren",
+        "sunshangxiang",
+        "yase"
+      ],
+      "pickRate": 0.09699999999999999,
+      "banRate": 0.0294,
+      "tierScore": 32.86,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15811.6,
+      "highBan": false,
+      "tierRank": 85,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/2163516183586c588187cc22c8c05cb8.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "yingzheng",
+        "xialuote",
+        "ganjiangmoxie",
+        "chicha"
+      ]
+    },
+    {
+      "id": "yase",
+      "name": "亚瑟",
+      "title": "圣骑之力",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.47249599999999997,
+      "popularity": 2.6,
+      "difficulty": 2,
+      "counters": [
+        "ake",
+        "yuanliuzhizi_tank",
+        "sangqi",
+        "sunquan"
+      ],
+      "counteredBy": [
+        "mengqi",
+        "yalian",
+        "sunce",
+        "shangguanwaner"
+      ],
+      "synergies": [
+        "yingzheng",
+        "yuange",
+        "yuanliuzhizi_assassin",
+        "ying"
+      ],
+      "pickRate": 0.079,
+      "banRate": 0.008100000000000001,
+      "tierScore": 32.81,
+      "tier": "T2",
+      "roleLabel": "对抗路/游走",
+      "heroPower": 15474.2,
+      "highBan": false,
+      "tierRank": 86,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/47c68ce8236498fc5e050e12ad91c84a.png",
+      "positions": [
+        "CLASH_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "对抗路/游走",
+      "profession": "战边",
+      "antiSynergies": [
+        "zhuwujing",
+        "makeboluo",
+        "gongsunli",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "yuanliuzhizi_assassin",
+      "name": "元流之子(刺客)",
+      "title": "万象为相",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.472368,
+      "popularity": 0.5,
+      "counters": [
+        "mengqi",
+        "ganjiangmoxie",
+        "zhaohuaizhen",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "yuanliuzhizi_tank",
+        "yadianna",
+        "gaojianli",
+        "sunce"
+      ],
+      "synergies": [
+        "yase",
+        "miyue",
+        "huamulan",
+        "laixiao"
+      ],
+      "pickRate": 0.013999999999999999,
+      "banRate": 0.0017000000000000001,
+      "tierScore": 32.73,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15719.8,
+      "highBan": false,
+      "tierRank": 87,
+      "avatar": "https://img.pvp.mcxssg.net/manage/compress/custom_wzry_E1/4c8ad1091e8db042e5270fab9c202f33.jpg",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "zhongkui",
+        "jixiaoman",
+        "direnjie",
+        "caocao"
+      ]
+    },
+    {
+      "id": "anqila",
+      "name": "安琪拉",
+      "title": "暗夜萝莉",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.471856,
+      "popularity": 10,
+      "difficulty": 4,
+      "counters": [
+        "ganjiangmoxie",
+        "xinmoliuer",
+        "hainuo",
+        "zhuwujing"
+      ],
+      "counteredBy": [
+        "duoliya",
+        "liushan",
+        "zhongkui",
+        "makeboluo"
+      ],
+      "synergies": [
+        "yase",
+        "guanyu",
+        "ailin",
+        "lubandashi"
+      ],
+      "pickRate": 0.34490000000000004,
+      "banRate": 0.0935,
+      "tierScore": 32.41,
+      "tier": "T2",
+      "roleLabel": "中路",
+      "heroPower": 15575.7,
+      "highBan": false,
+      "tierRank": 88,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/b64a85d622df2c8fd7ecb557885ca2c2.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "liubei",
+        "yao",
+        "xinmoliuer",
+        "zhangliang"
+      ]
+    },
+    {
+      "id": "sangqi",
+      "name": "桑启",
+      "title": "",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.471648,
+      "popularity": 2.5,
+      "difficulty": 3,
+      "counters": [
+        "wangzhaojun",
+        "xiangyu",
+        "yixing",
+        "xialuote"
+      ],
+      "counteredBy": [
+        "ake",
+        "liubei",
+        "yase",
+        "xishi"
+      ],
+      "synergies": [
+        "xishi",
+        "shangguanwaner",
+        "gongsunli",
+        "guanyu"
+      ],
+      "pickRate": 0.07400000000000001,
+      "banRate": 0.013000000000000001,
+      "tierScore": 32.28,
+      "tier": "T2",
+      "roleLabel": "游走",
+      "heroPower": 15399.2,
+      "highBan": false,
+      "tierRank": 89,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/c98736a91b4d8a9a88fb3fbb254330f0.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "makeboluo",
+        "nakelulu",
+        "hainuo",
+        "dianwei"
+      ]
+    },
+    {
+      "id": "yaoao",
+      "name": "曜",
+      "title": "",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.470352,
+      "popularity": 1.1,
+      "difficulty": 3,
+      "counters": [
+        "ake",
+        "lvbu",
+        "zhaohuaizhen",
+        "anqila"
+      ],
+      "counteredBy": [
+        "guiguzi",
+        "liubei",
+        "yase",
+        "yingzheng"
+      ],
+      "synergies": [
+        "guiguzi",
+        "damo",
+        "dunshan",
+        "buzhihuowu"
+      ],
+      "pickRate": 0.032,
+      "banRate": 0.0017000000000000001,
+      "tierScore": 31.47,
+      "tier": "T2",
+      "roleLabel": "打野",
+      "heroPower": 15347.9,
+      "highBan": false,
+      "tierRank": 90,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/61cbab4d80cfdebe5ae8d2b10709d1bd.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "yangjian",
+        "kongkonger",
+        "zhenji",
+        "hainuo"
+      ]
+    },
+    {
+      "id": "makeboluo",
+      "name": "马可波罗",
+      "title": "远游之枪",
+      "roles": [
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.468528,
+      "popularity": 4.8,
+      "difficulty": 7,
+      "counters": [
+        "anqila",
+        "baiqi",
+        "yixing",
+        "sunce"
+      ],
+      "counteredBy": [
+        "aguduo",
+        "gongsunli",
+        "damo",
+        "miyue"
+      ],
+      "synergies": [
+        "shangguanwaner",
+        "yangjian",
+        "jixiaoman",
+        "haiyue"
+      ],
+      "pickRate": 0.14300000000000002,
+      "banRate": 0.0443,
+      "tierScore": 30.33,
+      "tier": "T2",
+      "roleLabel": "发育路",
+      "heroPower": 15513.6,
+      "highBan": false,
+      "tierRank": 91,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/67bce625e42b9332aa96bf08519607c1.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "自保射",
+      "antiSynergies": [
+        "guiguzi",
+        "sangqi",
+        "yixing",
+        "libai"
+      ]
+    },
+    {
+      "id": "baiqi",
+      "name": "白起",
+      "title": "最终兵器",
+      "roles": [
+        "TANK",
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.46611199999999997,
+      "popularity": 1.6,
+      "difficulty": 5,
+      "counters": [
+        "mengya",
+        "yaoao",
+        "lianpo",
+        "huangzhong"
+      ],
+      "counteredBy": [
+        "yuange",
+        "yadianna",
+        "luna",
+        "makeboluo"
+      ],
+      "synergies": [
+        "yadianna",
+        "sikongzhen",
+        "yuanliuzhizi_assassin",
+        "diaochan"
+      ],
+      "pickRate": 0.046900000000000004,
+      "banRate": 0.006500000000000001,
+      "tierScore": 28.82,
+      "tier": "T3",
+      "roleLabel": "对抗路",
+      "heroPower": 15215.9,
+      "highBan": false,
+      "tierRank": 92,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/50178329659cbc3b7b04663a872b6b8f.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "坦边",
+      "antiSynergies": [
+        "yuanliuzhizi_tank",
+        "zhuwujing",
+        "jinchan",
+        "nezha"
+      ]
+    },
+    {
+      "id": "yunzhongjun",
+      "name": "云中君",
+      "title": "云中",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.46577599999999997,
+      "popularity": 0.4,
+      "difficulty": 3,
+      "counters": [
+        "lvbu",
+        "huangzhong",
+        "yuanliuzhizi_tank",
+        "zhenji"
+      ],
+      "counteredBy": [
+        "yadianna",
+        "haiyue",
+        "lubanqihao",
+        "dunshan"
+      ],
+      "synergies": [
+        "yao",
+        "zhouyu",
+        "huangzhong",
+        "yase"
+      ],
+      "pickRate": 0.0109,
+      "banRate": 0.0005,
+      "tierScore": 28.61,
+      "tier": "T3",
+      "roleLabel": "打野",
+      "heroPower": 15204.5,
+      "highBan": false,
+      "tierRank": 93,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/f569a80f18701829a34746123aae1ef7.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "战野",
+      "antiSynergies": [
+        "buzhihuowu",
+        "mozi",
+        "yuji"
+      ]
+    },
+    {
+      "id": "duoliya",
+      "name": "朵莉亚",
+      "title": "朵朵",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.4644,
+      "popularity": 6.9,
+      "difficulty": 3,
+      "counters": [
+        "anqila",
+        "bianque",
+        "lianpo",
+        "zhaohuaizhen"
+      ],
+      "counteredBy": [
+        "miyue",
+        "luna",
+        "yuji",
+        "zhenji"
+      ],
+      "synergies": [
+        "ganjiangmoxie",
+        "yalian",
+        "aguduo",
+        "shangguanwaner"
+      ],
+      "pickRate": 0.20800000000000002,
+      "banRate": 0.2158,
+      "tierScore": 27.75,
+      "tier": "T3",
+      "roleLabel": "游走",
+      "heroPower": 15162.6,
+      "highBan": false,
+      "tierRank": 94,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d2805fb51a836d953e9a6d5e8c695d32.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "sunquan",
+        "yixing",
+        "sunshangxiang",
+        "change"
+      ]
+    },
+    {
+      "id": "liyuanfang",
+      "name": "李元芳",
+      "title": "",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.463696,
+      "popularity": 4.3,
+      "difficulty": 3,
+      "counters": [
+        "xiangyu",
+        "yuanlan",
+        "zhongwuyan",
+        "sunquan"
+      ],
+      "counteredBy": [
+        "guanyu",
+        "nvwa",
+        "juyoujing",
+        "yuji"
+      ],
+      "synergies": [
+        "lubanqihao",
+        "sunce",
+        "dunshan",
+        "haiyue"
+      ],
+      "pickRate": 0.12990000000000002,
+      "banRate": 0.0241,
+      "tierScore": 27.31,
+      "tier": "T3",
+      "roleLabel": "发育路/打野",
+      "heroPower": 15140.2,
+      "highBan": false,
+      "tierRank": 95,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/853673f5f19581745b5e2545b07a73a2.png",
+      "positions": [
+        "FARM_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/发育路",
+      "profession": "抗压射",
+      "antiSynergies": [
+        "juyoujing",
+        "hainuo",
+        "yingzheng",
+        "yunyao"
+      ]
+    },
+    {
+      "id": "mengya",
+      "name": "蒙犽",
+      "title": "",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.46198399999999995,
+      "popularity": 0.6,
+      "difficulty": 3,
+      "counters": [
+        "mengqi",
+        "huangzhong",
+        "xiaoqiao",
+        "yao"
+      ],
+      "counteredBy": [
+        "zhangliang",
+        "simayi",
+        "sunce",
+        "baiqi"
+      ],
+      "synergies": [
+        "libai",
+        "zhangliang",
+        "taiyizhenren",
+        "yixing"
+      ],
+      "pickRate": 0.0179,
+      "banRate": 0.002,
+      "tierScore": 26.24,
+      "tier": "T3",
+      "roleLabel": "发育路",
+      "heroPower": 15088.3,
+      "highBan": false,
+      "tierRank": 96,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/1601abbe4627280fe4fe42520cf68888.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "ganjiangmoxie",
+        "bianque",
+        "kongkonger",
+        "xinmoliuer"
+      ]
+    },
+    {
+      "id": "nakelulu",
+      "name": "娜可露露",
+      "title": "鹰之守护",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.460256,
+      "popularity": 0.7,
+      "difficulty": 5,
+      "counters": [
+        "zhangliang",
+        "yuanlan",
+        "kai",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "yase",
+        "guanyu",
+        "libai",
+        "sunquan"
+      ],
+      "synergies": [
+        "zhongwuyan",
+        "gaojianli",
+        "yangjian",
+        "gongsunli"
+      ],
+      "pickRate": 0.0209,
+      "banRate": 0.0006,
+      "tierScore": 25.16,
+      "tier": "T3",
+      "roleLabel": "打野",
+      "heroPower": 15045,
+      "highBan": false,
+      "tierRank": 97,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/a60a3ec00199eedece74be1b88c52d84.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "sangqi",
+        "kongkonger",
+        "yangyuhuan",
+        "direnjie"
+      ]
+    },
+    {
+      "id": "mengqi",
+      "name": "梦奇",
+      "title": "梦琪",
+      "roles": [
+        "WARRIOR",
+        "TANK",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.459904,
+      "popularity": 0.5,
+      "difficulty": 3,
+      "counters": [
+        "yase",
+        "yao",
+        "yingzheng",
+        "yuanlan"
+      ],
+      "counteredBy": [
+        "zhongkui",
+        "mengya",
+        "yuanliuzhizi_assassin",
+        "luna"
+      ],
+      "synergies": [
+        "juyoujing",
+        "shangguanwaner",
+        "mengtian",
+        "guanyu"
+      ],
+      "pickRate": 0.013999999999999999,
+      "banRate": 0.003,
+      "tierScore": 24.94,
+      "tier": "T3",
+      "roleLabel": "对抗路/打野",
+      "heroPower": 15031.7,
+      "highBan": false,
+      "tierRank": 98,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/7232f9d0c48f865a513b2c47ea45e62b.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/对抗路",
+      "profession": "战野/坦野",
+      "antiSynergies": [
+        "caocao",
+        "yangjian",
+        "yuji",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "wangzhaojun",
+      "name": "王昭君",
+      "title": "冰雪之华",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.458864,
+      "popularity": 6.1,
+      "difficulty": 5,
+      "counters": [
+        "baiqi",
+        "zhaohuaizhen",
+        "kuangtie"
+      ],
+      "counteredBy": [
+        "yuanlan",
+        "sangqi",
+        "yuange",
+        "huamulan"
+      ],
+      "synergies": [
+        "sunce",
+        "lubandashi",
+        "zhangliang",
+        "bailixuance"
+      ],
+      "pickRate": 0.1819,
+      "banRate": 0.1234,
+      "tierScore": 24.29,
+      "tier": "T3",
+      "roleLabel": "中路",
+      "heroPower": 15000.9,
+      "highBan": false,
+      "tierRank": 99,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/dcd22aca5aa73428701166983f7a4eb0.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "yangyuhuan",
+        "yadianna",
+        "caocao",
+        "mozi"
+      ]
+    },
+    {
+      "id": "zhaohuaizhen",
+      "name": "赵怀真",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.458864,
+      "popularity": 1,
+      "difficulty": 3,
+      "counters": [
+        "daji",
+        "nakelulu",
+        "mengya",
+        "shangguanwaner"
+      ],
+      "counteredBy": [
+        "sunbin",
+        "zhouyu",
+        "yaoao",
+        "yadianna"
+      ],
+      "synergies": [
+        "makeboluo",
+        "dianwei",
+        "haiyue",
+        "bianque"
+      ],
+      "pickRate": 0.028900000000000002,
+      "banRate": 0.0034999999999999996,
+      "tierScore": 24.29,
+      "tier": "T3",
+      "roleLabel": "游走/对抗路(次分路)",
+      "heroPower": 14997.2,
+      "highBan": false,
+      "tierRank": 100,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/f1051fcec68cf0946b5315f6cda3dfa8.png",
+      "positions": [
+        "CLASH_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "游走/对抗路",
+      "profession": "战边/反手辅",
+      "antiSynergies": [
+        "yingzheng",
+        "lanlingwang",
+        "daji",
+        "mozi"
+      ]
+    },
+    {
+      "id": "jialuo",
+      "name": "伽罗",
+      "title": "破魔之箭",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.45817599999999997,
+      "popularity": 3.3,
+      "difficulty": 6,
+      "counters": [
+        "liubang",
+        "zhangliang",
+        "bianque",
+        "gongbenwucang"
+      ],
+      "counteredBy": [
+        "xialuote",
+        "mengtian",
+        "mozi",
+        "nvwa"
+      ],
+      "synergies": [
+        "yadianna",
+        "huamulan",
+        "mengtian",
+        "buzhihuowu"
+      ],
+      "pickRate": 0.09789999999999999,
+      "banRate": 0.0438,
+      "tierScore": 23.86,
+      "tier": "T3",
+      "roleLabel": "发育路",
+      "heroPower": 14986.2,
+      "highBan": false,
+      "tierRank": 101,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/4fb876391f8f4bf6bb8d8a50251901c6.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "liubang",
+        "gongbenwucang",
+        "caocao",
+        "xialuote"
+      ]
+    },
+    {
+      "id": "ganjiangmoxie",
+      "name": "干将莫邪",
+      "title": "淬命双剑",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.457488,
+      "popularity": 2.1,
+      "difficulty": 8,
+      "counters": [
+        "yao",
+        "huangzhong",
+        "direnjie",
+        "yuanlan"
+      ],
+      "counteredBy": [
+        "zhongwuyan",
+        "yuanliuzhizi_assassin",
+        "liubei",
+        "diaochan"
+      ],
+      "synergies": [
+        "lanlingwang",
+        "duoliya",
+        "damo",
+        "hanxin"
+      ],
+      "pickRate": 0.063,
+      "banRate": 0.023700000000000002,
+      "tierScore": 23.43,
+      "tier": "T3",
+      "roleLabel": "中路",
+      "heroPower": 14965.5,
+      "highBan": false,
+      "tierRank": 102,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/b1de50a7d49ef8a808e27765208d92d3.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "大法核",
+      "antiSynergies": [
+        "zhongwuyan",
+        "donghuangtaiyi",
+        "mengya",
+        "daqiao"
+      ]
+    },
+    {
+      "id": "zhangliang",
+      "name": "张良",
+      "title": "言灵之书",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.4568,
+      "popularity": 2,
+      "difficulty": 3,
+      "counters": [
+        "mengya",
+        "xialuote",
+        "huangzhong",
+        "baiqi"
+      ],
+      "counteredBy": [
+        "jialuo",
+        "nakelulu",
+        "yuange",
+        "wuzetian"
+      ],
+      "synergies": [
+        "mengya",
+        "yuanlan",
+        "zhenji",
+        "dunshan"
+      ],
+      "pickRate": 0.0599,
+      "banRate": 0.3671,
+      "tierScore": 23,
+      "tier": "T3",
+      "roleLabel": "游走/中路(次分路)",
+      "heroPower": 14937.4,
+      "highBan": false,
+      "tierRank": 103,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/1e8b6f73d00ae1d058299bb94808741c.png",
+      "positions": [
+        "MID_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "游走/中路",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "shaosiyuan",
+        "liubang",
+        "libai",
+        "anqila"
+      ]
+    },
+    {
+      "id": "guiguzi",
+      "name": "鬼谷子",
+      "title": "",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.4568,
+      "popularity": 0.5,
+      "difficulty": 3,
+      "counters": [
+        "zhenji",
+        "yaoao",
+        "zhongkui",
+        "kuangtie"
+      ],
+      "counteredBy": [
+        "libai",
+        "daqiao",
+        "lianpo",
+        "yangjian"
+      ],
+      "synergies": [
+        "yaoao",
+        "diaochan",
+        "yangyuhuan",
+        "yixing"
+      ],
+      "pickRate": 0.0149,
+      "banRate": 0.0379,
+      "tierScore": 23,
+      "tier": "T3",
+      "roleLabel": "游走",
+      "heroPower": 14945.2,
+      "highBan": false,
+      "tierRank": 104,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/1a1c0f58f9b81a303efa29088db69333.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "makeboluo",
+        "lvbu",
+        "zhuwujing",
+        "baiqi"
+      ]
+    },
+    {
+      "id": "zhouyu",
+      "name": "周瑜",
+      "title": "铁血都督",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.45644799999999996,
+      "popularity": 0.8,
+      "difficulty": 3,
+      "counters": [
+        "libai",
+        "yunyao",
+        "zhaohuaizhen",
+        "gongbenwucang"
+      ],
+      "counteredBy": [
+        "sunce",
+        "simayi",
+        "sunshangxiang",
+        "liubang"
+      ],
+      "synergies": [
+        "yunzhongjun",
+        "huamulan",
+        "bailixuance",
+        "liubang"
+      ],
+      "pickRate": 0.024,
+      "banRate": 0.0017000000000000001,
+      "tierScore": 22.78,
+      "tier": "T3",
+      "roleLabel": "中路",
+      "heroPower": 14926.9,
+      "highBan": false,
+      "tierRank": 105,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/960c6b2149ab3c263c89a33eb333f330.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "direnjie",
+        "kuangtie",
+        "sunwukong",
+        "zhangfei"
+      ]
+    },
+    {
+      "id": "yalian",
+      "name": "亚连",
+      "title": "暗影猎手",
+      "roles": [
+        "WARRIOR"
+      ],
+      "difficulty": 4,
+      "aiWinRate": 0.455424,
+      "popularity": 0.5,
+      "counters": [
+        "xiaoqiao",
+        "yase",
+        "mengtian",
+        "kongkonger"
+      ],
+      "counteredBy": [
+        "nezha",
+        "miyue",
+        "machao",
+        "juyoujing"
+      ],
+      "synergies": [
+        "duoliya",
+        "diaochan",
+        "yixing",
+        "dayu"
+      ],
+      "pickRate": 0.0149,
+      "banRate": 0.002,
+      "tierScore": 22.14,
+      "tier": "T3",
+      "roleLabel": "对抗路",
+      "heroPower": 14905.8,
+      "highBan": false,
+      "tierRank": 106,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/220a2fddb4780a5e0061f03a8cb870ad.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战边",
+      "antiSynergies": [
+        "yangjian",
+        "hainuo",
+        "bianque",
+        "kongkonger"
+      ]
+    },
+    {
+      "id": "yuanliuzhizi_tank",
+      "name": "元流之子(坦克)",
+      "title": "万象为相",
+      "roles": [
+        "TANK",
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.454384,
+      "popularity": 1.6,
+      "counters": [
+        "yuanliuzhizi_assassin",
+        "anqila",
+        "haiyue",
+        "cang"
+      ],
+      "counteredBy": [
+        "yunzhongjun",
+        "yase",
+        "bianque",
+        "peiqinhu"
+      ],
+      "synergies": [
+        "yingzheng",
+        "nezha",
+        "hainuo",
+        "yunyao"
+      ],
+      "pickRate": 0.048,
+      "banRate": 0.017,
+      "tierScore": 21.49,
+      "tier": "T3",
+      "roleLabel": "游走/打野/对抗路(次分路)",
+      "heroPower": 14875.3,
+      "highBan": false,
+      "tierRank": 107,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/40ffb934078560ec6675ae409edce2de.png",
+      "positions": [
+        "CLASH_LANE",
+        "ROAM",
+        "JUNGLE"
+      ],
+      "positionLabel": "游走/对抗路/打野",
+      "profession": "坦野/坦边",
+      "antiSynergies": [
+        "baiqi",
+        "huamulan",
+        "mozi",
+        "kongkonger"
+      ]
+    },
+    {
+      "id": "huangzhong",
+      "name": "黄忠",
+      "title": "燃魂重炮",
+      "roles": [
+        "MARKSMAN"
+      ],
+      "aiWinRate": 0.453696,
+      "popularity": 2.4,
+      "difficulty": 3,
+      "counters": [
+        "xiangyu",
+        "zhaohuaizhen",
+        "zhenji",
+        "xialuote"
+      ],
+      "counteredBy": [
+        "yunzhongjun",
+        "mengya",
+        "ganjiangmoxie",
+        "zhangliang"
+      ],
+      "synergies": [
+        "pangu",
+        "yunzhongjun",
+        "shangguanwaner",
+        "jixiaoman"
+      ],
+      "pickRate": 0.0719,
+      "banRate": 0.0073,
+      "tierScore": 21.06,
+      "tier": "T3",
+      "roleLabel": "发育路",
+      "heroPower": 14850.4,
+      "highBan": false,
+      "tierRank": 108,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/bcfcb1b97a7c3b2927c24872738599cd.png",
+      "positions": [
+        "FARM_LANE"
+      ],
+      "positionLabel": "发育路",
+      "profession": "射核",
+      "antiSynergies": [
+        "xishi",
+        "caocao",
+        "kongkonger",
+        "nezha"
+      ]
+    },
+    {
+      "id": "lianpo",
+      "name": "廉颇",
+      "title": "正义爆轰",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.45334399999999997,
+      "popularity": 2.7,
+      "difficulty": 5,
+      "counters": [
+        "liushan",
+        "guiguzi",
+        "zhongkui",
+        "xiangyu"
+      ],
+      "counteredBy": [
+        "caiwenji",
+        "shangguanwaner",
+        "luna",
+        "gaojianli"
+      ],
+      "synergies": [
+        "yuanliuzhizi_support",
+        "miyue",
+        "daqiao",
+        "haiyue"
+      ],
+      "pickRate": 0.08199999999999999,
+      "banRate": 0.0535,
+      "tierScore": 20.84,
+      "tier": "T3",
+      "roleLabel": "游走/对抗路(次分路)",
+      "heroPower": 14844.6,
+      "highBan": false,
+      "tierRank": 109,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d9ce3579a525ab564afa50ba82d2fbe0.png",
+      "positions": [
+        "CLASH_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "游走/对抗路",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "jinchan",
+        "xiangyu",
+        "sulie",
+        "damo"
+      ]
+    },
+    {
+      "id": "liushan",
+      "name": "刘禅",
+      "title": "暴走机关",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.45334399999999997,
+      "popularity": 3.4,
+      "difficulty": 3,
+      "counters": [
+        "anqila",
+        "yuji",
+        "gongbenwucang",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "yunyao",
+        "yunzhongjun",
+        "lianpo",
+        "laofuzi"
+      ],
+      "synergies": [
+        "yunyao",
+        "hainuo",
+        "daqiao",
+        "aguduo"
+      ],
+      "pickRate": 0.10300000000000001,
+      "banRate": 0.07780000000000001,
+      "tierScore": 20.84,
+      "tier": "T3",
+      "roleLabel": "游走",
+      "heroPower": 14844.9,
+      "highBan": false,
+      "tierRank": 110,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/3d6a4cdd09f9236dcdce0270ac6055c2.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "jixiaoman",
+        "laixiao",
+        "shangguanwaner",
+        "kai"
+      ]
+    },
+    {
+      "id": "zhongkui",
+      "name": "钟馗",
+      "title": "",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.45232,
+      "popularity": 2.9,
+      "difficulty": 3,
+      "counters": [
+        "mengqi",
+        "anqila",
+        "zhaohuaizhen",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "xiangyu",
+        "direnjie",
+        "shangguanwaner",
+        "guiguzi"
+      ],
+      "synergies": [
+        "luna",
+        "mengtian"
+      ],
+      "pickRate": 0.086,
+      "banRate": 0.2799,
+      "tierScore": 20.2,
+      "tier": "T3",
+      "roleLabel": "游走",
+      "heroPower": 14809.3,
+      "highBan": false,
+      "tierRank": 111,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/6437312f8f969f8139eb4ed3fcb7fffd.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "yuanliuzhizi_assassin",
+        "ailin",
+        "huamulan",
+        "yunyao"
+      ]
+    },
+    {
+      "id": "yingzheng",
+      "name": "嬴政",
+      "title": "",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.451968,
+      "popularity": 1.3,
+      "difficulty": 3,
+      "counters": [
+        "yao",
+        "yaoao",
+        "damo",
+        "zhaohuaizhen"
+      ],
+      "counteredBy": [
+        "miyue",
+        "juyoujing",
+        "change",
+        "aguduo"
+      ],
+      "synergies": [
+        "yuanliuzhizi_tank",
+        "yase",
+        "simayi",
+        "damo"
+      ],
+      "pickRate": 0.0379,
+      "banRate": 0.0017000000000000001,
+      "tierScore": 19.98,
+      "tier": "T3",
+      "roleLabel": "中路",
+      "heroPower": 14796.7,
+      "highBan": false,
+      "tierRank": 112,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/ea22580fa590524748dbb8ade75698fc.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "yangyuhuan",
+        "zhaohuaizhen",
+        "yuanlan",
+        "zhugeliang"
+      ]
+    },
+    {
+      "id": "zhongwuyan",
+      "name": "钟无艳",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.451968,
+      "popularity": 1,
+      "difficulty": 3,
+      "counters": [
+        "ganjiangmoxie",
+        "shangguanwaner",
+        "hanxin",
+        "kai"
+      ],
+      "counteredBy": [
+        "libai",
+        "liyuanfang",
+        "geya",
+        "laixiao"
+      ],
+      "synergies": [
+        "nakelulu",
+        "yadianna",
+        "aguduo",
+        "gongsunli"
+      ],
+      "pickRate": 0.028900000000000002,
+      "banRate": 0.0031,
+      "tierScore": 19.98,
+      "tier": "T3",
+      "roleLabel": "对抗路",
+      "heroPower": 14798.9,
+      "highBan": false,
+      "tierRank": 113,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/2c50213f68fcfc3292aa4d9259941d0a.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "战野",
+      "antiSynergies": [
+        "ganjiangmoxie",
+        "libai",
+        "simayi",
+        "dianwei"
+      ]
+    },
+    {
+      "id": "daji",
+      "name": "妲己",
+      "title": "魅力之狐",
+      "roles": [
+        "MAGE"
+      ],
+      "aiWinRate": 0.45128,
+      "popularity": 9.8,
+      "difficulty": 3,
+      "counters": [
+        "luna",
+        "xishi",
+        "buzhihuowu",
+        "change"
+      ],
+      "counteredBy": [
+        "wuzetian",
+        "dianwei",
+        "nvwa",
+        "hainuo"
+      ],
+      "synergies": [
+        "caocao",
+        "xialuote",
+        "dunshan",
+        "direnjie"
+      ],
+      "pickRate": 0.2949,
+      "banRate": 0.163,
+      "tierScore": 19.55,
+      "tier": "T3",
+      "roleLabel": "中路",
+      "heroPower": 14780.5,
+      "highBan": false,
+      "tierRank": 114,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/ca7c2d402047b11cc3ff1681e9a0028e.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "kongkonger",
+        "huamulan",
+        "lubandashi",
+        "miyue"
+      ]
+    },
+    {
+      "id": "lanlingwang",
+      "name": "兰陵王",
+      "title": "暗影刀锋",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.450928,
+      "popularity": 1.4,
+      "difficulty": 6,
+      "counters": [
+        "zhuwujing",
+        "juyoujing",
+        "xialuote",
+        "zhaoyun"
+      ],
+      "counteredBy": [
+        "bailishouyue",
+        "hanxin",
+        "dunshan",
+        "guanyu"
+      ],
+      "synergies": [
+        "ganjiangmoxie",
+        "diaochan",
+        "ailin",
+        "yuanliuzhizi_support"
+      ],
+      "pickRate": 0.04190000000000001,
+      "banRate": 0.044500000000000005,
+      "tierScore": 19.33,
+      "tier": "T3",
+      "roleLabel": "打野/对抗路",
+      "heroPower": 14768,
+      "highBan": false,
+      "tierRank": 115,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/39b188b419f48f2aa8aaa5eb45d5e1cc.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/对抗路",
+      "profession": "战野",
+      "antiSynergies": [
+        "zhuwujing",
+        "buzhihuowu",
+        "zhaohuaizhen",
+        "lianpo"
+      ]
+    },
+    {
+      "id": "caiwenji",
+      "name": "蔡文姬",
+      "title": "天籁弦音",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.44955199999999995,
+      "popularity": 4.4,
+      "difficulty": 3,
+      "counters": [
+        "lianpo",
+        "yangyuhuan",
+        "aguduo",
+        "kuangtie"
+      ],
+      "counteredBy": [
+        "damo",
+        "guanyu",
+        "xishi",
+        "bailixuance"
+      ],
+      "synergies": [
+        "yuange",
+        "aoyin",
+        "machao"
+      ],
+      "pickRate": 0.1319,
+      "banRate": 0.2777,
+      "tierScore": 18.47,
+      "tier": "T3",
+      "roleLabel": "游走",
+      "heroPower": 14734.4,
+      "highBan": false,
+      "tierRank": 116,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/fa489684bd4078fe373d94510dfd5146.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "sunshangxiang",
+        "bianque",
+        "cang",
+        "sunquan"
+      ]
+    },
+    {
+      "id": "ake",
+      "name": "阿轲",
+      "title": "信念之刃",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.4492,
+      "popularity": 1.5,
+      "difficulty": 7,
+      "counters": [
+        "sangqi",
+        "lubanqihao",
+        "zhenji",
+        "xiaoqiao"
+      ],
+      "counteredBy": [
+        "yaoao",
+        "yase",
+        "luna",
+        "dunshan"
+      ],
+      "synergies": [
+        "miyue",
+        "geya",
+        "ailin",
+        "caocao"
+      ],
+      "pickRate": 0.046,
+      "banRate": 0.013600000000000001,
+      "tierScore": 18.25,
+      "tier": "T3",
+      "roleLabel": "打野",
+      "heroPower": 14725.1,
+      "highBan": false,
+      "tierRank": 117,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/42a06fae9fb23f2542a703ee773eaf47.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "laixiao",
+        "yuji",
+        "baiqi",
+        "cang"
+      ]
+    },
+    {
+      "id": "liubei",
+      "name": "刘备",
+      "title": "仁德义枪",
+      "roles": [
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.4492,
+      "popularity": 1.2,
+      "difficulty": 3,
+      "counters": [
+        "yaoao",
+        "sangqi",
+        "ganjiangmoxie",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "mengtian",
+        "damo",
+        "machao",
+        "luna"
+      ],
+      "synergies": [
+        "gaojianli",
+        "laixiao",
+        "huamulan",
+        "zhugeliang"
+      ],
+      "pickRate": 0.035,
+      "banRate": 0.0146,
+      "tierScore": 18.25,
+      "tier": "T3",
+      "roleLabel": "打野",
+      "heroPower": 14721.6,
+      "highBan": false,
+      "tierRank": 118,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/5cbab407b3df80da012bc5126609738e.png",
+      "positions": [
+        "JUNGLE"
+      ],
+      "positionLabel": "打野",
+      "profession": "野核",
+      "antiSynergies": [
+        "anqila",
+        "machao",
+        "lianpo",
+        "geya"
+      ]
+    },
+    {
+      "id": "xiangyu",
+      "name": "项羽",
+      "title": "霸王",
+      "roles": [
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.447824,
+      "popularity": 4.2,
+      "difficulty": 4,
+      "counters": [
+        "zhongkui",
+        "kongkonger",
+        "houyi",
+        "kai"
+      ],
+      "counteredBy": [
+        "liyuanfang",
+        "sangqi",
+        "huangzhong",
+        "huamulan"
+      ],
+      "synergies": [
+        "yadianna",
+        "haiyue",
+        "sunshangxiang",
+        "chicha"
+      ],
+      "pickRate": 0.126,
+      "banRate": 0.0317,
+      "tierScore": 17.39,
+      "tier": "T3",
+      "roleLabel": "对抗路/游走(次分路)",
+      "heroPower": 14684.3,
+      "highBan": false,
+      "tierRank": 119,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/823872b5a950e1ba77c80ea378436848.png",
+      "positions": [
+        "CLASH_LANE",
+        "ROAM"
+      ],
+      "positionLabel": "对抗路/游走",
+      "profession": "战边",
+      "antiSynergies": [
+        "lianpo",
+        "caocao",
+        "damo",
+        "lubanqihao"
+      ]
+    },
+    {
+      "id": "lvbu",
+      "name": "吕布",
+      "title": "无双之魔",
+      "roles": [
+        "TANK",
+        "WARRIOR"
+      ],
+      "aiWinRate": 0.4468,
+      "popularity": 5,
+      "difficulty": 6,
+      "counters": [
+        "zhaohuaizhen",
+        "sunquan",
+        "mengtian",
+        "yunyao"
+      ],
+      "counteredBy": [
+        "yunzhongjun",
+        "daqiao",
+        "lubanqihao",
+        "yaoao"
+      ],
+      "synergies": [
+        "dianwei",
+        "lixin",
+        "bailixuance",
+        "lubandashi"
+      ],
+      "pickRate": 0.1509,
+      "banRate": 0.059699999999999996,
+      "tierScore": 16.75,
+      "tier": "T3",
+      "roleLabel": "对抗路",
+      "heroPower": 14646.7,
+      "highBan": false,
+      "tierRank": 120,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/dafe931fe9bec2cd47748dc2bfca7b01.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "坦边",
+      "antiSynergies": [
+        "zhuwujing",
+        "guiguzi",
+        "zhenji",
+        "ganjiangmoxie"
+      ]
+    },
+    {
+      "id": "pangu",
+      "name": "盘古",
+      "title": "",
+      "roles": [
+        "WARRIOR",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.444032,
+      "popularity": 1.3,
+      "difficulty": 3,
+      "counters": [
+        "yao",
+        "gongbenwucang",
+        "lubanqihao",
+        "yangyuhuan"
+      ],
+      "counteredBy": [
+        "jixiaoman",
+        "kai",
+        "xialuote",
+        "aguduo"
+      ],
+      "synergies": [
+        "huangzhong",
+        "gaojianli",
+        "dunshan",
+        "zhugeliang"
+      ],
+      "pickRate": 0.039,
+      "banRate": 0.0992,
+      "tierScore": 15.02,
+      "tier": "T3",
+      "roleLabel": "打野/对抗路(次分路)",
+      "heroPower": 14568.6,
+      "highBan": false,
+      "tierRank": 121,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/7cde58990616c9df5dac81e7ce32e4ad.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "打野/对抗路",
+      "profession": "战野",
+      "antiSynergies": [
+        "zhenji",
+        "yixing",
+        "hainuo",
+        "direnjie"
+      ]
+    },
+    {
+      "id": "jiangziya",
+      "name": "姜子牙",
+      "title": "封神者",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.437824,
+      "popularity": 3.5,
+      "counters": [
+        "simayi",
+        "zhuwujing",
+        "aoyin"
+      ],
+      "counteredBy": [
+        "shangguanwaner",
+        "hanxin",
+        "luna",
+        "taiyizhenren"
+      ],
+      "synergies": [
+        "yuji",
+        "dunshan",
+        "bailixuance",
+        "peiqinhu"
+      ],
+      "pickRate": 0.10400000000000001,
+      "banRate": 0.07730000000000001,
+      "tierScore": 11.14,
+      "tier": "T4",
+      "roleLabel": "中路",
+      "heroPower": 14394,
+      "highBan": false,
+      "tierRank": 122,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d0992d01015704e8436d9e437c07d532.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "yangyuhuan",
+        "lixin",
+        "kongkonger",
+        "mengtian"
+      ]
+    },
+    {
+      "id": "jinchan",
+      "name": "金蝉",
+      "title": "渡世行者",
+      "roles": [
+        "MAGE",
+        "SUPPORT"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.436784,
+      "popularity": 3.3,
+      "counters": [
+        "zhongkui",
+        "juyoujing",
+        "sunshangxiang",
+        "hanxin"
+      ],
+      "counteredBy": [
+        "taiyizhenren",
+        "haiyue",
+        "dasiming",
+        "laixiao"
+      ],
+      "synergies": [
+        "simayi",
+        "miyue",
+        "laixiao",
+        "kongkonger"
+      ],
+      "pickRate": 0.1,
+      "banRate": 0.32420000000000004,
+      "tierScore": 10.49,
+      "tier": "T4",
+      "roleLabel": "中路",
+      "heroPower": 14362.5,
+      "highBan": false,
+      "tierRank": 123,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/d122988682a05aef355cf1b5066c1f40.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "工具人法师",
+      "antiSynergies": [
+        "lianpo",
+        "baiqi",
+        "fei",
+        "zhaoyun"
+      ]
+    },
+    {
+      "id": "yuanliuzhizi_mage",
+      "name": "元流之子(法师)",
+      "title": "万象为相",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.436096,
+      "popularity": 0.7,
+      "counters": [],
+      "counteredBy": [
+        "sunshangxiang",
+        "dunshan",
+        "yixing",
+        "kongkonger"
+      ],
+      "synergies": [
+        "sunwukong"
+      ],
+      "pickRate": 0.0219,
+      "banRate": 0.0031,
+      "tierScore": 10.06,
+      "tier": "T4",
+      "roleLabel": "中路",
+      "heroPower": 14334.6,
+      "highBan": false,
+      "tierRank": 124,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/608ea0fcb818197209f869c308b36559.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "xinmoliuer",
+        "caocao",
+        "laixiao",
+        "bailixuance"
+      ]
+    },
+    {
+      "id": "chengyaojin",
+      "name": "程咬金",
+      "title": "热烈之斧",
+      "roles": [
+        "WARRIOR",
+        "TANK"
+      ],
+      "aiWinRate": 0.43574399999999996,
+      "popularity": 1.8,
+      "difficulty": 3,
+      "counters": [
+        "caocao",
+        "mengtian",
+        "zhugeliang",
+        "yuanliuzhizi_marksman"
+      ],
+      "counteredBy": [
+        "zhuwujing",
+        "sunquan",
+        "gongbenwucang",
+        "hanxin"
+      ],
+      "synergies": [
+        "haiyue"
+      ],
+      "pickRate": 0.0529,
+      "banRate": 0.0121,
+      "tierScore": 9.84,
+      "tier": "T4",
+      "roleLabel": "对抗路/中路(次分路)",
+      "heroPower": 14330.5,
+      "highBan": false,
+      "tierRank": 125,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/66506c1a52531807d239ee617a576eb7.png",
+      "positions": [
+        "CLASH_LANE"
+      ],
+      "positionLabel": "对抗路",
+      "profession": "开除",
+      "antiSynergies": [
+        "aguduo",
+        "mozi",
+        "luyana",
+        "zhaoyun"
+      ]
+    },
+    {
+      "id": "sunbin",
+      "name": "孙膑",
+      "title": "逆流之时",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.43401599999999996,
+      "popularity": 1.1,
+      "difficulty": 5,
+      "counters": [
+        "zhaohuaizhen",
+        "fei",
+        "ying"
+      ],
+      "counteredBy": [
+        "gongbenwucang",
+        "xiaoqiao",
+        "lubandashi",
+        "kuangtie"
+      ],
+      "synergies": [
+        "zhuwujing",
+        "peiqinhu",
+        "guanyu",
+        "machao"
+      ],
+      "pickRate": 0.034,
+      "banRate": 0.008100000000000001,
+      "tierScore": 8.76,
+      "tier": "T4",
+      "roleLabel": "游走",
+      "heroPower": 14274.5,
+      "highBan": false,
+      "tierRank": 126,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/7297418d03dc7972fa9953dd438b6bea.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "caocao",
+        "dasiming",
+        "cang",
+        "sikongzhen"
+      ]
+    },
+    {
+      "id": "donghuangtaiyi",
+      "name": "东皇太一",
+      "title": "噬灭日蚀",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.429536,
+      "popularity": 2.2,
+      "difficulty": 6,
+      "counters": [
+        "jixiaoman",
+        "xialuote",
+        "laofuzi",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "caocao",
+        "ying",
+        "xishi",
+        "taiyizhenren"
+      ],
+      "synergies": [
+        "nezha",
+        "juyoujing",
+        "xishi",
+        "xialuote"
+      ],
+      "pickRate": 0.0659,
+      "banRate": 0.39799999999999996,
+      "tierScore": 5.96,
+      "tier": "T4",
+      "roleLabel": "游走",
+      "heroPower": 14145.4,
+      "highBan": false,
+      "tierRank": 127,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/3a56620c78c659cbfd6bf176ffdbe5aa.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "ganjiangmoxie",
+        "ailin",
+        "laofuzi",
+        "xinmoliuer"
+      ]
+    },
+    {
+      "id": "milaidi",
+      "name": "米莱狄",
+      "title": "筑城者",
+      "roles": [
+        "MAGE"
+      ],
+      "difficulty": 3,
+      "aiWinRate": 0.42747199999999996,
+      "popularity": 3.1,
+      "counters": [
+        "bianque"
+      ],
+      "counteredBy": [
+        "luna",
+        "xinmoliuer",
+        "yunyao",
+        "jing"
+      ],
+      "synergies": [
+        "yangjian",
+        "yuange",
+        "aoyin"
+      ],
+      "pickRate": 0.09300000000000001,
+      "banRate": 0.2716,
+      "tierScore": 4.67,
+      "tier": "T4",
+      "roleLabel": "中路",
+      "heroPower": 14084.2,
+      "highBan": false,
+      "tierRank": 128,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/4b663b92e6383b4269127e122b851ec6.png",
+      "positions": [
+        "MID_LANE"
+      ],
+      "positionLabel": "中路",
+      "profession": "法核",
+      "antiSynergies": [
+        "taiyizhenren",
+        "fei",
+        "jing",
+        "liubang"
+      ]
+    },
+    {
+      "id": "zhuangzhou",
+      "name": "庄周",
+      "title": "逍遥梦幻",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.425392,
+      "popularity": 1.9,
+      "difficulty": 3,
+      "counters": [
+        "kai",
+        "xinmoliuer",
+        "cang",
+        "xiaoqiao"
+      ],
+      "counteredBy": [
+        "hainuo",
+        "yuanliuzhizi_support",
+        "peiqinhu",
+        "dunshan"
+      ],
+      "synergies": [
+        "mengtian",
+        "sunquan",
+        "sunwukong",
+        "zhugeliang"
+      ],
+      "pickRate": 0.057,
+      "banRate": 0.5329,
+      "tierScore": 3.37,
+      "tier": "T4",
+      "roleLabel": "游走",
+      "heroPower": 14029.1,
+      "highBan": false,
+      "tierRank": 129,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/f4a52454aed3803b5cc1fde77a0c42df.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "反手辅",
+      "antiSynergies": [
+        "fei",
+        "luyana",
+        "lixin",
+        "hanxin"
+      ]
+    },
+    {
+      "id": "niumo",
+      "name": "牛魔",
+      "title": "精英酋长",
+      "roles": [
+        "TANK",
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.42470399999999997,
+      "popularity": 0.9,
+      "difficulty": 4,
+      "counters": [
+        "houyi",
+        "daqiao",
+        "kuangtie",
+        "xinmoliuer"
+      ],
+      "counteredBy": [
+        "yadianna",
+        "dianwei",
+        "diaochan",
+        "dayu"
+      ],
+      "synergies": [
+        "zhugeliang"
+      ],
+      "pickRate": 0.027000000000000003,
+      "banRate": 0.0032,
+      "tierScore": 2.94,
+      "tier": "T4",
+      "roleLabel": "游走",
+      "heroPower": 14012.8,
+      "highBan": false,
+      "tierRank": 130,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/be988dcba748c48480712495ac8db9ce.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "开团辅",
+      "antiSynergies": [
+        "gongbenwucang",
+        "laofuzi",
+        "lixin",
+        "kai"
+      ]
+    },
+    {
+      "id": "xiahoudun",
+      "name": "夏侯惇",
+      "title": "不羁之风",
+      "roles": [
+        "TANK",
+        "ASSASSIN"
+      ],
+      "aiWinRate": 0.4216,
+      "popularity": 3.4,
+      "difficulty": 3,
+      "counters": [
+        "zhuwujing",
+        "yuji",
+        "shaosiyuan"
+      ],
+      "counteredBy": [
+        "taiyizhenren",
+        "wuzetian",
+        "xinmoliuer",
+        "nvwa"
+      ],
+      "synergies": [
+        "bailixuance",
+        "machao",
+        "shaosiyuan"
+      ],
+      "pickRate": 0.10099999999999999,
+      "banRate": 0.047599999999999996,
+      "tierScore": 1,
+      "tier": "T4",
+      "roleLabel": "对抗路/打野",
+      "heroPower": 13918.2,
+      "highBan": false,
+      "tierRank": 131,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/30fae784f10b6b83ab5ec959620b0527.png",
+      "positions": [
+        "CLASH_LANE",
+        "JUNGLE"
+      ],
+      "positionLabel": "对抗路/打野",
+      "profession": "坦野",
+      "antiSynergies": [
+        "yuanliuzhizi_support",
+        "bailishouyue",
+        "zhangfei",
+        "nvwa"
+      ]
+    },
+    {
+      "id": "mingzhiyin",
+      "name": "明世隐",
+      "title": "灵魂劫卜",
+      "roles": [
+        "SUPPORT"
+      ],
+      "aiWinRate": 0.42,
+      "popularity": 1.6,
+      "difficulty": 4,
+      "counters": [
+        "zhugeliang"
+      ],
+      "counteredBy": [
+        "shaosiyuan"
+      ],
+      "synergies": [],
+      "pickRate": 0.0489,
+      "banRate": 0.0137,
+      "tierScore": 0,
+      "tier": "T4",
+      "roleLabel": "游走",
+      "heroPower": 13404.5,
+      "highBan": false,
+      "tierRank": 132,
+      "avatar": "https://img.pvp.mcxssg.net/manage/custom_wzry_skin_128x128/b82b8981422f54388e0fe75866ca00f8.png",
+      "positions": [
+        "ROAM"
+      ],
+      "positionLabel": "游走",
+      "profession": "怕开团辅",
+      "antiSynergies": [
+        "change",
+        "nvwa"
+      ]
+    }
+  ]
+}

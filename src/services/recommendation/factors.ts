@@ -34,21 +34,104 @@ export function versionStrength(hero: Hero): FactorResult {
   };
 }
 
-/** 克制敌方：候选英雄克制敌方已选英雄的数量。 */
+/**
+ * 克制敌方（三层数据，按可靠性递减）。
+ *
+ *   ① counterDetails.advantageIndex —— 全局克制指数（不分位置，打野也适用）
+ *   ② laneMatchups.winRate         —— 对线胜率（只适合同路对线）
+ *   ③ counters 列表                —— 兜底
+ *
+ * 所有层级都要求 totalMatches >= MIN_MATCHES，避免「1 场 100% 胜率」污染。
+ */
+const MIN_MATCHES = 100;
+
 export function counterScore(hero: Hero, enemyHeroes: Hero[]): FactorResult {
-  const count = enemyHeroes.filter((e) => hero.counters.includes(e.id)).length;
+  let score = 0;
+  const hits: string[] = [];
+
+  for (const e of enemyHeroes) {
+    const ew = 1 + (e.tierScore ?? 50) / 100; // 1.0 ~ 2.0（敌核更重）
+
+    // ① counterDetails（advantageIndex，全局克制）
+    const cd = hero.counterDetails?.find((x) => x.heroName === e.name);
+    if (cd && cd.totalMatches >= MIN_MATCHES) {
+      const edge = Math.max(0, Math.min(1, cd.advantageIndex / 6));
+      if (edge > 0.15) {
+        score += edge * ew;
+        hits.push(e.name);
+      }
+      continue;
+    }
+
+    // ② laneMatchups（对线胜率）
+    const lm = hero.laneMatchups?.find((x) => x.heroName === e.name);
+    if (lm && lm.totalMatches >= MIN_MATCHES) {
+      const edge = (lm.winRate - 0.5) * 2;
+      if (edge > 0.02) {
+        score += edge * ew;
+        hits.push(e.name);
+      }
+      continue;
+    }
+
+    // ③ 兜底：克制列表
+    if (hero.counters?.includes(e.id)) {
+      score += 0.5 * ew;
+      hits.push(e.name);
+    }
+  }
+
   return {
-    value: clamp01(count / 2),
-    reason: count > 0 ? `克制敌方 ${count} 位` : undefined,
+    value: clamp01(score / 2.5),
+    reason: hits.length ? `克制 ${hits.slice(0, 2).join('、')}` : undefined,
   };
 }
 
-/** 被克制：候选英雄被敌方已选英雄克制的数量（负向因子）。 */
+/**
+ * 被克制（负向因子）。
+ *
+ * 用「敌方英雄的 counterDetails 里是否把我方候选列为克制对象」，
+ * 以及我方候选的 counteredByDetails。
+ */
 export function counterPenalty(hero: Hero, enemyHeroes: Hero[]): FactorResult {
-  const count = enemyHeroes.filter((e) => e.counters.includes(hero.id)).length;
+  let score = 0;
+  const hits: string[] = [];
+
+  for (const e of enemyHeroes) {
+    const ew = 1 + (e.tierScore ?? 50) / 100;
+
+    // ① 敌方 counterDetails 里克制该英雄
+    const cd = e.counterDetails?.find((x) => x.heroName === hero.name);
+    if (cd && cd.totalMatches >= MIN_MATCHES) {
+      const edge = Math.max(0, Math.min(1, cd.advantageIndex / 6));
+      if (edge > 0.15) {
+        score += edge * ew;
+        hits.push(e.name);
+      }
+      continue;
+    }
+
+    // ② 该英雄的 counteredByDetails 里被敌方克制
+    const cb = hero.counteredByDetails?.find((x) => x.heroName === e.name);
+    if (cb && cb.totalMatches >= MIN_MATCHES) {
+      const edge = Math.max(0, Math.min(1, -cb.advantageIndex / 6));
+      if (edge > 0.15) {
+        score += edge * ew;
+        hits.push(e.name);
+      }
+      continue;
+    }
+
+    // ③ 兜底
+    if (e.counters?.includes(hero.id)) {
+      score += 0.5 * ew;
+      hits.push(e.name);
+    }
+  }
+
   return {
-    value: clamp01(count / 2),
-    reason: count > 0 ? `被敌方 ${count} 位克制` : undefined,
+    value: clamp01(score / 2.5),
+    reason: hits.length ? `被 ${hits.slice(0, 2).join('、')} 克制` : undefined,
   };
 }
 
