@@ -601,7 +601,7 @@ def detect_game_result(img):
             'delta': delta, 'texts': texts}
 
 
-def recognize_picks(img, bank, empty_std=20.0):
+def recognize_picks(img, bank, empty_std=25.0):
     """识别左右各 5 个 pick 位（方形头像）。
 
     坐标基准（1920x864 归一化画面，实测自巅峰赛截图）：

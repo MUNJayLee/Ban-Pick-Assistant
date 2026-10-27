@@ -131,6 +131,9 @@ export function useBpSync() {
           const side: Side = pk.side === 'blue' ? 'BLUE' : 'RED';
           const idx = Math.max(0, pk.index - 1);
           const arr = side === 'BLUE' ? store.bluePicks : store.redPicks;
+          // pick 阶段空位容易误判成英雄 → 只填高置信结果
+          // （最后调整阶段所有 pick 已锁定，可以放宽）
+          if (!pk.confident && !isFinal) continue;
           if (arr[idx] && arr[idx] !== pk.hero_id) {
             // 已有值且不同：只有在「最后调整」且置信度高时才覆盖（修正倒计时误判）
             if (!(isFinal && pk.confident)) continue;

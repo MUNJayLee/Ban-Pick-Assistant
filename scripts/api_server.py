@@ -251,6 +251,9 @@ def _bp_worker(interval=2.0):
                                        format_bans(bans)))
                 prev_picks_key = None
             elif phase in ('pick', 'final'):
+                if time.time() - last_diag_frame > 2:
+                    last_diag_frame = time.time()
+                    _diag_frame(img, 'pick')
                 picks = recognize_picks_cached(img, bank)
                 pkey = tuple((x['side'], x['index'], x['hero_id']) for x in picks)
                 if pkey != prev_picks_key:
