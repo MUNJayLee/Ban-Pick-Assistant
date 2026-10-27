@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { X, RefreshCw, Smartphone, Camera, Database, Play, Square, Terminal } from 'lucide-react';
+import { X, RefreshCw, Smartphone, Camera, Database, Play, Square, Terminal, Wifi } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { useBpSync } from '@/hooks/useBpSync';
 
@@ -22,6 +22,10 @@ export function DeviceConfigModal({ open, onClose, adb }: Props) {
   const [syncing, setSyncing] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [heroCount, setHeroCount] = useState<number | null>(null);
+  const [wifiIp, setWifiIp] = useState('');
+  const [wifiPort, setWifiPort] = useState('5555');
+  const [wifiConnecting, setWifiConnecting] = useState(false);
+  const [wifiMsg, setWifiMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const log = useCallback((m: string) => {
     setLogs((prev) => [`${new Date().toLocaleTimeString()} ${m}`, ...prev].slice(0, 60));
@@ -74,6 +78,36 @@ export function DeviceConfigModal({ open, onClose, adb }: Props) {
       log(`同步异常: ${e instanceof Error ? e.message : e}`);
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleWifiConnect = async () => {
+    const ip = wifiIp.trim();
+    if (!ip) return;
+    setWifiConnecting(true);
+    setWifiMsg(null);
+    try {
+      const r = await fetch(`${API}/api/device/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip, port: Number(wifiPort) || 5555 }),
+      }).then((x) => x.json());
+      if (r.ok) {
+        setWifiMsg({ ok: true, text: `已连接 ${r.target}` });
+        log(`WiFi 已连接: ${r.target}`);
+        const list = await refreshDevices();
+        log(`设备列表已刷新（${list.length} 个）`);
+      } else {
+        const detail = r.detail || r.message || '连接失败';
+        setWifiMsg({ ok: false, text: detail });
+        log(`WiFi 连接失败: ${detail}`);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setWifiMsg({ ok: false, text: `异常: ${msg}` });
+      log(`WiFi 连接异常: ${msg}`);
+    } finally {
+      setWifiConnecting(false);
     }
   };
 
@@ -152,6 +186,56 @@ export function DeviceConfigModal({ open, onClose, adb }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* WiFi 连接（无线调试） */}
+          <div>
+            <h3 className="text-xs font-semibold text-ui-muted mb-2 flex items-center gap-1.5">
+              <Wifi className="w-3.5 h-3.5" />
+              WiFi 连接（无线调试）
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={wifiIp}
+                onChange={(e) => setWifiIp(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleWifiConnect();
+                }}
+                placeholder="手机 IP（如 192.168.3.62）"
+                className="flex-1 min-w-[160px] px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder:text-ui-muted outline-none focus:border-ui-primary/40"
+              />
+              <input
+                value={wifiPort}
+                onChange={(e) => setWifiPort(e.target.value)}
+                placeholder="端口"
+                className="w-20 px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white placeholder:text-ui-muted outline-none focus:border-ui-primary/40"
+              />
+              <button
+                onClick={handleWifiConnect}
+                disabled={wifiConnecting || !wifiIp.trim()}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-ui-primary/15 text-ui-primary-light text-xs hover:bg-ui-primary/25 disabled:opacity-40"
+              >
+                <Wifi className={cn('w-3.5 h-3.5', wifiConnecting && 'animate-pulse')} />
+                {wifiConnecting ? '连接中...' : '连接'}
+              </button>
+            </div>
+            {wifiMsg && (
+              <p
+                className={cn(
+                  'mt-1.5 text-[11px] rounded-lg px-2.5 py-1.5 border',
+                  wifiMsg.ok
+                    ? 'text-emerald-300 bg-emerald-500/10 border-emerald-400/25'
+                    : 'text-ui-danger-light bg-ui-danger/10 border-ui-danger/25',
+                )}
+              >
+                {wifiMsg.text}
+              </p>
+            )}
+            <p className="mt-1.5 text-[10px] text-ui-muted-subtle leading-relaxed">
+              前置条件：手机「设置 → 开发者选项 → 无线调试」已开启；或先用 USB 连一次执行
+              <code className="mx-1 px-1 rounded bg-white/10">adb tcpip 5555</code>
+              再输入手机 IP。
+            </p>
           </div>
 
           {/* 操作 */}

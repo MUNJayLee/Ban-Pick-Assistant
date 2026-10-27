@@ -15,6 +15,7 @@ import asyncio
 import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -287,6 +288,51 @@ def api_devices():
 def api_select_device(req: DeviceReq):
     update_state(device=req.serial)
     return {'ok': True, 'device': req.serial}
+
+
+class DeviceConnectPayload(BaseModel):
+    ip: str
+    port: int = 5555
+
+
+@app.post('/api/device/connect')
+def api_device_connect(payload: DeviceConnectPayload):
+    """通过 WiFi 连接设备（adb connect <ip>:<port>）。"""
+    ip = (payload.ip or '').strip()
+    if not re.match(r'^\d{1,3}(\.\d{1,3}){3}$', ip):
+        raise HTTPException(status_code=400, detail='IP 格式不正确（示例 192.168.3.62）')
+    port = int(payload.port or 5555)
+    target = '%s:%d' % (ip, port)
+    adb = find_adb() or DEFAULT_ADB
+    try:
+        r = _run([adb, 'connect', target], capture_output=True, timeout=20)
+        out = (r.stdout or b'').decode('utf-8', 'ignore').strip()
+        err = (r.stderr or b'').decode('utf-8', 'ignore').strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail='执行 adb 失败: %s' % e)
+    low = (out + ' ' + err).lower()
+    ok = ('connected' in low and 'cannot' not in low and 'failed' not in low) \
+        or 'already connected' in low
+    if ok:
+        update_state(device=target, error=None)
+        print('[%s] WiFi 已连接: %s' % (datetime.now().strftime('%H:%M:%S'), target))
+    return {'ok': ok, 'target': target, 'message': out or err or '无输出'}
+
+
+@app.post('/api/device/disconnect')
+def api_device_disconnect(payload: DeviceConnectPayload):
+    """断开 WiFi 设备（adb disconnect <ip>:<port>）。"""
+    ip = (payload.ip or '').strip()
+    if not re.match(r'^\d{1,3}(\.\d{1,3}){3}$', ip):
+        raise HTTPException(status_code=400, detail='IP 格式不正确')
+    target = '%s:%d' % (ip, int(payload.port or 5555))
+    adb = find_adb() or DEFAULT_ADB
+    try:
+        r = _run([adb, 'disconnect', target], capture_output=True, timeout=15)
+        out = (r.stdout or b'').decode('utf-8', 'ignore').strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail='执行 adb 失败: %s' % e)
+    return {'ok': True, 'target': target, 'message': out or '已断开'}
 
 
 @app.get('/api/state')
