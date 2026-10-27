@@ -9,8 +9,8 @@ export default {
     },
     extend: {
       colors: {
-        // TRAE Design System — AI-native workspace aesthetic
-        trae: {
+        // UI Design System — AI-native workspace aesthetic
+        ui: {
           bg: '#080c14',
           'bg-elevated': '#0f172a',
           surface: '#111827',
@@ -30,7 +30,7 @@ export default {
           danger: '#ef4444',
           purple: '#8b5cf6',
         },
-        // Legacy arena aliases mapped to TRAE palette
+        // Legacy arena aliases mapped to UI palette
         arena: {
           bg: '#080c14',
           surface: '#111827',
@@ -114,8 +114,8 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'trae-gradient': 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)',
-        'trae-hero': 'radial-gradient(ellipse 80% 60% at 50% -20%, rgba(59, 130, 246, 0.18), transparent), radial-gradient(ellipse 60% 50% at 80% 100%, rgba(139, 92, 246, 0.12), transparent)',
+        'ui-gradient': 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)',
+        'ui-hero': 'radial-gradient(ellipse 80% 60% at 50% -20%, rgba(59, 130, 246, 0.18), transparent), radial-gradient(ellipse 60% 50% at 80% 100%, rgba(139, 92, 246, 0.12), transparent)',
       },
     },
   },

@@ -1,0 +1,22 @@
+{
+  "verified_at": "2026-10-26T21:35:59",
+  "correct": true,
+  "accuracy": "10/10",
+  "source": "真机 ADB 抓屏 + 手动识别（用户确认全对）",
+  "answers": {
+    "blue": [
+      "zhangliang",
+      "dunshan",
+      "zhongkui",
+      "yuanliuzhizi_support",
+      "wangwei"
+    ],
+    "red": [
+      "duoliya",
+      "jinchan",
+      "milaidi",
+      "dunshan",
+      "yuanliuzhizi_support"
+    ]
+  }
+}

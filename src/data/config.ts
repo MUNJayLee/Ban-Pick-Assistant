@@ -68,14 +68,3 @@ export const COMPOSITION_ROLE_WEIGHTS: Record<
 };
 
 export const RECOMMENDATION_TOP_K = 5;
-
-// 选英雄阶段的默认位置槽位（用于 UI 展示，不代表实际分路限制）
-export const BLUE_SLOTS: { role: HeroRole; label: string }[] = [
-  { role: 'TANK', label: '对抗' },
-  { role: 'ASSASSIN', label: '打野' },
-  { role: 'MAGE', label: '中路' },
-  { role: 'MARKSMAN', label: '射手' },
-  { role: 'SUPPORT', label: '辅助' },
-];
-
-export const RED_SLOTS: { role: HeroRole; label: string }[] = BLUE_SLOTS;

@@ -15,13 +15,13 @@ function getTierStyle(tier: string | undefined): {
   text: string;
   border: string;
 } {
-  if (!tier) return { bg: 'bg-white/8', text: 'text-trae-muted', border: 'border-white/12' };
+  if (!tier) return { bg: 'bg-white/8', text: 'text-ui-muted', border: 'border-white/12' };
   if (tier === 'T0') return { bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-amber-400/30' };
   if (tier === 'T0.5') return { bg: 'bg-orange-500/12', text: 'text-orange-300', border: 'border-orange-400/25' };
   if (tier === 'T1') return { bg: 'bg-emerald-500/12', text: 'text-emerald-300', border: 'border-emerald-400/25' };
   if (tier === 'T2') return { bg: 'bg-sky-500/12', text: 'text-sky-300', border: 'border-sky-400/25' };
-  if (tier === 'T3') return { bg: 'bg-white/8', text: 'text-trae-muted', border: 'border-white/12' };
-  return { bg: 'bg-white/5', text: 'text-trae-muted/60', border: 'border-white/8' };
+  if (tier === 'T3') return { bg: 'bg-white/8', text: 'text-ui-muted', border: 'border-white/12' };
+  return { bg: 'bg-white/5', text: 'text-ui-muted/60', border: 'border-white/8' };
 }
 
 export function WinRateBadge({ winRate, tier, tierScore, size = 'sm' }: WinRateBadgeProps) {
@@ -58,7 +58,7 @@ export function WinRateBadge({ winRate, tier, tierScore, size = 'sm' }: WinRateB
           ? 'bg-emerald-500/12 text-emerald-300 border-emerald-400/25'
           : isLow
           ? 'bg-rose-500/12 text-rose-300 border-rose-400/25'
-          : 'bg-white/8 text-trae-muted border-white/12'
+          : 'bg-white/8 text-ui-muted border-white/12'
       )}
     >
       {percent}%

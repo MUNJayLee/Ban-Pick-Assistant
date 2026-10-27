@@ -1,0 +1,62 @@
+[
+  {
+    "file": "blue_01_dunshan.jpg",
+    "hero_id": "dunshan",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "blue_02_yuanliuzhizi_support.jpg",
+    "hero_id": "yuanliuzhizi_support",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "blue_03_zhangliang.jpg",
+    "hero_id": "zhangliang",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "blue_04_zhuangzhou.jpg",
+    "hero_id": "zhuangzhou",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "blue_05_wangwei.jpg",
+    "hero_id": "wangwei",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "red_01_haiyue.jpg",
+    "hero_id": "haiyue",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "red_02_gongbenwucang.jpg",
+    "hero_id": "gongbenwucang",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "red_03_zhaoyun.jpg",
+    "hero_id": "zhaoyun",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "red_04_zhangliang.jpg",
+    "hero_id": "zhangliang",
+    "confident": false,
+    "gap": 0.0
+  },
+  {
+    "file": "red_05_dunshan.jpg",
+    "hero_id": "dunshan",
+    "confident": false,
+    "gap": 0.0
+  }
+]

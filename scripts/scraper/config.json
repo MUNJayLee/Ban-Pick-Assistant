@@ -35,5 +35,10 @@
     "minMatchRate": 0.1,
     "minHeroCount": 3
   },
+  "counterAnalysis": {
+    "enabled": true,
+    "delayMs": 400,
+    "topN": 4
+  },
   "output": "../../src/data/heroes.json"
 }

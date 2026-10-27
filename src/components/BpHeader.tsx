@@ -20,7 +20,7 @@ export function BpHeader({
   const isBlue = userSide === 'BLUE';
 
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-trae-bg-elevated/60 border-b border-white/5">
+    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-ui-bg-elevated/60 border-b border-white/5">
       <div className="flex items-center gap-2">
         <SideToggle active={isBlue} onClick={() => onSideChange('BLUE')}>
           <Shield className="w-3.5 h-3.5" />
@@ -61,8 +61,8 @@ function SideToggle({
       className={cn(
         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
         active
-          ? 'bg-trae-primary text-white border-trae-primary shadow-glow-blue'
-          : 'bg-trae-surface text-trae-muted border-white/8 hover:text-trae-text hover:bg-white/5'
+          ? 'bg-ui-primary text-white border-ui-primary shadow-glow-blue'
+          : 'bg-ui-surface text-ui-muted border-white/8 hover:text-ui-text hover:bg-white/5'
       )}
     >
       {children}
@@ -89,8 +89,8 @@ function ActionButton({
       className={cn(
         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',
         disabled
-          ? 'bg-trae-surface/50 text-trae-muted-subtle border-white/5 cursor-not-allowed'
-          : 'bg-trae-surface text-trae-muted border-white/8 hover:text-trae-text hover:bg-white/5 hover:border-white/14'
+          ? 'bg-ui-surface/50 text-ui-muted-subtle border-white/5 cursor-not-allowed'
+          : 'bg-ui-surface text-ui-muted border-white/8 hover:text-ui-text hover:bg-white/5 hover:border-white/14'
       )}
     >
       {children}

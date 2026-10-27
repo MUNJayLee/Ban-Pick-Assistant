@@ -15,7 +15,7 @@ import {
   Info,
 } from 'lucide-react';
 import { CompositionRadar } from '@/components/CompositionRadar';
-import { getTeamHeroes, getHeroById } from '@/services/heroService';
+import { getTeamHeroes, getHeroById, calculateTeamStrength, calculateWinProbability } from '@/services/heroService';
 import { useBpRecordStore, autoJudgeResult } from '@/store/bpRecordStore';
 import { useBpStore } from '@/store/bpStore';
 import { cn } from '@/lib/utils';
@@ -25,18 +25,14 @@ interface AnalysisSummaryProps {
   state: BpState;
 }
 
-function estimateTeamPower(state: BpState, side: Side): number {
-  const heroes = getTeamHeroes(state, side);
-  if (heroes.length === 0) return 0;
-  const winRateAvg =
-    heroes.reduce((sum, h) => sum + h.aiWinRate, 0) / heroes.length;
-  return winRateAvg * 100;
-}
-
 export function AnalysisSummary({ state }: AnalysisSummaryProps) {
-  const bluePower = useMemo(() => estimateTeamPower(state, 'BLUE'), [state]);
-  const redPower = useMemo(() => estimateTeamPower(state, 'RED'), [state]);
+  const bluePower = useMemo(() => calculateTeamStrength(state, 'BLUE'), [state]);
+  const redPower = useMemo(() => calculateTeamStrength(state, 'RED'), [state]);
   const difference = bluePower - redPower;
+  const blueWinProb = useMemo(
+    () => calculateWinProbability(bluePower, redPower),
+    [bluePower, redPower]
+  );
   const favored: Side | 'EVEN' =
     Math.abs(difference) < 1
       ? 'EVEN'
@@ -75,7 +71,10 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
       : undefined
     : undefined;
 
-  const buildRecordPayload = (result: BpRecordResult) => ({
+  const buildRecordPayload = (
+    result: BpRecordResult,
+    actual: ActualResult = actualResult
+  ) => ({
     timestamp: Date.now(),
     bluePicks: [...state.bluePicks],
     redPicks: [...state.redPicks],
@@ -88,7 +87,7 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     myHeroId: myHeroId || undefined,
     mySide,
     myRole: myHero?.roles[0],
-    actualResult: actualResult === 'PENDING' ? undefined : actualResult,
+    actualResult: actual === 'PENDING' ? undefined : actual,
     note: note || undefined,
   });
 
@@ -106,23 +105,7 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     setActualResult(result);
 
     const judged = autoJudgeResult(favored, mySide, result);
-
-    const payload = {
-      timestamp: Date.now(),
-      bluePicks: [...state.bluePicks],
-      redPicks: [...state.redPicks],
-      blueBans: [...state.blueBans],
-      redBans: [...state.redBans],
-      bluePower,
-      redPower,
-      favored,
-      result: judged,
-      myHeroId: myHeroId || undefined,
-      mySide,
-      myRole: myHero?.roles[0],
-      actualResult: result === 'PENDING' ? undefined : result,
-      note: note || undefined,
-    };
+    const payload = buildRecordPayload(judged, result);
 
     if (existingRecord) {
       updateRecord(existingRecord.id, payload);
@@ -146,13 +129,13 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 animate-fade-in">
       {/* Lineup analysis */}
       <div className="glass rounded-2xl border border-white/8 p-4 overflow-hidden relative">
-        <div className="absolute -top-16 -right-16 w-40 h-40 bg-trae-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-40 h-40 bg-ui-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-2 mb-4 relative">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-trae-primary to-trae-accent flex items-center justify-center shadow-glow-blue">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-ui-primary to-ui-accent flex items-center justify-center shadow-glow-blue">
             <Trophy className="w-4 h-4 text-white" />
           </div>
-          <h3 className="text-sm font-bold text-trae-text">阵容分析</h3>
+          <h3 className="text-sm font-bold text-ui-text">阵容分析</h3>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4 relative">
@@ -165,25 +148,25 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
           <div className={cn(
             'mb-4 rounded-2xl border p-4 transition-all',
             myHero
-              ? 'bg-gradient-to-br from-trae-accent/8 to-trae-primary/5 border-trae-accent/25 shadow-lg shadow-trae-accent/5'
+              ? 'bg-gradient-to-br from-ui-accent/8 to-ui-primary/5 border-ui-accent/25 shadow-lg shadow-ui-accent/5'
               : 'bg-gradient-to-br from-amber-500/8 to-orange-500/5 border-amber-400/30 shadow-lg shadow-amber-500/5 animate-pulse-subtle'
           )}>
             <div className="flex items-center gap-2.5 mb-3">
               <div className={cn(
                 'w-8 h-8 rounded-lg flex items-center justify-center',
                 myHero
-                  ? 'bg-trae-accent/20 shadow-glow-accent'
+                  ? 'bg-ui-accent/20 shadow-glow-accent'
                   : 'bg-amber-500/20'
               )}>
                 <User className={cn(
                   'w-4 h-4',
-                  myHero ? 'text-trae-accent' : 'text-amber-400'
+                  myHero ? 'text-ui-accent' : 'text-amber-400'
                 )} />
               </div>
               <div className="flex-1">
                 <span className={cn(
                   'text-sm font-bold',
-                  myHero ? 'text-trae-accent' : 'text-amber-300'
+                  myHero ? 'text-ui-accent' : 'text-amber-300'
                 )}>
                   {myHero ? '已标记我的英雄' : '选择你本局使用的英雄'}
                 </span>
@@ -192,14 +175,14 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
                 )}
               </div>
               {myHero && (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-trae-accent/10 border border-trae-accent/20">
-                  <Crown className="w-3.5 h-3.5 text-trae-accent" />
-                  <span className="text-xs font-bold text-trae-accent">{myHero.name}</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-ui-accent/10 border border-ui-accent/20">
+                  <Crown className="w-3.5 h-3.5 text-ui-accent" />
+                  <span className="text-xs font-bold text-ui-accent">{myHero.name}</span>
                   <span className={cn(
                     'text-[10px] font-semibold px-1.5 py-0.5 rounded-md',
                     mySide === 'BLUE'
-                      ? 'bg-trae-primary/20 text-trae-primary-light'
-                      : 'bg-trae-danger/20 text-trae-danger-light'
+                      ? 'bg-ui-primary/20 text-ui-primary-light'
+                      : 'bg-ui-danger/20 text-ui-danger-light'
                   )}>
                     {mySide === 'BLUE' ? '蓝方' : '红方'}
                   </span>
@@ -217,16 +200,16 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
                     className={cn(
                       'relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all',
                       isMe
-                        ? 'bg-trae-accent/25 text-trae-accent border-trae-accent/50 shadow-md shadow-trae-accent/10 scale-105 ring-2 ring-trae-accent/30'
+                        ? 'bg-ui-accent/25 text-ui-accent border-ui-accent/50 shadow-md shadow-ui-accent/10 scale-105 ring-2 ring-ui-accent/30'
                         : side === 'BLUE'
-                        ? 'bg-trae-primary/10 text-trae-primary-light/80 border-trae-primary/15 hover:bg-trae-primary/20 hover:border-trae-primary/30 hover:scale-102'
-                        : 'bg-trae-danger/10 text-trae-danger-light/80 border-trae-danger/15 hover:bg-trae-danger/20 hover:border-trae-danger/30 hover:scale-102'
+                        ? 'bg-ui-primary/10 text-ui-primary-light/80 border-ui-primary/15 hover:bg-ui-primary/20 hover:border-ui-primary/30 hover:scale-102'
+                        : 'bg-ui-danger/10 text-ui-danger-light/80 border-ui-danger/15 hover:bg-ui-danger/20 hover:border-ui-danger/30 hover:scale-102'
                     )}
                   >
                     {isMe && (
                       <>
-                        <Crown className="w-3.5 h-3.5 text-trae-accent" />
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-trae-accent rounded-full border border-white/30" />
+                        <Crown className="w-3.5 h-3.5 text-ui-accent" />
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-ui-accent rounded-full border border-white/30" />
                       </>
                     )}
                     {hero?.name || id}
@@ -237,12 +220,29 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
           </div>
         )}
 
-        <div className="p-3 rounded-xl bg-trae-surface/60 border border-white/8 relative">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-trae-warning" />
-            <span className="text-xs font-bold text-trae-text">胜率预估</span>
+        <div className="p-3 rounded-xl bg-ui-surface/60 border border-white/8 relative">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-ui-warning" />
+            <span className="text-xs font-bold text-ui-text">胜率预估</span>
           </div>
-          <p className="text-xs text-trae-muted leading-relaxed">
+
+          {/* 胜率条 */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-bold text-ui-primary-light">
+              蓝方 {(blueWinProb * 100).toFixed(0)}%
+            </span>
+            <div className="flex-1 h-2 rounded-full overflow-hidden bg-ui-danger/20">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-ui-primary to-ui-accent"
+                style={{ width: `${Math.min(100, Math.max(0, blueWinProb * 100))}%` }}
+              />
+            </div>
+            <span className="text-sm font-bold text-ui-danger-light">
+              红方 {((1 - blueWinProb) * 100).toFixed(0)}%
+            </span>
+          </div>
+
+          <p className="text-xs text-ui-muted leading-relaxed">
             {favored === 'EVEN'
               ? '双方阵容强度接近，胜负更多取决于操作与配合。'
               : favored === 'BLUE'
@@ -258,19 +258,19 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
       <div className="lg:col-span-2">
         <div className="glass rounded-2xl border border-white/8 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-trae-success to-emerald-400 flex items-center justify-center shadow-glow-green">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-ui-success to-emerald-400 flex items-center justify-center shadow-glow-green">
               <NotebookPen className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-sm font-bold text-trae-text">记录实际结果</h3>
+            <h3 className="text-sm font-bold text-ui-text">记录实际结果</h3>
             {existingRecord && (
               <span
                 className={cn(
                   'ml-auto text-xs font-bold px-2 py-0.5 rounded-full',
                   existingRecord.result === 'CORRECT'
-                    ? 'bg-trae-success/15 text-trae-success border border-trae-success/25'
+                    ? 'bg-ui-success/15 text-ui-success border border-ui-success/25'
                     : existingRecord.result === 'INCORRECT'
-                    ? 'bg-trae-danger/15 text-trae-danger border border-trae-danger/25'
-                    : 'bg-trae-warning/15 text-trae-warning border border-trae-warning/25'
+                    ? 'bg-ui-danger/15 text-ui-danger border border-ui-danger/25'
+                    : 'bg-ui-warning/15 text-ui-warning border border-ui-warning/25'
                 )}
               >
                 {existingRecord.result === 'CORRECT'
@@ -284,17 +284,17 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
 
           {/* 预测倾向提示 */}
           {favored !== 'EVEN' && (
-            <div className="mb-3 p-2 rounded-xl bg-trae-surface/40 border border-white/8 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-trae-accent flex-shrink-0" />
-              <span className="text-[11px] text-trae-muted">
-                系统预测 <span className={cn('font-bold', favored === 'BLUE' ? 'text-trae-primary-light' : 'text-trae-danger-light')}>{favored === 'BLUE' ? '蓝方' : '红方'}</span> 阵容优势（领先 {Math.abs(difference).toFixed(1)} 分）。选择对局结果后将自动判定预测是否正确。
+            <div className="mb-3 p-2 rounded-xl bg-ui-surface/40 border border-white/8 flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-ui-accent flex-shrink-0" />
+              <span className="text-[11px] text-ui-muted">
+                系统预测 <span className={cn('font-bold', favored === 'BLUE' ? 'text-ui-primary-light' : 'text-ui-danger-light')}>{favored === 'BLUE' ? '蓝方' : '红方'}</span> 阵容优势（领先 {Math.abs(difference).toFixed(1)} 分）。选择对局结果后将自动判定预测是否正确。
               </span>
             </div>
           )}
 
           {/* 我赢了/输了 — 选择后自动闭环 */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] text-trae-muted flex-shrink-0">我的对局结果：</span>
+            <span className="text-[11px] text-ui-muted flex-shrink-0">我的对局结果：</span>
             <div className="flex gap-1.5">
               {(['WIN', 'LOSE', 'PENDING'] as ActualResult[]).map((r) => (
                 <button
@@ -304,11 +304,11 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
                     'flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors',
                     actualResult === r
                       ? r === 'WIN'
-                        ? 'bg-trae-primary/20 text-trae-primary-light border-trae-primary/40'
+                        ? 'bg-ui-primary/20 text-ui-primary-light border-ui-primary/40'
                         : r === 'LOSE'
-                        ? 'bg-trae-danger/20 text-trae-danger-light border-trae-danger/40'
-                        : 'bg-trae-warning/15 text-trae-warning border-trae-warning/30'
-                      : 'bg-trae-surface/40 text-trae-muted border-white/8 hover:border-white/15'
+                        ? 'bg-ui-danger/20 text-ui-danger-light border-ui-danger/40'
+                        : 'bg-ui-warning/15 text-ui-warning border-ui-warning/30'
+                      : 'bg-ui-surface/40 text-ui-muted border-white/8 hover:border-white/15'
                   )}
                 >
                   {r === 'WIN' && <Crown className="w-3 h-3" />}
@@ -325,22 +325,22 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
             <div className={cn(
               'mb-3 p-3 rounded-xl border flex items-center gap-2 animate-fade-in',
               autoJudgedResult === 'CORRECT'
-                ? 'bg-trae-success/10 border-trae-success/25'
-                : 'bg-trae-danger/10 border-trae-danger/25'
+                ? 'bg-ui-success/10 border-ui-success/25'
+                : 'bg-ui-danger/10 border-ui-danger/25'
             )}>
               {autoJudgedResult === 'CORRECT' ? (
-                <CheckCircle2 className="w-4 h-4 text-trae-success flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-ui-success flex-shrink-0" />
               ) : (
-                <XCircle className="w-4 h-4 text-trae-danger flex-shrink-0" />
+                <XCircle className="w-4 h-4 text-ui-danger flex-shrink-0" />
               )}
               <div className="flex-1">
                 <span className={cn(
                   'text-xs font-bold',
-                  autoJudgedResult === 'CORRECT' ? 'text-trae-success' : 'text-trae-danger'
+                  autoJudgedResult === 'CORRECT' ? 'text-ui-success' : 'text-ui-danger'
                 )}>
                   {autoJudgedResult === 'CORRECT' ? '预测正确！' : '预测错误'}
                 </span>
-                <span className="text-[11px] text-trae-muted ml-2">
+                <span className="text-[11px] text-ui-muted ml-2">
                   预测{favored === 'BLUE' ? '蓝方' : '红方'}优势，你在{mySide === 'BLUE' ? '蓝方' : '红方'}，结果{actualResult === 'WIN' ? '赢了' : '输了'}
                 </span>
               </div>
@@ -349,9 +349,9 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
 
           {/* 提示信息 */}
           {actualResult !== 'PENDING' && !autoJudgedResult && (
-            <div className="mb-3 p-2 rounded-xl bg-trae-warning/10 border border-trae-warning/20 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-trae-warning flex-shrink-0" />
-              <span className="text-[11px] text-trae-warning">
+            <div className="mb-3 p-2 rounded-xl bg-ui-warning/10 border border-ui-warning/20 flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-ui-warning flex-shrink-0" />
+              <span className="text-[11px] text-ui-warning">
                 {!mySide
                   ? '请先标记你使用的英雄，才能自动判定预测正确与否'
                   : '双方阵容接近，无明确预测倾向，不参与判定'}
@@ -365,26 +365,26 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="可选：添加备注（如对局模式、段位等）"
-              className="flex-1 px-3 py-2 rounded-xl bg-trae-surface/60 border border-white/8 text-xs text-trae-text placeholder:text-trae-muted focus:outline-none focus:border-trae-primary/40 transition-colors"
+              className="flex-1 px-3 py-2 rounded-xl bg-ui-surface/60 border border-white/8 text-xs text-ui-text placeholder:text-ui-muted focus:outline-none focus:border-ui-primary/40 transition-colors"
             />
             <div className="flex gap-2 flex-shrink-0">
               {!existingRecord && actualResult === 'PENDING' && (
                 <button
                   onClick={handleSaveRecord}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-trae-primary/15 border border-trae-primary/25 text-trae-primary-light text-xs font-semibold hover:bg-trae-primary/25 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-ui-primary/15 border border-ui-primary/25 text-ui-primary-light text-xs font-semibold hover:bg-ui-primary/25 transition-colors"
                 >
                   <BookmarkPlus className="w-3.5 h-3.5" />
                   记录本次 BP
                 </button>
               )}
               {existingRecord && actualResult === 'PENDING' && (
-                <span className="text-[11px] text-trae-muted px-4 py-2 flex items-center gap-1">
+                <span className="text-[11px] text-ui-muted px-4 py-2 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   对局结束后选择结果即可自动记录
                 </span>
               )}
               {actualResult !== 'PENDING' && (
-                <span className="text-[11px] text-trae-success px-4 py-2 flex items-center gap-1">
+                <span className="text-[11px] text-ui-success px-4 py-2 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" />
                   已自动记录
                 </span>
@@ -406,13 +406,13 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
           heroes={getTeamHeroes(state, 'RED')}
           side="RED"
         />
-        <div className="p-4 rounded-2xl bg-trae-surface/60 border border-white/8 flex items-start gap-3">
-          <div className="w-7 h-7 rounded-lg bg-trae-warning/10 border border-trae-warning/20 flex items-center justify-center flex-shrink-0">
-            <AlertTriangle className="w-4 h-4 text-trae-warning" />
+        <div className="p-4 rounded-2xl bg-ui-surface/60 border border-white/8 flex items-start gap-3">
+          <div className="w-7 h-7 rounded-lg bg-ui-warning/10 border border-ui-warning/20 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle className="w-4 h-4 text-ui-warning" />
           </div>
           <div>
-            <div className="text-xs font-bold text-trae-text mb-1">数据说明</div>
-            <p className="text-[11px] text-trae-muted leading-relaxed">
+            <div className="text-xs font-bold text-ui-text mb-1">数据说明</div>
+            <p className="text-[11px] text-ui-muted leading-relaxed">
               以上评分基于当前版本 AI 胜率、英雄克制关系与阵容维度进行模拟计算，仅供参考。实际对局受选手操作、版本微调与团队配合影响较大。
             </p>
           </div>
@@ -433,19 +433,19 @@ function PowerCard({
 }) {
   const gradient =
     color === 'primary'
-      ? 'from-trae-primary to-trae-accent'
-      : 'from-trae-danger to-trae-warning';
+      ? 'from-ui-primary to-ui-accent'
+      : 'from-ui-danger to-ui-warning';
   const glow = color === 'primary' ? 'shadow-glow-blue' : 'shadow-glow-red';
 
   return (
-    <div className="relative p-3 rounded-xl bg-trae-surface/60 border border-white/8 text-center overflow-hidden group">
+    <div className="relative p-3 rounded-xl bg-ui-surface/60 border border-white/8 text-center overflow-hidden group">
       <div
         className={cn(
           'absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r opacity-60',
           gradient
         )}
       />
-      <div className="text-xs text-trae-muted">{label}</div>
+      <div className="text-xs text-ui-muted">{label}</div>
       <div
         className={cn(
           'text-2xl font-display font-bold mt-1 bg-gradient-to-r bg-clip-text text-transparent',
@@ -477,27 +477,27 @@ function HighlightCard({
   );
 
   return (
-    <div className="p-4 rounded-2xl bg-trae-surface/60 border border-white/8">
+    <div className="p-4 rounded-2xl bg-ui-surface/60 border border-white/8">
       <div className="flex items-center gap-2 mb-2">
         <Zap
           className={cn(
             'w-4 h-4',
-            side === 'BLUE' ? 'text-trae-primary' : 'text-trae-danger'
+            side === 'BLUE' ? 'text-ui-primary' : 'text-ui-danger'
           )}
         />
-        <span className="text-xs font-bold text-trae-text">{title}</span>
+        <span className="text-xs font-bold text-ui-text">{title}</span>
       </div>
       {best ? (
         <div className="flex items-center justify-between">
-          <div className="text-sm font-medium text-trae-text truncate pr-2">
+          <div className="text-sm font-medium text-ui-text truncate pr-2">
             {best.name}
           </div>
-          <div className="text-xs font-mono text-trae-success">
+          <div className="text-xs font-mono text-ui-success">
             {(best.aiWinRate * 100).toFixed(1)}%
           </div>
         </div>
       ) : (
-        <div className="text-xs text-trae-muted">暂无英雄数据</div>
+        <div className="text-xs text-ui-muted">暂无英雄数据</div>
       )}
     </div>
   );

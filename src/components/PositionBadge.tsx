@@ -26,7 +26,7 @@ function getPositionStyle(position: HeroPosition): {
     case 'ROAM':
       return { bg: 'bg-sky-500/10', text: 'text-sky-400' };
     default:
-      return { bg: 'bg-white/8', text: 'text-trae-muted' };
+      return { bg: 'bg-white/8', text: 'text-ui-muted' };
   }
 }
 

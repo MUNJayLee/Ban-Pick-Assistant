@@ -680,6 +680,11 @@ const HEROES = [
     roles: ['SUPPORT'],
     names: ['空空儿'],
   },
+  {
+    id: 'luyana',
+    roles: ['MARKSMAN'],
+    names: ['卢雅那'],
+  },
 ];
 
 /**

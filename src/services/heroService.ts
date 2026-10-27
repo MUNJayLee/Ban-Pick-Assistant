@@ -133,3 +133,49 @@ export function normalizeCompositionScore(score: CompositionScore): CompositionS
 export function getWinRateForDisplay(winRate: number): string {
   return `${(winRate * 100).toFixed(1)}%`;
 }
+
+/**
+ * 计算某方阵容的综合强度（0-100），由三个维度合成：
+ * 1. 版本强度（梯度评分均值，0-100）
+ * 2. 阵容维度（前排/输出/控制/续航/机动归一化均值，0-100）
+ * 3. 克制关系（净克制数，以 50 为基准上下浮动）
+ */
+export function calculateTeamStrength(
+  state: { bluePicks: string[]; redPicks: string[] },
+  side: Side
+): number {
+  const team = getTeamHeroes(state, side);
+  const enemy = getEnemyHeroes(state, side);
+  if (team.length === 0) return 0;
+
+  // 1. 版本强度（0-100）
+  const version =
+    team.reduce((sum, h) => sum + (h.tierScore ?? h.aiWinRate * 100), 0) / team.length;
+
+  // 2. 阵容维度（0-100）
+  const norm = normalizeCompositionScore(calculateCompositionScore(team));
+  const compScore =
+    ((norm.frontline + norm.damage + norm.control + norm.sustain + norm.mobility) / 5) * 100;
+
+  // 3. 克制关系（净克制数，以 50 为基准）
+  let counter = 0;
+  let countered = 0;
+  for (const h of team) {
+    for (const e of enemy) {
+      if (h.counters.includes(e.id)) counter += 1;
+      if (e.counters.includes(h.id)) countered += 1;
+    }
+  }
+  const counterScore = 50 + (counter - countered) * 3;
+
+  return version * 0.6 + compScore * 0.25 + counterScore * 0.15;
+}
+
+/**
+ * 根据双方阵容综合评分，用 logistic 曲线换算蓝方胜率（0-1）。
+ * 评分差 0 → 50%，差 10 分 → 约 73%，差 20 分 → 约 88%。
+ */
+export function calculateWinProbability(bluePower: number, redPower: number): number {
+  const diff = bluePower - redPower;
+  return 1 / (1 + Math.exp(-diff / 10));
+}

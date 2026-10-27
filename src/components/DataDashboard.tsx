@@ -24,7 +24,7 @@ const POSITION_COLORS: Record<HeroPosition, string> = {
   ROAM: '#3b82f6',
 };
 
-type SortKey = 'aiWinRate' | 'popularity' | 'pickRate' | 'banRate';
+type SortKey = 'tierScore' | 'popularity' | 'pickRate' | 'banRate';
 
 interface DataDashboardProps {
   onRefresh?: () => void;
@@ -38,10 +38,10 @@ function formatPercent(value?: number) {
 }
 
 function getTrendIcon(current?: number, baseline = 0.5) {
-  if (current === undefined) return <Minus className="w-3 h-3 text-trae-muted" />;
-  if (current > baseline + 0.02) return <ArrowUpRight className="w-3 h-3 text-trae-success" />;
-  if (current < baseline - 0.02) return <ArrowDownRight className="w-3 h-3 text-trae-danger" />;
-  return <Minus className="w-3 h-3 text-trae-muted" />;
+  if (current === undefined) return <Minus className="w-3 h-3 text-ui-muted" />;
+  if (current > baseline + 0.02) return <ArrowUpRight className="w-3 h-3 text-ui-success" />;
+  if (current < baseline - 0.02) return <ArrowDownRight className="w-3 h-3 text-ui-danger" />;
+  return <Minus className="w-3 h-3 text-ui-muted" />;
 }
 
 export function DataDashboard({
@@ -50,7 +50,7 @@ export function DataDashboard({
   lastUpdated,
 }: DataDashboardProps) {
   const [filter, setFilter] = useState<HeroPosition | 'ALL'>('ALL');
-  const [sortKey, setSortKey] = useState<SortKey>('aiWinRate');
+  const [sortKey, setSortKey] = useState<SortKey>('tierScore');
   const [sortDesc, setSortDesc] = useState(true);
 
   const heroes = getAllHeroes();
@@ -59,7 +59,7 @@ export function DataDashboard({
     const list = heroes.filter((h) => (filter === 'ALL' ? true : h.positions?.includes(filter)));
     const total = list.length || 1;
     return {
-      avgWinRate: list.reduce((s, h) => s + h.aiWinRate, 0) / total,
+      avgTierScore: list.reduce((s, h) => s + (h.tierScore ?? 0), 0) / total,
       avgPickRate: list.reduce((s, h) => s + (h.pickRate || 0), 0) / total,
       avgBanRate: list.reduce((s, h) => s + (h.banRate || 0), 0) / total,
       count: list.length,
@@ -83,8 +83,8 @@ export function DataDashboard({
     () => [...heroes].sort((a, b) => (b.banRate || 0) - (a.banRate || 0))[0],
     [heroes]
   );
-  const topWin = useMemo(
-    () => [...heroes].sort((a, b) => b.aiWinRate - a.aiWinRate)[0],
+  const topTier = useMemo(
+    () => [...heroes].sort((a, b) => (b.tierScore ?? 0) - (a.tierScore ?? 0))[0],
     [heroes]
   );
 
@@ -108,8 +108,8 @@ export function DataDashboard({
       className={cn(
         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200',
         sortKey === keyName
-          ? 'bg-gradient-to-r from-trae-primary to-trae-accent text-white border-transparent shadow-glow-blue'
-          : 'bg-trae-surface text-trae-muted border-white/8 hover:border-trae-primary/40 hover:text-trae-text'
+          ? 'bg-gradient-to-r from-ui-primary to-ui-accent text-white border-transparent shadow-glow-blue'
+          : 'bg-ui-surface text-ui-muted border-white/8 hover:border-ui-primary/40 hover:text-ui-text'
       )}
     >
       <Icon className="w-3.5 h-3.5" />
@@ -119,18 +119,18 @@ export function DataDashboard({
   );
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-trae-bg text-trae-text">
+    <div className="flex flex-col h-full overflow-hidden bg-ui-bg text-ui-text">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 glass border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-trae-primary to-trae-accent flex items-center justify-center shadow-glow-blue">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-ui-primary to-ui-accent flex items-center justify-center shadow-glow-blue">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-base md:text-lg font-display font-bold leading-tight">
               实时胜率数据看板
             </h1>
-            <p className="text-[10px] text-trae-muted">
+            <p className="text-[10px] text-ui-muted">
               {lastUpdated ? `上次更新：${lastUpdated}` : '点击右上角刷新获取最新数据'}
             </p>
           </div>
@@ -142,8 +142,8 @@ export function DataDashboard({
           className={cn(
             'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-200',
             isRefreshing
-              ? 'bg-trae-surface border-white/8 text-trae-muted cursor-not-allowed'
-              : 'bg-trae-surface border-white/8 text-trae-text hover:border-trae-primary/40'
+              ? 'bg-ui-surface border-white/8 text-ui-muted cursor-not-allowed'
+              : 'bg-ui-surface border-white/8 text-ui-text hover:border-ui-primary/40'
           )}
         >
           <RefreshCw className={cn('w-3.5 h-3.5', isRefreshing && 'animate-spin')} />
@@ -156,52 +156,52 @@ export function DataDashboard({
           {/* Top cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard
-              label="平均胜率"
-              value={formatPercent(stats.avgWinRate)}
+              label="平均梯度评分"
+              value={stats.avgTierScore.toFixed(1)}
               icon={BarChart3}
-              trend={getTrendIcon(stats.avgWinRate, 0.5)}
-              color="trae-success"
+              trend={getTrendIcon(stats.avgTierScore / 100, 0.5)}
+              color="ui-success"
             />
             <StatCard
               label="平均登场率"
               value={formatPercent(stats.avgPickRate)}
               icon={MousePointer}
               trend={getTrendIcon(stats.avgPickRate, 0.1)}
-              color="trae-primary"
+              color="ui-primary"
             />
             <StatCard
               label="平均禁用率"
               value={formatPercent(stats.avgBanRate)}
               icon={ShieldAlert}
               trend={getTrendIcon(stats.avgBanRate, 0.05)}
-              color="trae-danger"
+              color="ui-danger"
             />
             <StatCard
               label="统计英雄"
               value={String(stats.count)}
               icon={Flame}
-              color="trae-warning"
+              color="ui-warning"
             />
           </div>
 
           {/* Champions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <ChampionCard hero={topWin} title="胜率之王" metric="aiWinRate" color="trae-success" />
-            <ChampionCard hero={topPick} title="登场之王" metric="pickRate" color="trae-primary" />
-            <ChampionCard hero={topBan} title="禁用之王" metric="banRate" color="trae-danger" />
+            <ChampionCard hero={topTier} title="梯度之王" metric="tierScore" color="ui-success" />
+            <ChampionCard hero={topPick} title="登场之王" metric="pickRate" color="ui-primary" />
+            <ChampionCard hero={topBan} title="禁用之王" metric="banRate" color="ui-danger" />
           </div>
 
           {/* Filters */}
           <div className="glass rounded-xl border border-white/8 p-3">
             <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="text-xs text-trae-muted">分路筛选</span>
+              <span className="text-xs text-ui-muted">分路筛选</span>
               <button
                 onClick={() => setFilter('ALL')}
                 className={cn(
                   'px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200',
                   filter === 'ALL'
-                    ? 'bg-gradient-to-r from-trae-primary to-trae-accent text-white border-transparent shadow-glow-blue'
-                    : 'bg-trae-bg text-trae-muted border-white/8 hover:border-trae-primary/40 hover:text-trae-text'
+                    ? 'bg-gradient-to-r from-ui-primary to-ui-accent text-white border-transparent shadow-glow-blue'
+                    : 'bg-ui-bg text-ui-muted border-white/8 hover:border-ui-primary/40 hover:text-ui-text'
                 )}
               >
                 全部
@@ -231,8 +231,8 @@ export function DataDashboard({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-trae-muted">排序</span>
-              <SortButton keyName="aiWinRate" label="胜率" icon={BarChart3} />
+              <span className="text-xs text-ui-muted">排序</span>
+              <SortButton keyName="tierScore" label="梯度评分" icon={BarChart3} />
               <SortButton keyName="pickRate" label="登场率" icon={MousePointer} />
               <SortButton keyName="banRate" label="禁用率" icon={ShieldAlert} />
               <SortButton keyName="popularity" label="热度" icon={Flame} />
@@ -243,11 +243,11 @@ export function DataDashboard({
           <div className="glass rounded-xl border border-white/8 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-trae-surface/70 text-trae-muted text-xs">
+                <thead className="bg-ui-surface/70 text-ui-muted text-xs">
                   <tr>
                     <th className="px-3 py-2.5 font-medium">英雄</th>
                     <th className="px-3 py-2.5 font-medium">定位</th>
-                    <th className="px-3 py-2.5 font-medium text-right">胜率</th>
+                    <th className="px-3 py-2.5 font-medium text-right">梯度评分</th>
                     <th className="px-3 py-2.5 font-medium text-right">登场率</th>
                     <th className="px-3 py-2.5 font-medium text-right">禁用率</th>
                     <th className="px-3 py-2.5 font-medium text-right">热度</th>
@@ -260,12 +260,12 @@ export function DataDashboard({
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.015 }}
-                      className="hover:bg-trae-surface/40 transition-colors"
+                      className="hover:bg-ui-surface/40 transition-colors"
                     >
                       <td className="px-3 py-2">
                         <div className="flex items-center gap-2">
                           <HeroAvatar heroId={hero.id} size="sm" />
-                          <span className="font-medium text-trae-text">{hero.name}</span>
+                          <span className="font-medium text-ui-text">{hero.name}</span>
                         </div>
                       </td>
                       <td className="px-3 py-2">
@@ -275,12 +275,12 @@ export function DataDashboard({
                                 <PositionBadge key={pos} position={pos} size="xs" />
                               ))
                             : hero.positionLabel && (
-                                <span className="text-[9px] text-trae-muted">{hero.positionLabel}</span>
+                                <span className="text-[9px] text-ui-muted">{hero.positionLabel}</span>
                               )}
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <RateValue value={hero.aiWinRate} baseline={0.5} />
+                        <TierValue value={hero.tierScore} tier={hero.tier} />
                       </td>
                       <td className="px-3 py-2 text-right">
                         <RateValue value={hero.pickRate} />
@@ -288,7 +288,7 @@ export function DataDashboard({
                       <td className="px-3 py-2 text-right">
                         <RateValue value={hero.banRate} />
                       </td>
-                      <td className="px-3 py-2 text-right text-trae-text">
+                      <td className="px-3 py-2 text-right text-ui-text">
                         {hero.popularity.toFixed(1)}
                       </td>
                     </motion.tr>
@@ -297,7 +297,7 @@ export function DataDashboard({
               </table>
             </div>
             {sortedHeroes.length === 0 && (
-              <div className="p-8 text-center text-trae-muted text-xs">
+              <div className="p-8 text-center text-ui-muted text-xs">
                 暂无数据，请先刷新获取实时胜率。
               </div>
             )}
@@ -322,10 +322,10 @@ function StatCard({
   color: string;
 }) {
   const colorMap: Record<string, string> = {
-    'trae-success': '#22c55e',
-    'trae-primary': '#3b82f6',
-    'trae-danger': '#ef4444',
-    'trae-warning': '#f59e0b',
+    'ui-success': '#22c55e',
+    'ui-primary': '#3b82f6',
+    'ui-danger': '#ef4444',
+    'ui-warning': '#f59e0b',
   };
   const hex = colorMap[color] || '#94a3b8';
 
@@ -337,10 +337,10 @@ function StatCard({
       />
       <div className="flex items-center gap-2 mb-2">
         <Icon className="w-4 h-4" style={{ color: hex }} />
-        <span className="text-xs text-trae-muted">{label}</span>
+        <span className="text-xs text-ui-muted">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-xl font-display font-bold text-trae-text">{value}</span>
+        <span className="text-xl font-display font-bold text-ui-text">{value}</span>
         {trend}
       </div>
     </div>
@@ -355,21 +355,21 @@ function ChampionCard({
 }: {
   hero?: Hero;
   title: string;
-  metric: 'aiWinRate' | 'pickRate' | 'banRate';
+  metric: 'tierScore' | 'pickRate' | 'banRate';
   color: string;
 }) {
   if (!hero) return null;
   const value = hero[metric];
   const labels: Record<typeof metric, string> = {
-    aiWinRate: '胜率',
+    tierScore: '梯度评分',
     pickRate: '登场率',
     banRate: '禁用率',
   };
 
   const colorMap: Record<string, string> = {
-    'trae-success': '#22c55e',
-    'trae-primary': '#3b82f6',
-    'trae-danger': '#ef4444',
+    'ui-success': '#22c55e',
+    'ui-primary': '#3b82f6',
+    'ui-danger': '#ef4444',
   };
   const hex = colorMap[color] || '#94a3b8';
 
@@ -377,23 +377,23 @@ function ChampionCard({
     <div className="glass rounded-xl border border-white/8 p-3 flex items-center gap-3 hover:border-white/12 transition-colors">
       <HeroAvatar heroId={hero.id} size="lg" ring />
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] text-trae-muted uppercase tracking-wider">{title}</div>
-        <div className="text-base font-bold text-trae-text truncate">{hero.name}</div>
+        <div className="text-[10px] text-ui-muted uppercase tracking-wider">{title}</div>
+        <div className="text-base font-bold text-ui-text truncate">{hero.name}</div>
         <div className="flex items-center gap-2 mt-1">
           {hero.positions && hero.positions.length > 0
             ? hero.positions.slice(0, 2).map((pos) => (
                 <PositionBadge key={pos} position={pos} size="xs" />
               ))
             : hero.positionLabel && (
-                <span className="text-[9px] text-trae-muted">{hero.positionLabel}</span>
+                <span className="text-[9px] text-ui-muted">{hero.positionLabel}</span>
               )}
         </div>
       </div>
       <div className="text-right">
         <div className="text-xl font-display font-bold" style={{ color: hex }}>
-          {formatPercent(value)}
+          {metric === 'tierScore' ? value.toFixed(1) : formatPercent(value)}
         </div>
-        <div className="text-[10px] text-trae-muted">{labels[metric]}</div>
+        <div className="text-[10px] text-ui-muted">{labels[metric]}</div>
       </div>
     </div>
   );
@@ -401,7 +401,7 @@ function ChampionCard({
 
 function RateValue({ value, baseline }: { value?: number; baseline?: number }) {
   if (value === undefined || Number.isNaN(value)) {
-    return <span className="text-trae-muted">-</span>;
+    return <span className="text-ui-muted">-</span>;
   }
   const display = (value * 100).toFixed(1);
   let color = '#94a3b8';
@@ -411,6 +411,19 @@ function RateValue({ value, baseline }: { value?: number; baseline?: number }) {
   return (
     <span className="font-medium tabular-nums" style={{ color }}>
       {display}%
+    </span>
+  );
+}
+
+function TierValue({ value, tier }: { value?: number; tier?: string }) {
+  if (value === undefined || Number.isNaN(value)) {
+    return <span className="text-ui-muted">-</span>;
+  }
+  const color = value >= 60 ? '#22c55e' : value >= 45 ? '#f59e0b' : '#ef4444';
+  return (
+    <span className="font-medium tabular-nums" style={{ color }}>
+      {value.toFixed(1)}
+      {tier ? <span className="text-ui-muted ml-1 text-xs">{tier}</span> : null}
     </span>
   );
 }

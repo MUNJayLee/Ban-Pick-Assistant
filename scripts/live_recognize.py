@@ -1,0 +1,413 @@
+# -*- coding: utf-8 -*-
+"""
+实战模式：ADB 自动抓屏 → BP 状态机 → 多帧识别 → 自动采集样本
+=================================================================
+你打游戏时双击「实时识别.bat」启动，然后就不用管了：
+  · 自动检测是否进入 ban 阶段界面
+  · ban 完成后自动识别 10 个 ban 位（多帧候选 RRF 融合，比单帧稳）
+  · 结果同时打印在窗口、写入 最新结果.txt
+  · 自动把 10 个头像裁剪入库（training_data/live/），供度量学习训练
+
+用法：
+  python scripts/live_recognize.py              # 常驻循环
+  python scripts/live_recognize.py --once       # 只检测一次（调试）
+  python scripts/live_recognize.py --no-sample  # 不采集样本
+
+退出：Ctrl+C
+"""
+import argparse
+import collections
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+from datetime import datetime
+
+import numpy as np
+import cv2
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import recognize_screenshot as R
+
+# Windows 下隐藏子进程窗口
+CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
+
+
+def _run(cmd, **kwargs):
+    kwargs.setdefault('creationflags', CREATE_NO_WINDOW)
+    return subprocess.run(cmd, **kwargs)
+
+
+DEFAULT_ADB = r'D:\scrcpy\adb.exe'
+TARGET_WIDTH = 1920
+OUT_CAPTURE = '_live_capture'       # 调试截图
+OUT_SAMPLES = 'training_data/live'  # 训练样本
+RESULT_FILE = '最新结果.txt'
+
+# 识别参数（实测最优）
+FUSION_K = 60
+FUSION_W_COLOR = 2.5
+MULTI_FRAMES = 3              # 多帧融合帧数
+# 融合分（RRF）量纲约 0~0.0574：0.0574 = ORB第1+颜色第1 的完美匹配。
+# top1-top2 分差 >= 0.003 视为可信（实测正确样本 gap 约 0.001~0.01）。
+CONFIDENT_GAP = 0.003
+
+
+# ---------------------------------------------------------------------------
+# 工具
+# ---------------------------------------------------------------------------
+def find_adb(explicit=None):
+    for c in ([explicit] if explicit else []) + [DEFAULT_ADB, 'adb']:
+        try:
+            r = _run([c, 'version'], capture_output=True,
+                               encoding='utf-8', errors='replace', timeout=8)
+            if r.returncode == 0 and 'Android Debug Bridge' in (r.stdout or ''):
+                return c
+        except Exception:
+            continue
+    return None
+
+
+def list_devices(adb):
+    r = _run([adb, 'devices'], capture_output=True,
+                       encoding='utf-8', errors='replace', timeout=15)
+    out = []
+    for line in (r.stdout or '').splitlines():
+        p = line.strip().split()
+        if len(p) >= 2 and not line.startswith('List of devices'):
+            out.append((p[0], p[1]))
+    return out
+
+
+def capture(adb, serial):
+    cmd = [adb] + (['-s', serial] if serial else []) + ['exec-out', 'screencap', '-p']
+    r = _run(cmd, capture_output=True, timeout=30)
+    data = r.stdout or b''
+    if not data.startswith(b'\x89PNG'):
+        data = data.replace(b'\r\n', b'\n')
+    if not data.startswith(b'\x89PNG'):
+        raise RuntimeError('抓屏不是 PNG')
+    img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        raise RuntimeError('PNG 解码失败')
+    return img
+
+
+def normalize(img):
+    h, w = img.shape[:2]
+    if w == TARGET_WIDTH:
+        return img
+    return cv2.resize(img, (TARGET_WIDTH, int(round(h * TARGET_WIDTH / w))),
+                      interpolation=cv2.INTER_AREA)
+
+
+# ---------------------------------------------------------------------------
+# 特征库（加载一次）
+# ---------------------------------------------------------------------------
+class FeatureBank:
+    def __init__(self):
+        manifest = json.load(open('avatars/manifest.json', encoding='utf-8'))
+        self.ids = [m['id'] for m in manifest]
+        self.name = {m['id']: m['name'] for m in manifest}
+        self.orb = cv2.ORB_create(nfeatures=1000)
+        self.des = {}
+        self.col = {}
+        for m in manifest:
+            raw = R.imread_unicode('avatars/%s.jpg' % m['id'])
+            av = R.circular(raw, 48)
+            kp, d = self.orb.detectAndCompute(av, None)
+            if d is not None:
+                self.des[m['id']] = d
+            self.col[m['id']] = R._color_hist(raw)
+        self.bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+
+    def _match(self, a, b):
+        ms = self.bf.knnMatch(a, b, k=2)
+        return len([m for m, n in ms if m.distance < 0.75 * n.distance])
+
+    def ranks(self, crop):
+        """返回该头像的 (ORB排名, 颜色排名)。"""
+        q = R.circular(crop, int(crop.shape[0]))
+        qdes = self.orb.detectAndCompute(q, None)[1]
+        if qdes is None:
+            return ({h: i + 1 for i, h in enumerate(self.ids)},
+                    {h: i + 1 for i, h in enumerate(self.ids)})
+        os_ = {h: self._match(qdes, d) for h, d in self.des.items()}
+        qcol = R._color_hist(crop)
+        cd = {h: R._chi2(qcol, self.col[h]) for h in self.ids}
+        OR = {h: i + 1 for i, (h, s) in enumerate(sorted(os_.items(), key=lambda kv: -kv[1]))}
+        CR = {h: i + 1 for i, (h, d) in enumerate(sorted(cd.items(), key=lambda kv: kv[1]))}
+        return OR, CR
+
+    def fuse(self, rank_pairs):
+        """多帧 RRF 融合，返回 [(hero_id, score)] 降序。"""
+        comb = {}
+        for OR, CR in rank_pairs:
+            for h in self.ids:
+                comb[h] = comb.get(h, 0.0) + \
+                    1.0 / (FUSION_K + OR.get(h, 999)) + \
+                    FUSION_W_COLOR / (FUSION_K + CR.get(h, 999))
+        return sorted(comb.items(), key=lambda kv: -kv[1])
+
+
+# ---------------------------------------------------------------------------
+# BP 检测
+# ---------------------------------------------------------------------------
+def _evenly_spaced(circles, max_cv=0.35):
+    """间距变异系数：王者 ban 位严格等距（CV≈0），其他画面误检的圆间距杂乱。"""
+    if len(circles) < 3:
+        return True
+    xs = sorted(c[0] for c in circles)
+    gaps = [xs[i + 1] - xs[i] for i in range(len(xs) - 1)]
+    mg = float(np.mean(gaps))
+    if mg <= 0:
+        return False
+    return float(np.std(gaps) / mg) <= max_cv
+
+
+def _top_brightness(img, ratio=0.12):
+    """ban 栏区域平均亮度（王者 BP 是深色背景，实测 V≈59~119）。"""
+    H = img.shape[0]
+    top = img[0:int(H * ratio), :]
+    hsv = cv2.cvtColor(top, cv2.COLOR_BGR2HSV)
+    return float(hsv[:, :, 2].mean())
+
+
+def detect_bp(img):
+    """判断是否王者 BP 界面（需要同时满足布局 + 场景特征）。
+
+    实测区分度（碧蓝航线作为反例）：
+      | 画面        | 左右圆 | 等距 | 锁数 | 顶部亮度 |
+      |-------------|--------|------|------|----------|
+      | 王者 BP     | 5 / 5  | 是   | 9~10 | 59~119   |
+      | 碧蓝航线     | 2~5    | 否   | 0~3  | 213~215  |
+
+    判据：布局(左右各>=3) + 等距 + (锁>=4 或 顶部亮度<120)。
+    """
+    H, W = img.shape[:2]
+    left, right = R.detect_circles(img)
+    max_r = W * 0.02          # ban 头像半径约 1~1.4% 屏宽
+    left = [c for c in left if c[2] <= max_r]
+    right = [c for c in right if c[2] <= max_r]
+    left = R.validate_row(left)
+    right = R.validate_row(right)
+
+    locks = sum(1 for c in (left + right) if R.has_lock(img, *c))
+    top_v = _top_brightness(img)
+    layout_ok = (len(left) >= 3 and len(right) >= 3
+                 and _evenly_spaced(left) and _evenly_spaced(right))
+    # 真 BP 界面通常 9~10 个锁；BP 早期锁少但背景是深色（实测 V≈59~119）。
+    # 非 BP 画面常见：亮背景（V>150）且无锁 → 排除。
+    # 注意：真机分辨率/UI 差异可能导致锁检测偏少，这里放宽，靠「识别质量校验」兜底。
+    scene_ok = (locks >= 3) or (top_v < 130)
+
+    return {
+        'left': left, 'right': right,
+        'count': len(left) + len(right),
+        'locks': locks, 'top_v': round(top_v, 1),
+        'is_bp': bool(layout_ok and scene_ok),
+    }
+
+
+def crop_avatar(img, cx, cy, r, size=96):
+    H, W = img.shape[:2]
+    sz = int(r * 2.2)
+    x = max(0, min(W - sz, cx - sz // 2))
+    y = max(0, min(H - sz, cy - sz // 2))
+    return cv2.resize(img[y:y + sz, x:x + sz], (size, size))
+
+
+# ---------------------------------------------------------------------------
+# 主流程
+# ---------------------------------------------------------------------------
+def write_result(text):
+    with open(RESULT_FILE, 'w', encoding='utf-8') as f:
+        f.write(text + '\n')
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--adb-path', default=None)
+    ap.add_argument('--serial', default=None)
+    ap.add_argument('--once', action='store_true', help='只检测一次')
+    ap.add_argument('--no-sample', action='store_true', help='不采集样本')
+    ap.add_argument('--interval', type=float, default=1.0, help='轮询间隔秒')
+    args = ap.parse_args()
+
+    print('=' * 62)
+    print('  王者BP助手 · 实战识别（自动检测 BP + 识别 + 采样本）')
+    print('=' * 62)
+
+    adb = find_adb(args.adb_path)
+    if not adb:
+        print('[X] 未找到 adb，请确认 D:\\scrcpy\\adb.exe 存在')
+        return 1
+    devices = list_devices(adb)
+    if not devices:
+        print('[X] 没有设备。请用数据线连手机并开启 USB 调试。')
+        return 2
+    print('[1] 检测到设备: %s' % ', '.join('%s(%s)' % (s, st) for s, st in devices))
+    # 优先真机（USB 序列号一般不是回环地址/emulator-），避免选中残留模拟器
+    ready = [s for s, st in devices if st == 'device']
+    real = [s for s in ready if not s.startswith('127.0.0.1') and not s.startswith('emulator-')]
+    pick = real or ready
+    serial = args.serial or (pick[0] if pick else None)
+    if not serial:
+        print('[X] 设备未就绪（状态非 device）：请在手机上点「允许 USB 调试」。')
+        return 3
+    print('    使用设备: %s%s' % (serial, '（真机）' if serial in real else '（模拟器/回环）'))
+    if len(ready) > 1:
+        print('    提示：检测到多个设备，如需指定请加 --serial <序列号>')
+
+    print('[2] 加载英雄特征库（132 个）...')
+    t0 = time.time()
+    bank = FeatureBank()
+    print('    完成，耗时 %.2f 秒' % (time.time() - t0))
+
+    os.makedirs(OUT_CAPTURE, exist_ok=True)
+    os.makedirs(OUT_SAMPLES, exist_ok=True)
+
+    state = 'IDLE'
+    stable = 0            # 连续 BP 帧数
+    recognized = False    # 本轮是否已识别
+    silent = 0            # 连续非 BP 帧数
+    runs = 0
+
+    print('[3] 开始监听（每 %.1f 秒抓一帧），Ctrl+C 退出' % args.interval)
+    print('    提示：进入王者荣耀 ban 阶段后会自动识别\n')
+
+    while True:
+        try:
+            raw = capture(adb, serial)
+            img = normalize(raw)
+            bp = detect_bp(img)
+
+            if bp['is_bp']:
+                stable += 1
+                silent = 0
+                if state != 'IN_BP':
+                    state = 'IN_BP'
+                    print('[检测] 进入 BP 界面（左%d 右%d，锁%d，顶部V=%.0f）' % (
+                        len(bp['left']), len(bp['right']), bp['locks'], bp['top_v']))
+                # 连续稳定 + 未识别 → 触发识别
+                if stable >= 2 and not recognized:
+                    print('[识别] ban 位稳定，抓 %d 帧融合识别...' % MULTI_FRAMES)
+                    t1 = time.time()
+                    frames = [img]
+                    for _ in range(MULTI_FRAMES - 1):
+                        try:
+                            frames.append(normalize(capture(adb, serial)))
+                        except Exception:
+                            pass
+                    left, right = bp['left'], bp['right']
+                    allc = list(left) + list(right)
+                    # 锁检测：新 UI 有锁系统时，无锁位 = 空 ban
+                    has_locks = [R.has_lock(img, cx, cy, r) for (cx, cy, r) in allc]
+                    use_lock = sum(has_locks) >= 2
+
+                    picks = []
+                    top_scores = []
+                    for j, (cx, cy, r) in enumerate(allc):
+                        side = 'blue' if j < len(left) else 'red'
+                        idx = (j if j < len(left) else j - len(left)) + 1
+                        if use_lock and not has_locks[j]:
+                            picks.append({
+                                'side': side, 'index': idx,
+                                'hero_id': None, 'name': None,
+                                'score': 0.0, 'gap': 0.0, 'confident': True,
+                                'pos': [cx, cy, r], 'empty': True,
+                            })
+                            continue
+                        rank_pairs = [bank.ranks(crop_avatar(f, cx, cy, r)) for f in frames]
+                        fused = bank.fuse(rank_pairs)
+                        top = fused[0]
+                        second = fused[1] if len(fused) > 1 else (None, 0)
+                        gap = top[1] - second[1]
+                        top_scores.append(top[1])
+                        picks.append({
+                            'side': side, 'index': idx,
+                            'hero_id': top[0], 'name': bank.name.get(top[0], top[0]),
+                            'score': round(top[1], 4), 'gap': round(gap, 4),
+                            'confident': gap >= CONFIDENT_GAP,
+                            'pos': [cx, cy, r], 'empty': False,
+                        })
+
+                    # ---- 质量校验：只拦截「明显异常」的误触发（空 ban 不参与）----
+                    named = [p for p in picks if not p['empty']]
+                    max_score = max(top_scores) if top_scores else 0.0
+                    confident_n = sum(1 for p in named if p['confident'])
+                    unique_n = len({p['hero_id'] for p in named})
+                    if (not named) or unique_n <= 1 or max_score < 0.006:
+                        print('[跳过] 疑似非 BP 界面（最高分 %.4f，高置信 %d/%d，唯一英雄 %d），5 秒后重试'
+                              % (max_score, confident_n, len(named), unique_n))
+                        time.sleep(5)
+                        continue
+
+                    # 输出（空 ban 显示 (空)）
+                    lines = []
+                    lines.append('===== BP 识别结果  %s =====' % datetime.now().strftime('%H:%M:%S'))
+                    for side, title in [('blue', '我方（蓝）'), ('red', '敌方（红）')]:
+                        items = [p for p in picks if p['side'] == side]
+                        parts = ['(空)' if p['empty'] else '%s%s' % (p['name'], '' if p['confident'] else '?')
+                                 for p in items]
+                        lines.append('%s: %s' % (title, ' / '.join(parts)))
+                    uncertain = [p for p in named if not p['confident']]
+                    if uncertain:
+                        lines.append('（带 ? = 低置信度，建议核对: %s）' %
+                                     ', '.join('%s%s' % (p['side'][0].upper() + str(p['index']), p['name']) for p in uncertain))
+                    out = '\n'.join(lines)
+                    print('\n' + out + '\n')
+                    write_result(out)
+
+                    # 采集样本（空 ban 位不保存）
+                    if not args.no_sample:
+                        stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        d = os.path.join(OUT_SAMPLES, stamp)
+                        os.makedirs(d, exist_ok=True)
+                        meta = []
+                        for p in picks:
+                            if p['empty']:
+                                continue
+                            cx, cy, r = p['pos']
+                            av = crop_avatar(img, cx, cy, r)
+                            fn = '%s_%02d_%s.jpg' % (p['side'], p['index'], p['hero_id'])
+                            cv2.imwrite(os.path.join(d, fn), av, [cv2.IMWRITE_JPEG_QUALITY, 92])
+                            meta.append({'file': fn, 'hero_id': p['hero_id'],
+                                         'confident': p['confident'], 'gap': p['gap']})
+                        json.dump(meta, open(os.path.join(d, 'meta.json'), 'w', encoding='utf-8'),
+                                  ensure_ascii=False, indent=2)
+                        print('[采集] 已保存 %d 张样本到 %s/（低置信度 %d 张，空ban %d）' % (
+                            len(meta), d, len(uncertain),
+                            sum(1 for p in picks if p['empty'])))
+
+                    recognized = True
+                    runs += 1
+                    print('[识别] 本轮耗时 %.2f 秒' % (time.time() - t1))
+                    if args.once:
+                        break
+            else:
+                silent += 1
+                stable = 0
+                if state == 'IN_BP' and silent >= 3:
+                    state = 'IDLE'
+                    recognized = False
+                    print('[检测] 离开 BP 界面，继续监听...')
+
+            if args.once:
+                print('（--once 模式，结束）')
+                break
+            time.sleep(args.interval)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print('[!] 异常: %s（2 秒后重试）' % e)
+            time.sleep(2)
+
+    print('\n已退出。本次识别 %d 轮，样本目录: %s' % (runs, OUT_SAMPLES))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

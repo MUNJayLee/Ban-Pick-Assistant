@@ -411,6 +411,7 @@ async function run() {
   }
 
   // === 补充位置和细分定位数据（从 allheroes API） ===
+  let allHeroes = [];
   try {
     console.log('[scraper] 获取英雄位置/细分定位数据...');
     const allHeroesResp = await axios({
@@ -423,7 +424,7 @@ async function run() {
       },
       timeout: 15000,
     });
-    const allHeroes = Array.isArray(allHeroesResp.data)
+    allHeroes = Array.isArray(allHeroesResp.data)
       ? allHeroesResp.data
       : allHeroesResp.data?.data || allHeroesResp.data?.heroes || [];
 
@@ -460,6 +461,74 @@ async function run() {
     }
   } catch (err) {
     console.warn(`[scraper] 获取位置数据失败（不影响主数据）：${err.message}`);
+  }
+
+  // === 补充克制/搭配关系数据（从 /api/hero/analysis） ===
+  if (config.counterAnalysis?.enabled === false) {
+    console.log('[scraper] 克制关系数据抓取已禁用（counterAnalysis.enabled=false）。');
+  } else {
+    try {
+      const counterTopN = config.counterAnalysis?.topN ?? 4;
+      const counterDelay = config.counterAnalysis?.delayMs ?? 500;
+      console.log(`[scraper] 获取克制/搭配关系数据（${allHeroes.length} 位英雄）...`);
+
+      let counterUpdated = 0;
+      const unmatchedNames = new Set();
+
+      for (let i = 0; i < allHeroes.length; i += 1) {
+        const ah = allHeroes[i];
+        const internalId = mapNameToId(ah.name);
+        if (!internalId) {
+          unmatchedNames.add(ah.name);
+          continue;
+        }
+        const hero = heroMap.get(internalId);
+        if (!hero) continue;
+
+        try {
+          if (counterDelay > 0) await sleep(counterDelay);
+          const resp = await axios({
+            url: `https://tianyuanzhiyi.com/api/hero/analysis?heroId=${ah.id}`,
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Accept': 'application/json',
+              'Referer': `https://tianyuanzhiyi.com/hero/${ah.id}`,
+            },
+            timeout: 15000,
+          });
+
+          const d = resp.data || {};
+          const toIds = (list) =>
+            (Array.isArray(list) ? list : [])
+              .slice(0, counterTopN)
+              .map((x) => mapNameToId(x.heroName))
+              .filter(Boolean);
+
+          const counters = toIds(d.counters);
+          const counteredBy = toIds(d.counteredBy);
+          const synergies = toIds(d.goodSynergies);
+          const antiSynergies = toIds(d.badSynergies);
+
+          if (counters.length || counteredBy.length || synergies.length || antiSynergies.length) {
+            hero.counters = counters;
+            hero.counteredBy = counteredBy;
+            hero.synergies = synergies;
+            hero.antiSynergies = antiSynergies;
+            counterUpdated += 1;
+          }
+        } catch (err) {
+          console.warn(`[scraper] 克制数据抓取失败 ${ah.name}：${err.message}`);
+        }
+      }
+
+      console.log(`[scraper] 克制/搭配关系数据更新：${counterUpdated} 位英雄`);
+      if (unmatchedNames.size > 0) {
+        console.log(`[scraper] 克制数据未匹配名称（${unmatchedNames.size}）：${[...unmatchedNames].slice(0, 20).join(', ')}`);
+      }
+    } catch (err) {
+      console.warn(`[scraper] 获取克制数据失败（不影响主数据）：${err.message}`);
+    }
   }
 
   // 备份并写入

@@ -1,0 +1,25 @@
+[
+  {
+    "batch": "20261026_213337",
+    "correct": true,
+    "accuracy": "10/10",
+    "total_images": 10,
+    "verified_at": "2026-10-26T21:35:59",
+    "answers": {
+      "blue": [
+        "zhangliang",
+        "dunshan",
+        "zhongkui",
+        "yuanliuzhizi_support",
+        "wangwei"
+      ],
+      "red": [
+        "duoliya",
+        "jinchan",
+        "milaidi",
+        "dunshan",
+        "yuanliuzhizi_support"
+      ]
+    }
+  }
+]

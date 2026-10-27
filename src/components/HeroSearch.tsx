@@ -88,7 +88,7 @@ export function HeroSearch({ state, onSelect, placeholder }: HeroSearchProps) {
   return (
     <div ref={containerRef} className="relative w-full">
       <div className="relative flex items-center">
-        <Search className="absolute left-3 w-4 h-4 text-trae-muted" />
+        <Search className="absolute left-3 w-4 h-4 text-ui-muted" />
         <input
           ref={inputRef}
           type="text"
@@ -96,8 +96,8 @@ export function HeroSearch({ state, onSelect, placeholder }: HeroSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder || '搜索英雄名称…'}
           className={cn(
-            'w-full pl-9 pr-8 py-2 rounded-xl bg-trae-surface/70 border text-sm text-trae-text placeholder:text-trae-muted',
-            'focus:outline-none focus:border-trae-primary/50 transition-colors'
+            'w-full pl-9 pr-8 py-2 rounded-xl bg-ui-surface/70 border text-sm text-ui-text placeholder:text-ui-muted',
+            'focus:outline-none focus:border-ui-primary/50 transition-colors'
           )}
           style={{ borderColor: showDropdown ? '#3b82f680' : 'rgba(255,255,255,0.08)' }}
         />
@@ -107,7 +107,7 @@ export function HeroSearch({ state, onSelect, placeholder }: HeroSearchProps) {
               setQuery('');
               inputRef.current?.focus();
             }}
-            className="absolute right-2 p-1 rounded-md hover:bg-trae-surface-elevated text-trae-muted transition-colors"
+            className="absolute right-2 p-1 rounded-md hover:bg-ui-surface-elevated text-ui-muted transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -126,13 +126,13 @@ export function HeroSearch({ state, onSelect, placeholder }: HeroSearchProps) {
                 }}
                 className={cn(
                   'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors',
-                  idx === activeIndex ? 'bg-trae-surface-elevated/70' : 'hover:bg-trae-surface-elevated/40'
+                  idx === activeIndex ? 'bg-ui-surface-elevated/70' : 'hover:bg-ui-surface-elevated/40'
                 )}
               >
                 <HeroAvatar heroId={hero.id} size="sm" ring />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-medium text-trae-text truncate">
+                    <span className="text-sm font-medium text-ui-text truncate">
                       {hero.name}
                     </span>
                     {hero.positions && hero.positions.length > 0
@@ -140,17 +140,17 @@ export function HeroSearch({ state, onSelect, placeholder }: HeroSearchProps) {
                           <PositionBadge key={pos} position={pos} size="xs" />
                         ))
                       : hero.positionLabel && (
-                          <span className="text-[9px] text-trae-muted">{hero.positionLabel}</span>
+                          <span className="text-[9px] text-ui-muted">{hero.positionLabel}</span>
                         )}
                   </div>
-                  <div className="text-[10px] text-trae-muted truncate">
+                  <div className="text-[10px] text-ui-muted truncate">
                     {hero.title}
                   </div>
                 </div>
               </button>
             ))
           ) : (
-            <div className="px-3 py-4 text-center text-xs text-trae-muted">
+            <div className="px-3 py-4 text-center text-xs text-ui-muted">
               未找到匹配英雄
             </div>
           )}

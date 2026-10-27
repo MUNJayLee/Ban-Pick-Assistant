@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { BpRecord, BpRecordResult, ActualResult, Side } from '@/types';
+import { uploadBpRecord } from '@/services/syncService';
 
 const STORAGE_KEY = 'bp-records-v1';
 
@@ -57,40 +58,47 @@ export const useBpRecordStore = create<BpRecordStore>()(
         set((state) => ({
           records: [newRecord, ...state.records],
         }));
+        void uploadBpRecord(newRecord);
         return newRecord;
       },
       updateResult: (id, result, note) => {
+        const { records } = get();
+        const target = records.find((r) => r.id === id);
+        if (!target) return;
+        const updated: BpRecord = {
+          ...target,
+          result,
+          ...(note !== undefined ? { note } : {}),
+        };
         set((state) => ({
-          records: state.records.map((r) =>
-            r.id === id
-              ? {
-                  ...r,
-                  result,
-                  ...(note !== undefined ? { note } : {}),
-                }
-              : r
-          ),
+          records: state.records.map((r) => (r.id === id ? updated : r)),
         }));
+        void uploadBpRecord(updated);
       },
       updateActualResult: (id, actualResult) => {
+        const { records } = get();
+        const target = records.find((r) => r.id === id);
+        if (!target) return;
+        const judged = autoJudgeResult(target.favored, target.mySide, actualResult);
+        const updated: BpRecord = {
+          ...target,
+          actualResult: actualResult === 'PENDING' ? undefined : actualResult,
+          result: judged,
+        };
         set((state) => ({
-          records: state.records.map((r) => {
-            if (r.id !== id) return r;
-            const judged = autoJudgeResult(r.favored, r.mySide, actualResult);
-            return {
-              ...r,
-              actualResult: actualResult === 'PENDING' ? undefined : actualResult,
-              result: judged,
-            };
-          }),
+          records: state.records.map((r) => (r.id === id ? updated : r)),
         }));
+        void uploadBpRecord(updated);
       },
       updateRecord: (id, updates) => {
+        const { records } = get();
+        const target = records.find((r) => r.id === id);
+        if (!target) return;
+        const updated: BpRecord = { ...target, ...updates };
         set((state) => ({
-          records: state.records.map((r) =>
-            r.id === id ? { ...r, ...updates } : r
-          ),
+          records: state.records.map((r) => (r.id === id ? updated : r)),
         }));
+        void uploadBpRecord(updated);
       },
       deleteRecord: (id) => {
         set((state) => ({

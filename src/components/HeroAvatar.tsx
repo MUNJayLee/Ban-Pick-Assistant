@@ -21,8 +21,8 @@ const SIZE_MAP = {
 };
 
 const BORDER_MAP = {
-  blue: 'border-trae-primary/40 shadow-glow-blue',
-  red: 'border-trae-danger/40 shadow-glow-red',
+  blue: 'border-ui-primary/40 shadow-glow-blue',
+  red: 'border-ui-danger/40 shadow-glow-red',
   neutral: 'border-white/10',
 };
 
@@ -44,11 +44,11 @@ export function HeroAvatar({
     return (
       <div
         className={cn(
-          'relative rounded-xl flex items-center justify-center border bg-trae-surface text-trae-muted font-bold select-none overflow-hidden',
+          'relative rounded-xl flex items-center justify-center border bg-ui-surface text-ui-muted font-bold select-none overflow-hidden',
           sizeClasses,
           borderClasses,
           dimmed && 'opacity-35',
-        ring && 'ring-2 ring-trae-primary/30 ring-offset-2 ring-offset-trae-bg'
+        ring && 'ring-2 ring-ui-primary/30 ring-offset-2 ring-offset-ui-bg'
       )}
     >
         <span className="relative z-10">{emptyLabel || '?'}</span>
@@ -67,24 +67,33 @@ export function HeroAvatar({
         borderClasses,
         dimmed && 'opacity-40 grayscale',
         banned && 'opacity-60',
-        ring && 'ring-2 ring-trae-primary/30 ring-offset-2 ring-offset-trae-bg'
+        ring && 'ring-2 ring-ui-primary/30 ring-offset-2 ring-offset-ui-bg'
       )}
       title={showTooltip ? `${hero.name}${hero.title ? ` · ${hero.title}` : ''}` : undefined}
     >
-      {/* Gradient background based on role color */}
-      <div
-        className={cn(
-          'absolute inset-0',
-          roleGradient(hero.roles[0])
-        )}
-      />
+      {/* 渐变底色 + 首字（头像加载失败时兜底） */}
+      <div className={cn('absolute inset-0', roleGradient(hero.roles[0]))} />
       <span className="relative z-10 font-bold text-white drop-shadow-md">
         {initial}
       </span>
 
+      {/* 真实头像 */}
+      {hero.avatar && (
+        <img
+          src={hero.avatar}
+          alt={hero.name}
+          loading="lazy"
+          draggable={false}
+          className="absolute inset-0 z-20 w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      )}
+
       {banned && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-trae-bg/60">
-          <div className="w-full h-0.5 bg-trae-danger rotate-45 shadow-glow-red" />
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-ui-bg/60">
+          <div className="w-full h-0.5 bg-ui-danger rotate-45 shadow-glow-red" />
         </div>
       )}
     </div>

@@ -36,25 +36,25 @@ export function TurnIndicator({
       className={cn(
         'relative inline-flex flex-col items-center rounded-2xl px-5 py-2.5 border backdrop-blur-md overflow-hidden transition-all duration-300',
         isMyTurn
-          ? 'bg-gradient-to-r from-trae-primary/12 via-trae-accent/8 to-trae-purple/10 border-trae-primary/30 shadow-glow-blue'
-          : 'bg-trae-surface/70 border-white/10 shadow-surface'
+          ? 'bg-gradient-to-r from-ui-primary/12 via-ui-accent/8 to-ui-purple/10 border-ui-primary/30 shadow-glow-blue'
+          : 'bg-ui-surface/70 border-white/10 shadow-surface'
       )}
     >
       {/* progress bar */}
-      <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-trae-primary via-trae-accent to-trae-purple transition-all duration-500" style={{ width: `${progress}%` }} />
+      <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-ui-primary via-ui-accent to-ui-purple transition-all duration-500" style={{ width: `${progress}%` }} />
 
       <div className="flex items-center gap-2 z-10">
         <span
           className={cn(
             'w-2 h-2 rounded-full animate-pulse',
-            isBlueTurn ? 'bg-trae-primary' : 'bg-trae-danger'
+            isBlueTurn ? 'bg-ui-primary' : 'bg-ui-danger'
           )}
         />
-        <span className="text-xs md:text-sm font-bold text-trae-text">
+        <span className="text-xs md:text-sm font-bold text-ui-text">
           {phaseLabel}
         </span>
         {phase === 'PICK' && (
-          <span className="text-[11px] text-trae-muted font-mono">
+          <span className="text-[11px] text-ui-muted font-mono">
             {Math.min(pickTurnIndex + 1, totalPicks)} / {totalPicks}
           </span>
         )}
@@ -85,13 +85,13 @@ function PhaseDot({
       <span
         className={cn(
           'w-2 h-2 rounded-full transition-all duration-200',
-          active ? 'bg-trae-primary shadow-glow-blue scale-125' : 'bg-white/15'
+          active ? 'bg-ui-primary shadow-glow-blue scale-125' : 'bg-white/15'
         )}
       />
       <span
         className={cn(
           'text-[10px] font-medium transition-colors',
-          active ? 'text-trae-text' : 'text-trae-muted-subtle'
+          active ? 'text-ui-text' : 'text-ui-muted-subtle'
         )}
       >
         {label}

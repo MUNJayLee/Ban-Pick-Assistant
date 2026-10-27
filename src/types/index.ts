@@ -41,6 +41,8 @@ export interface Hero {
   counters: string[];
   counteredBy: string[];
   synergies: string[];
+  /** 较差搭档（搭配负加成，来自天元之弈 badSynergies） */
+  antiSynergies?: string[];
   avatar?: string;
   /** 实时登场率（0-1 小数） */
   pickRate?: number;
@@ -89,17 +91,45 @@ export interface Turn {
   isBlindBan?: boolean;
 }
 
+/** 推荐分数的因子分解（用于可解释性展示，各分量均为 0-1） */
+export interface RecommendationBreakdown {
+  /** 版本强度（梯度评分） */
+  version: number;
+  /** 克制敌方 */
+  counter: number;
+  /** 与己方搭配 */
+  synergy: number;
+  /** 较差搭档（负向） */
+  antiSynergy: number;
+  /** 位置适配（补位） */
+  position: number;
+  /** 热度/被抢压力 */
+  pressure: number;
+  /** 阵容缺口 */
+  gap: number;
+  /** 被敌方克制（负向） */
+  penalty: number;
+}
+
 export interface HeroRecommendation {
   heroId: string;
+  /** 综合推荐分（0-100） */
   score: number;
   reason: string;
+  /** 兼容旧字段：版本强度分量（0-1） */
   winRateBonus: number;
+  /** 兼容旧字段：克制分量（0-1） */
   counterBonus: number;
+  /** 兼容旧字段：搭配分量（0-1） */
   synergyBonus: number;
+  /** 兼容旧字段：阵容缺口分量（0-1） */
   compositionBonus: number;
+  /** 兼容旧字段：被克制惩罚分量（0-1） */
   counterPenalty: number;
   /** 在推荐列表中的排名（从 1 开始） */
   rank?: number;
+  /** 因子分解明细（可解释推荐） */
+  breakdown?: RecommendationBreakdown;
 }
 
 export interface CompositionScore {

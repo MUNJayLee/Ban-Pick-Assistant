@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 :root {
-  /* TRAE Design System tokens */
+  /* UI Design System tokens */
   --color-bg: #080c14;
   --color-bg-elevated: #0f172a;
   --color-surface: #111827;
@@ -169,7 +169,7 @@ body {
   }
 }
 
-/* Custom scrollbar — TRAE style */
+/* Custom scrollbar — UI style */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

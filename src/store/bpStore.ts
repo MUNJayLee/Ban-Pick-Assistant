@@ -21,6 +21,14 @@ interface BpStore extends BpState {
   isMyTurn: () => boolean;
   /** 标记某个 Pick 为"我" */
   setMyHero: (heroId: string | undefined) => void;
+  /** 截图识别导入：直接设置双方 ban 位并进入 Pick 阶段 */
+  importBans: (blueBans: string[], redBans: string[], userSide: Side) => void;
+  /** 结束当前 ban 阶段（未选中的空位视为「空 ban」，支持双方各自 0-5 个 ban） */
+  skipBan: () => void;
+  /** 手动指定某个 ban 槽位（side + index），覆盖默认顺序 */
+  setBanAt: (side: Side, index: number, heroId: string) => void;
+  /** 手动指定某个 pick 槽位（side + index），覆盖默认顺序 */
+  setPickAt: (side: Side, index: number, heroId: string) => void;
 }
 
 const initialState: BpState = {
@@ -181,6 +189,53 @@ export const useBpStore = create<BpStore>((set, get) => ({
   reset: () => set(initialState),
 
   setMyHero: (heroId) => set({ myHeroId: heroId }),
+
+  importBans: (blueBans, redBans, userSide) => {
+    const state = get();
+    set({
+      blueBans: blueBans.slice(0, 5),
+      redBans: redBans.slice(0, 5),
+      // 保留识别期间已经选的 pick（不清空），并按已有 pick 数继续轮次
+      userSide,
+      phase: 'PICK',
+      pickTurnIndex: state.bluePicks.length + state.redPicks.length,
+    });
+  },
+
+  skipBan: () => {
+    const state = get();
+    if (state.phase === 'MY_BAN') {
+      // 我方 ban 结束（可能有空 ban），进入敌方 ban
+      set({ phase: 'ENEMY_BAN' });
+    } else if (state.phase === 'ENEMY_BAN') {
+      // 敌方 ban 结束（可能有空 ban），进入 Pick
+      set({ phase: 'PICK', pickTurnIndex: 0 });
+    }
+  },
+
+  setBanAt: (side, index, heroId) => {
+    const state = get();
+    const key = side === 'BLUE' ? 'blueBans' : 'redBans';
+    const arr = [...state[key]];
+    while (arr.length < index) arr.push('');
+    arr[index] = heroId;
+    set({ [key]: arr });
+  },
+
+  setPickAt: (side, index, heroId) => {
+    const state = get();
+    const key = side === 'BLUE' ? 'bluePicks' : 'redPicks';
+    const arr = [...state[key]];
+    while (arr.length < index) arr.push('');
+    arr[index] = heroId;
+    const blueArr = side === 'BLUE' ? arr : state.bluePicks;
+    const redArr = side === 'RED' ? arr : state.redPicks;
+    set({
+      [key]: arr,
+      phase: 'PICK',
+      pickTurnIndex: blueArr.filter(Boolean).length + redArr.filter(Boolean).length,
+    });
+  },
 
   getActiveOperator: () => {
     const state = get();

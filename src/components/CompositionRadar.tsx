@@ -40,10 +40,10 @@ export function CompositionRadar({ state }: CompositionRadarProps) {
 
   return (
     <div className="relative w-full h-64 glass rounded-2xl border border-white/8 p-3 overflow-hidden">
-      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-trae-purple/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-ui-purple/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative text-xs font-bold text-trae-text mb-1 flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-trae-primary to-trae-accent" />
+      <div className="relative text-xs font-bold text-ui-text mb-1 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-ui-primary to-ui-accent" />
         阵容维度对比
       </div>
 

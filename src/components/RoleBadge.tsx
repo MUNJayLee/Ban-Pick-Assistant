@@ -36,6 +36,6 @@ function roleStyle(role: HeroRole) {
     case 'SUPPORT':
       return 'bg-cyan-500/12 text-cyan-300 border-cyan-400/20';
     default:
-      return 'bg-white/8 text-trae-muted border-white/10';
+      return 'bg-white/8 text-ui-muted border-white/10';
   }
 }

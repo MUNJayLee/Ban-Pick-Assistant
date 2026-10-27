@@ -78,23 +78,21 @@ export function HeroPool({ state, recommendations, onSelect }: HeroPoolProps) {
     });
   }, [heroes, filter, searchQuery]);
 
-  const isDisabled = (heroId: string) => selectableIds.has(heroId);
-
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
-      <div className="flex-none px-3 md:px-4 py-3 space-y-3 border-b border-white/5 bg-trae-bg-elevated/40">
+      <div className="flex-none px-3 md:px-4 py-3 space-y-3 border-b border-white/5 bg-ui-bg-elevated/40">
         {/* Search */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-trae-muted-subtle" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ui-muted-subtle" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索英雄名称、称号快速选择…"
             className={cn(
-              'w-full pl-9 pr-4 py-2 rounded-xl text-sm text-trae-text placeholder:text-trae-muted-subtle',
-              'bg-trae-surface border border-white/8 focus:border-trae-primary/50 focus:ring-2 focus:ring-trae-primary/15 outline-none transition-all',
+              'w-full pl-9 pr-4 py-2 rounded-xl text-sm text-ui-text placeholder:text-ui-muted-subtle',
+              'bg-ui-surface border border-white/8 focus:border-ui-primary/50 focus:ring-2 focus:ring-ui-primary/15 outline-none transition-all',
               'shadow-inner'
             )}
           />
@@ -109,8 +107,8 @@ export function HeroPool({ state, recommendations, onSelect }: HeroPoolProps) {
               className={cn(
                 'flex-none px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200',
                 filter === role
-                  ? 'bg-trae-primary text-white border-trae-primary shadow-glow-blue'
-                  : 'bg-trae-surface text-trae-muted border-white/8 hover:text-trae-text hover:bg-white/5'
+                  ? 'bg-ui-primary text-white border-ui-primary shadow-glow-blue'
+                  : 'bg-ui-surface text-ui-muted border-white/8 hover:text-ui-text hover:bg-white/5'
               )}
             >
               {FILTER_LABELS[role]}
@@ -143,9 +141,9 @@ export function HeroPool({ state, recommendations, onSelect }: HeroPoolProps) {
         </div>
 
         {filteredHeroes.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-trae-muted">
-            <div className="w-12 h-12 rounded-2xl bg-trae-surface border border-white/8 flex items-center justify-center mb-3">
-              <Search className="w-5 h-5 text-trae-muted-subtle" />
+          <div className="flex flex-col items-center justify-center py-16 text-ui-muted">
+            <div className="w-12 h-12 rounded-2xl bg-ui-surface border border-white/8 flex items-center justify-center mb-3">
+              <Search className="w-5 h-5 text-ui-muted-subtle" />
             </div>
             <p className="text-sm">未找到匹配的英雄</p>
           </div>

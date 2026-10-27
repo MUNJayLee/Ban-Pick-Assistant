@@ -1,15 +1,16 @@
 import { HeroAvatar } from '@/components/HeroAvatar';
-import type { BpState, HeroRole, Side } from '@/types';
+import type { BpState, Side } from '@/types';
 import { cn } from '@/lib/utils';
-import { BLUE_SLOTS, RED_SLOTS } from '@/data/config';
 import { Shield, Sword } from 'lucide-react';
 
 interface BpStageProps {
   state: BpState;
   activeSide: Side | null;
+  /** 点击某个 ban/pick 槽位时触发（手动指定槽位输入英雄） */
+  onSlotClick?: (side: Side, kind: 'ban' | 'pick', index: number) => void;
 }
 
-export function BpStage({ state, activeSide }: BpStageProps) {
+export function BpStage({ state, activeSide, onSlotClick }: BpStageProps) {
   const { blueBans, redBans, bluePicks, redPicks, userSide } = state;
   const isUserBlue = userSide === 'BLUE';
 
@@ -23,13 +24,13 @@ export function BpStage({ state, activeSide }: BpStageProps) {
         picks={bluePicks}
         isActive={activeSide === 'BLUE'}
         isMyTeam={isUserBlue}
-        slots={BLUE_SLOTS}
+        onSlotClick={onSlotClick}
       />
 
       <div className="hidden lg:flex items-center justify-center">
         <div className="relative w-px h-full bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-        <div className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-trae-surface border border-white/10 shadow-surface">
-          <span className="text-[10px] font-bold text-trae-muted">VS</span>
+        <div className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-ui-surface border border-white/10 shadow-surface">
+          <span className="text-[10px] font-bold text-ui-muted">VS</span>
         </div>
       </div>
 
@@ -41,7 +42,7 @@ export function BpStage({ state, activeSide }: BpStageProps) {
         picks={redPicks}
         isActive={activeSide === 'RED'}
         isMyTeam={!isUserBlue}
-        slots={RED_SLOTS}
+        onSlotClick={onSlotClick}
       />
     </div>
   );
@@ -55,7 +56,7 @@ interface TeamPanelProps {
   picks: string[];
   isActive: boolean;
   isMyTeam: boolean;
-  slots: { role: HeroRole; label: string }[];
+  onSlotClick?: (side: Side, kind: 'ban' | 'pick', index: number) => void;
 }
 
 function TeamPanel({
@@ -66,19 +67,21 @@ function TeamPanel({
   picks,
   isActive,
   isMyTeam,
-  slots,
+  onSlotClick,
 }: TeamPanelProps) {
   const isBlue = side === 'BLUE';
+  const banCount = bans.filter(Boolean).length;
+  const pickCount = picks.filter(Boolean).length;
   const borderColor = isActive
     ? isBlue
-      ? 'border-trae-primary/50 shadow-glow-blue'
-      : 'border-trae-danger/50 shadow-glow-red'
+      ? 'border-ui-primary/50 shadow-glow-blue'
+      : 'border-ui-danger/50 shadow-glow-red'
     : 'border-white/8 hover:border-white/12';
 
   return (
     <div
       className={cn(
-        'rounded-2xl p-3 md:p-4 border bg-trae-surface/60 backdrop-blur-sm transition-all duration-300',
+        'rounded-2xl p-3 md:p-4 border bg-ui-surface/60 backdrop-blur-sm transition-all duration-300',
         borderColor
       )}
     >
@@ -88,21 +91,21 @@ function TeamPanel({
             className={cn(
               'w-7 h-7 rounded-lg flex items-center justify-center',
               isBlue
-                ? 'bg-trae-primary/15 text-trae-primary-light'
-                : 'bg-trae-danger/15 text-trae-danger'
+                ? 'bg-ui-primary/15 text-ui-primary-light'
+                : 'bg-ui-danger/15 text-ui-danger'
             )}
           >
             <Icon className="w-3.5 h-3.5" />
           </div>
-          <span className="text-sm font-bold text-trae-text">{label}</span>
+          <span className="text-sm font-bold text-ui-text">{label}</span>
         </div>
         {isActive && (
           <span
             className={cn(
               'px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse',
               isBlue
-                ? 'bg-trae-primary/15 text-trae-primary-light border border-trae-primary/30'
-                : 'bg-trae-danger/15 text-trae-danger border border-trae-danger/30'
+                ? 'bg-ui-primary/15 text-ui-primary-light border border-ui-primary/30'
+                : 'bg-ui-danger/15 text-ui-danger border border-ui-danger/30'
             )}
           >
             行动中
@@ -112,49 +115,55 @@ function TeamPanel({
 
       <div className="space-y-3">
         <div>
-          <p className="text-[11px] font-semibold text-trae-muted-subtle uppercase tracking-wider mb-2">
-            禁用 · {bans.length}/5
+          <p className="text-[11px] font-semibold text-ui-muted-subtle uppercase tracking-wider mb-2">
+            禁用 · {banCount}/5
           </p>
           <div className="flex gap-1.5 flex-wrap">
             {Array.from({ length: 5 }).map((_, i) => {
               const heroId = bans[i];
               return (
-                <HeroAvatar
+                <button
                   key={`ban-${side}-${i}`}
-                  heroId={heroId}
-                  size="sm"
-                  variant={isBlue ? 'blue' : 'red'}
-                  emptyLabel="?"
-                  dimmed={!heroId}
-                  banned={!!heroId}
-                />
+                  onClick={() => onSlotClick?.(side, 'ban', i)}
+                  className="rounded-full transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ui-accent/50"
+                  title="点击手动指定该 ban 位"
+                >
+                  <HeroAvatar
+                    heroId={heroId}
+                    size="sm"
+                    variant={isBlue ? 'blue' : 'red'}
+                    emptyLabel="?"
+                    dimmed={!heroId}
+                    banned={!!heroId}
+                  />
+                </button>
               );
             })}
           </div>
         </div>
 
         <div>
-          <p className="text-[11px] font-semibold text-trae-muted-subtle uppercase tracking-wider mb-2">
-            选择 · {picks.length}/5
+          <p className="text-[11px] font-semibold text-ui-muted-subtle uppercase tracking-wider mb-2">
+            选择 · {pickCount}/5
           </p>
           <div className="grid grid-cols-5 gap-1.5">
-            {slots.map((slot, i) => {
+            {Array.from({ length: 5 }).map((_, i) => {
               const heroId = picks[i];
               return (
-                <div key={`pick-${side}-${i}`} className="relative">
+                <button
+                  key={`pick-${side}-${i}`}
+                  onClick={() => onSlotClick?.(side, 'pick', i)}
+                  className="rounded-xl transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-ui-accent/50"
+                  title="点击手动指定该 pick 位"
+                >
                   <HeroAvatar
                     heroId={heroId}
                     size="md"
                     variant={isBlue ? 'blue' : 'red'}
-                    emptyLabel={slot.label.slice(0, 1)}
+                    emptyLabel="?"
                     dimmed={!heroId}
                   />
-                  {heroId && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[9px] px-1 rounded bg-trae-bg-elevated/90 text-trae-muted border border-white/8 whitespace-nowrap z-10">
-                      {slot.label}
-                    </span>
-                  )}
-                </div>
+                </button>
               );
             })}
           </div>
