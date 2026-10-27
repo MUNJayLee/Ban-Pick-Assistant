@@ -2,6 +2,7 @@ import type { Hero, HeroPosition } from '@/types';
 import { POSITION_LABELS } from '@/types';
 import { COMPOSITION_ROLE_WEIGHTS } from '@/data/config';
 import { calculateCompositionScore } from '@/services/heroService';
+import { positionStrength, type PositionGap } from './position';
 
 /** 单个推荐因子的结果：value 为 0-1 的归一化分量。 */
 export interface FactorResult {
@@ -77,25 +78,55 @@ export function antiSynergyPenalty(hero: Hero, teamHeroes: Hero[]): FactorResult
   };
 }
 
-/** 位置适配：候选英雄能填补多少个尚未被己方覆盖的分路。 */
-export function positionFit(hero: Hero, teamHeroes: Hero[]): FactorResult {
+/**
+ * 位置适配（分路驱动）：
+ *   - 优先补「我方缺失分路」
+ *   - 主位置强度 1.0 / 客串 0.7
+ *   - 非缺位位置只保留 30% 价值（缺位优先 + 其他也展示）
+ */
+export function positionFit(
+  hero: Hero,
+  teamHeroes: Hero[],
+  gap?: PositionGap,
+): FactorResult {
   const positions = hero.positions || [];
   if (positions.length === 0) return { value: 0 };
 
-  const covered = new Set<HeroPosition>();
-  teamHeroes.forEach((t) => t.positions?.forEach((p) => covered.add(p)));
+  // 没有 gap 信息时退回旧逻辑（按覆盖数）
+  if (!gap) {
+    const covered = new Set<HeroPosition>();
+    teamHeroes.forEach((t) => t.positions?.forEach((p) => covered.add(p)));
+    const newPositions = positions.filter((p) => !covered.has(p));
+    return {
+      value: clamp01(newPositions.length * 0.7),
+      reason:
+        newPositions.length > 0
+          ? `补${newPositions.map((p) => POSITION_LABELS[p]).join('、')}`
+          : undefined,
+    };
+  }
 
-  const newPositions = positions.filter((p) => !covered.has(p));
+  let best = 0;
+  let bestPos: HeroPosition | null = null;
+  for (const pos of positions) {
+    const strength = positionStrength(hero, pos);
+    const isMissing = gap.missing.includes(pos);
+    const value = isMissing ? strength : strength * 0.3;
+    if (value > best) {
+      best = value;
+      bestPos = pos;
+    }
+  }
+
+  const isMissingBest = bestPos ? gap.missing.includes(bestPos) : false;
   return {
-    value: clamp01(newPositions.length * 0.7),
-    reason:
-      newPositions.length > 0
-        ? `补${newPositions.map((p) => POSITION_LABELS[p]).join('、')}`
-        : undefined,
+    value: clamp01(best),
+    reason: bestPos
+      ? `补${POSITION_LABELS[bestPos]}${isMissingBest ? '（缺位）' : ''}`
+      : undefined,
   };
 }
 
-/** 抢位压力：登场率 + 禁用率越高，越应优先抢。 */
 export function pickPressure(hero: Hero): FactorResult {
   const pr = hero.pickRate ?? 0;
   const br = hero.banRate ?? 0;

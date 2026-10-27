@@ -1,4 +1,4 @@
-import type { BpState, Hero, HeroRecommendation, Side } from '@/types';
+import type { BpState, Hero, HeroPosition, HeroRecommendation, Side } from '@/types';
 import {
   getAvailableHeroes,
   getTeamHeroes,
@@ -6,6 +6,12 @@ import {
   getHeroById,
 } from '@/services/heroService';
 import { RECOMMENDATION_TOP_K } from '@/data/config';
+import {
+  analyzePositionGap,
+  ALL_POSITIONS,
+  positionLabel,
+  type PositionGap,
+} from './position';
 import { PICK_WEIGHTS, BAN_WEIGHTS } from './weights';
 import {
   versionStrength,
@@ -24,13 +30,18 @@ function clamp01(n: number): number {
 }
 
 /** Pick 阶段：综合 7 个因子给出 0-100 的推荐分。 */
-function scorePick(hero: Hero, teamHeroes: Hero[], enemyHeroes: Hero[]): HeroRecommendation {
+function scorePick(
+  hero: Hero,
+  teamHeroes: Hero[],
+  enemyHeroes: Hero[],
+  gap?: PositionGap,
+): HeroRecommendation {
   const f = {
     version: versionStrength(hero),
     counter: counterScore(hero, enemyHeroes),
     synergy: synergyScore(hero, teamHeroes),
     antiSynergy: antiSynergyPenalty(hero, teamHeroes),
-    position: positionFit(hero, teamHeroes),
+    position: positionFit(hero, teamHeroes, gap),
     pressure: pickPressure(hero),
     gap: compositionGap(hero, teamHeroes),
     penalty: counterPenalty(hero, enemyHeroes),
@@ -121,10 +132,11 @@ export function recommendHeroes(
   const teamHeroes = getTeamHeroes(state, side);
   const enemyHeroes = getEnemyHeroes(state, side);
 
+  const gap = analyzePositionGap(teamHeroes);
   const scored = available.map((hero) =>
     turnType === 'BAN'
       ? scoreBan(hero, teamHeroes, enemyHeroes)
-      : scorePick(hero, teamHeroes, enemyHeroes)
+      : scorePick(hero, teamHeroes, enemyHeroes, gap)
   );
 
   return scored
@@ -161,4 +173,79 @@ export function getRecommendationReason(heroId: string, state: BpState, side: Si
     parts.push('适配当前阵容，版本强度稳定');
   }
   return parts.join('；');
+}
+
+
+// ---------------------------------------------------------------------------
+// 按分路分组的推荐（缺位优先 + 其他也展示）
+// ---------------------------------------------------------------------------
+
+export interface GroupedRecommendation {
+  position: HeroPosition;
+  positionLabel: string;
+  /** 我方是否缺这个分路 */
+  isMissing: boolean;
+  heroes: HeroRecommendation[];
+}
+
+export interface GroupedResult {
+  gap: PositionGap;
+  /** 分组推荐（缺位组排在前面） */
+  groups: GroupedRecommendation[];
+  /** 全局 Top（兼容旧面板） */
+  allTop: HeroRecommendation[];
+}
+
+/**
+ * 按分路分组推荐。
+ *
+ * 设计（已确认）：
+ *   - 缺位优先：我方缺失的分路排前面
+ *   - 其他也展示：已覆盖分路仍列出高分英雄（可客串/抢位）
+ */
+export function recommendGrouped(
+  state: BpState,
+  side: Side,
+  turnType: 'PICK' | 'BAN',
+  topPerPosition = 3
+): GroupedResult {
+  const available = getAvailableHeroes(state);
+  const teamHeroes = getTeamHeroes(state, side);
+  const enemyHeroes = getEnemyHeroes(state, side);
+  const gap = analyzePositionGap(teamHeroes);
+
+  const scored = available.map((hero) =>
+    turnType === 'BAN'
+      ? scoreBan(hero, teamHeroes, enemyHeroes)
+      : scorePick(hero, teamHeroes, enemyHeroes, gap)
+  );
+  const byId = new Map(scored.map((s) => [s.heroId, s]));
+
+  const groups: GroupedRecommendation[] = [];
+  for (const pos of ALL_POSITIONS) {
+    const heroes = available
+      .filter((h) => (h.positions || []).includes(pos))
+      .map((h) => byId.get(h.id))
+      .filter((x): x is HeroRecommendation => Boolean(x))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, topPerPosition)
+      .map((rec, i) => ({ ...rec, rank: i + 1 }));
+    if (heroes.length === 0) continue;
+    groups.push({
+      position: pos,
+      positionLabel: positionLabel(pos),
+      isMissing: gap.missing.includes(pos),
+      heroes,
+    });
+  }
+
+  // 缺位组优先展示
+  groups.sort((a, b) => Number(b.isMissing) - Number(a.isMissing));
+
+  const allTop = [...scored]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, RECOMMENDATION_TOP_K)
+    .map((rec, i) => ({ ...rec, rank: i + 1 }));
+
+  return { gap, groups, allTop };
 }

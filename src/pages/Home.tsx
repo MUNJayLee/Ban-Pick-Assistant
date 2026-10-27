@@ -14,7 +14,7 @@ import { AdbPreview } from '@/components/AdbPreview';
 import { DeviceConfigModal } from '@/components/DeviceConfigModal';
 import { useBpSync } from '@/hooks/useBpSync';
 import { useBpStore } from '@/store/bpStore';
-import { recommendHeroes } from '@/services/recommendationService';
+import { recommendGrouped } from '@/services/recommendation';
 import { calculateTeamStrength, calculateWinProbability, getAllHeroes, getHeroById } from '@/services/heroService';
 import { PICK_SEQUENCE } from '@/data/config';
 import { cn, isTauri } from '@/lib/utils';
@@ -119,18 +119,17 @@ export function Home() {
   const myBans = state[mySide === 'BLUE' ? 'blueBans' : 'redBans'];
   const enemyBans = state[enemySide === 'BLUE' ? 'blueBans' : 'redBans'];
 
-  const recommendations = (() => {
+  // 按分路分组的推荐（缺位优先 + 其他也展示）
+  const grouped = (() => {
     if (state.phase === 'MY_BAN') {
-      return recommendHeroes(state, mySide, 'BAN');
-    }
-    if (state.phase === 'ENEMY_BAN') {
-      return [];
+      return recommendGrouped(state, mySide, 'BAN');
     }
     if (state.phase === 'PICK' && isMyTurn) {
-      return recommendHeroes(state, mySide, 'PICK');
+      return recommendGrouped(state, mySide, 'PICK');
     }
-    return [];
+    return null;
   })();
+  const recommendations = grouped?.allTop ?? [];
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -335,6 +334,7 @@ export function Home() {
                 <div className="w-full lg:w-80 flex-none h-auto lg:h-auto order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-white/5 bg-ui-surface/50">
                   <RecommendationPanel
                     recommendations={recommendations}
+                    grouped={grouped}
                     phase={state.phase}
                     isMyTurn={isMyTurn}
                     operator={operator}
