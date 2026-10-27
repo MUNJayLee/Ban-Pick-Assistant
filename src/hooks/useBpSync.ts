@@ -147,9 +147,16 @@ export function useBpSync() {
     }
 
     // ⑤ 玩家楼层识别结果 → 自动标记「我的英雄」
-    if (raw.my_hero_id) {
+    // 关键校验：识别的英雄必须在我方已选里，否则忽略（避免楼层/MVP 头像误识别污染记录）
+    {
       const bp = useBpStore.getState();
-      if (!bp.myHeroId) {
+      const myPicks = bp.userSide === 'BLUE' ? bp.bluePicks : bp.redPicks;
+      // 清理已存在的无效值（如历史误识别留下的「吕布」）
+      if (bp.myHeroId && myPicks.length > 0 && !myPicks.includes(bp.myHeroId)) {
+        bp.setMyHero(undefined);
+      }
+      // 只在英雄确实属于我方阵容时才自动标记
+      if (raw.my_hero_id && !bp.myHeroId && myPicks.includes(raw.my_hero_id)) {
         bp.setMyHero(raw.my_hero_id);
       }
     }
@@ -171,7 +178,8 @@ export function useBpSync() {
         // 结算界面识别到玩家英雄（MVP 画面）→ 自动标记「我的英雄」
         if (raw.game_result.my_hero_id) {
           const bp = useBpStore.getState();
-          if (!bp.myHeroId) {
+          const myPicks = bp.userSide === 'BLUE' ? bp.bluePicks : bp.redPicks;
+          if (!bp.myHeroId && myPicks.includes(raw.game_result.my_hero_id)) {
             bp.setMyHero(raw.game_result.my_hero_id);
           }
         }
