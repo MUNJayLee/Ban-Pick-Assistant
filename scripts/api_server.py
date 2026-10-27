@@ -161,6 +161,41 @@ def update_state(**kwargs):
 # ---------------------------------------------------------------------------
 # BP 监听后台线程
 # ---------------------------------------------------------------------------
+_DIAG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '_diag')
+_DIAG_LOG = os.path.join(_DIAG_DIR, 'recog.log')
+
+
+def _diag_log(msg):
+    """写诊断日志（_diag/recog.log）。"""
+    try:
+        if not os.path.isdir(_DIAG_DIR):
+            os.makedirs(_DIAG_DIR, exist_ok=True)
+        with open(_DIAG_LOG, 'a', encoding='utf-8') as f:
+            f.write('%s %s\n' % (datetime.now().strftime('%H:%M:%S'), msg))
+    except Exception:
+        pass
+
+
+def _diag_frame(img, tag):
+    """保存诊断帧（_diag/live_<tag>_<HHMMSS>.png），保留最近 40 张。"""
+    try:
+        if not os.path.isdir(_DIAG_DIR):
+            os.makedirs(_DIAG_DIR, exist_ok=True)
+        path = os.path.join(_DIAG_DIR, 'live_%s_%s.png' % (
+            tag, datetime.now().strftime('%H%M%S')))
+        cv2.imwrite(path, img)
+        # 清理旧的
+        import glob
+        files = sorted(glob.glob(os.path.join(_DIAG_DIR, 'live_*.png')))
+        for old in files[:-40]:
+            try:
+                os.remove(old)
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+
 def _bp_worker(interval=2.0):
     adb = find_adb()
     if not adb:
@@ -172,6 +207,7 @@ def _bp_worker(interval=2.0):
     prev_picks_key = None
     last_result_check = 0.0
     last_floor_check = 0.0
+    last_diag_frame = 0.0
     while not _bp_stop.is_set():
         try:
             with _lock:
@@ -185,6 +221,7 @@ def _bp_worker(interval=2.0):
             phase, pscore = detect_phase(img)
             if phase != prev_phase:
                 prev_phase = phase
+                _diag_log('phase -> %s (score=%.2f)' % (phase, pscore))
                 updates = {'phase': phase, 'phase_score': round(pscore, 2), 'error': None}
                 if phase == 'ban':
                     updates['game_result'] = None
@@ -201,6 +238,11 @@ def _bp_worker(interval=2.0):
 
             if phase == 'ban':
                 bans = recognize_bans(img, bank)
+                _diag_log('ban 识别: %d 个 | %s' % (
+                    len(bans), format_bans(bans) if bans else '(空)'))
+                if time.time() - last_diag_frame > 3:
+                    last_diag_frame = time.time()
+                    _diag_frame(img, 'ban')
                 key = tuple((b['side'], b['hero_id']) for b in bans)
                 if key != prev_bans_key:
                     prev_bans_key = key

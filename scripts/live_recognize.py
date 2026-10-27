@@ -678,20 +678,38 @@ def detect_user_side(img, red_threshold=1.8):
     return None
 
 
-def recognize_bans(img, bank):
+# ban 位固定坐标（1920x864 基准实测，真机截图验证）
+# 左侧 5 个：x=0.0729~0.1927（间距约 0.030），顶部 y=0.044，半径 0.012W
+BAN_X_RATIOS = [0.0729, 0.1026, 0.1318, 0.1630, 0.1927]
+BAN_Y_RATIO = 0.044
+BAN_R_RATIO = 0.012
+BAN_EMPTY_STD = 20.0   # 空 ban 位灰度标准差阈值（空位 8~18 / 有头像 48~68）
+
+
+def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
     """识别顶部 ban 位（空 ban 位跳过）。
+
+    坐标方案（实测最稳）：
+      - 左右各 5 个固定位置，按屏幕宽高比例换算（兼容不同分辨率）
+      - 空位判断：头像区域灰度标准差 < empty_std（空位 8~18 / 有头像 48~68）
+      - 弃用 HoughCircles（真机/视频帧上误检多）和 has_lock（几乎全 False）
 
     返回 [{side, index, hero_id, name, score, gap, confident}, ...]
     """
-    left, right = R.detect_circles(img)
-    left = R.validate_row(left)
-    right = R.validate_row(right)
+    H, W = img.shape[:2]
+    r = max(8, int(round(W * BAN_R_RATIO)))
+    cy = int(round(H * BAN_Y_RATIO))
     out = []
-    for side, circles in (('blue', left), ('red', right)):
-        for idx, (cx, cy, r) in enumerate(circles, 1):
-            if not R.has_lock(img, cx, cy, r):
-                continue
+    for side, ratios in (('blue', BAN_X_RATIOS),
+                         ('red', [1.0 - x for x in BAN_X_RATIOS])):
+        for idx, xr in enumerate(ratios, 1):
+            cx = int(round(W * xr))
             crop = crop_avatar(img, cx, cy, r)
+            if crop is None:
+                continue
+            gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+            if float(gray.std()) < empty_std:
+                continue  # 空 ban 位
             fused = bank.fuse([bank.ranks(crop)])
             top = fused[0]
             second = fused[1] if len(fused) > 1 else (None, 0)
