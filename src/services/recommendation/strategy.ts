@@ -23,6 +23,7 @@ import {
   pickPressure,
   compositionGap,
   threatToTeam,
+  strategyMultiplier,
 } from './factors';
 
 function clamp01(n: number): number {
@@ -35,6 +36,8 @@ function scorePick(
   teamHeroes: Hero[],
   enemyHeroes: Hero[],
   gap?: PositionGap,
+  state?: BpState,
+  side?: Side,
 ): HeroRecommendation {
   const f = {
     version: versionStrength(hero),
@@ -47,17 +50,25 @@ function scorePick(
     penalty: counterPenalty(hero, enemyHeroes),
   };
 
+  // BP 阶段策略乘数（先手偏好万金油 / 后手偏好 counter）
+  const strategy =
+    state && side
+      ? strategyMultiplier(hero, state, side, enemyHeroes)
+      : { value: 1.0, reason: undefined as string | undefined };
+
   const raw =
-    f.version.value * PICK_WEIGHTS.version +
-    f.counter.value * PICK_WEIGHTS.counter +
-    f.synergy.value * PICK_WEIGHTS.synergy +
-    f.position.value * PICK_WEIGHTS.position +
-    f.pressure.value * PICK_WEIGHTS.pressure +
-    f.gap.value * PICK_WEIGHTS.gap -
-    f.penalty.value * PICK_WEIGHTS.penalty -
-    f.antiSynergy.value * PICK_WEIGHTS.antiSynergy;
+    (f.version.value * PICK_WEIGHTS.version +
+      f.counter.value * PICK_WEIGHTS.counter +
+      f.synergy.value * PICK_WEIGHTS.synergy +
+      f.position.value * PICK_WEIGHTS.position +
+      f.pressure.value * PICK_WEIGHTS.pressure +
+      f.gap.value * PICK_WEIGHTS.gap -
+      f.penalty.value * PICK_WEIGHTS.penalty -
+      f.antiSynergy.value * PICK_WEIGHTS.antiSynergy) *
+    strategy.value;
 
   const reasons: string[] = [];
+  if (strategy.reason) reasons.push(strategy.reason);
   if (f.counter.reason) reasons.push(f.counter.reason);
   if (f.position.reason) reasons.push(f.position.reason);
   if (f.gap.reason) reasons.push(f.gap.reason);
@@ -136,7 +147,7 @@ export function recommendHeroes(
   const scored = available.map((hero) =>
     turnType === 'BAN'
       ? scoreBan(hero, teamHeroes, enemyHeroes)
-      : scorePick(hero, teamHeroes, enemyHeroes, gap)
+      : scorePick(hero, teamHeroes, enemyHeroes, gap, state, side)
   );
 
   return scored
@@ -217,7 +228,7 @@ export function recommendGrouped(
   const scored = available.map((hero) =>
     turnType === 'BAN'
       ? scoreBan(hero, teamHeroes, enemyHeroes)
-      : scorePick(hero, teamHeroes, enemyHeroes, gap)
+      : scorePick(hero, teamHeroes, enemyHeroes, gap, state, side)
   );
   const byId = new Map(scored.map((s) => [s.heroId, s]));
 

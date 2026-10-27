@@ -1,8 +1,9 @@
-import type { Hero, HeroPosition } from '@/types';
+import type { Hero, HeroPosition, BpState, Side } from '@/types';
 import { POSITION_LABELS } from '@/types';
 import { COMPOSITION_ROLE_WEIGHTS } from '@/data/config';
 import { calculateCompositionScore } from '@/services/heroService';
 import { positionStrength, type PositionGap } from './position';
+import { compositionGain, DIM_LABELS } from './composition';
 
 /** 单个推荐因子的结果：value 为 0-1 的归一化分量。 */
 export interface FactorResult {
@@ -219,31 +220,48 @@ export function pickPressure(hero: Hero): FactorResult {
   };
 }
 
-/** 阵容缺口：按角色权重衡量候选英雄对阵容短板（前排/控制/续航等）的补齐程度。 */
+/**
+ * 阵容缺口（profession 驱动）。
+ *
+ * 用 profession 映射到五维度（前排/输出/控制/续航/机动），
+ * 计算候选英雄能补多少缺口（比原来按 role 更精细）。
+ */
 export function compositionGap(hero: Hero, teamHeroes: Hero[]): FactorResult {
-  const current = calculateCompositionScore(teamHeroes);
-  // 各维度的“舒适目标值”，接近该值时不再补位加分。
-  const target = {
-    frontline: 4,
-    damage: 4,
-    control: 3,
-    sustain: 2.5,
-    mobility: 2,
+  const { value, bestDim, bestGain } = compositionGain(hero, teamHeroes);
+  return {
+    value,
+    reason: bestGain > 0.25 && bestDim ? `补${DIM_LABELS[bestDim]}` : undefined,
   };
+}
 
-  let gap = 0;
-  for (const role of hero.roles) {
-    const w = COMPOSITION_ROLE_WEIGHTS[role];
-    gap +=
-      Math.max(0, target.frontline - current.frontline) * w.frontline +
-      Math.max(0, target.damage - current.damage) * w.damage +
-      Math.max(0, target.control - current.control) * w.control +
-      Math.max(0, target.sustain - current.sustain) * w.sustain +
-      Math.max(0, target.mobility - current.mobility) * w.mobility;
+/** BP 阶段策略乘数（0.85 ~ 1.30）。 */
+export function strategyMultiplier(
+  hero: Hero,
+  state: BpState,
+  side: Side,
+  enemyHeroes: Hero[]
+): FactorResult {
+  const myPicks = side === 'BLUE' ? state.bluePicks : state.redPicks;
+  const myCount = myPicks.filter(Boolean).length;
+
+  // 先手（我方第 1-2 手）：选「难被克制」的万金油，避免被后手针对
+  // 用 counteredByDetails（实测 14~79 个）做相对归一，80 为上限
+  if (myCount <= 1) {
+    const countered =
+      hero.counteredByDetails?.length ?? hero.counteredBy?.length ?? 0;
+    const robustness = 1 - Math.min(1, countered / 80);
+    const value = 0.85 + robustness * 0.35; // 0.85 ~ 1.20
+    return { value, reason: value > 1.05 ? '被克少，适合先手' : undefined };
   }
 
-  const value = clamp01(gap / 20);
-  return { value, reason: value > 0.5 ? '补齐阵容短板' : undefined };
+  // 后手（我方第 4-5 手）：counter 敌方已选（放大差距，cs>=0.3 直接拉满）
+  if (myCount >= 3) {
+    const cs = counterScore(hero, enemyHeroes).value;
+    const value = 0.85 + Math.min(0.45, cs * 1.5); // 0.85 ~ 1.30
+    return { value, reason: value > 1.05 ? '后手 counter 敌方' : undefined };
+  }
+
+  return { value: 1.0 };
 }
 
 /** 对我方阵容的威胁（用于 Ban）：候选英雄克制我方 + 我方被其克制。 */
