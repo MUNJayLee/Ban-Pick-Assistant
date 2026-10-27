@@ -90,8 +90,9 @@ export const useBpStore = create<BpStore>((set, get) => ({
   ...initialState,
 
   setUserSide: (side) => {
-    // 切换阵营时重置 BP，避免阶段与已有数据冲突
-    set({ ...initialState, userSide: side });
+    // 只切换阵营，保留已填的 ban/pick。
+    // 场景：BP 填到一半发现红蓝方选错了，切换时不应该丢掉已填数据。
+    set({ userSide: side });
   },
 
   selectHero: (heroId) => {
