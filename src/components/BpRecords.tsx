@@ -17,8 +17,10 @@ import {
   Crown,
   Skull,
   Filter,
+  Pencil,
 } from 'lucide-react';
 import { useBpRecordStore } from '@/store/bpRecordStore';
+import { RecordEditModal } from '@/components/RecordEditModal';
 import { getHeroById } from '@/services/heroService';
 import { cn, isTauri } from '@/lib/utils';
 import { ROLE_LABELS } from '@/data/config';
@@ -194,7 +196,7 @@ function HeroTags({ ids, color }: { ids: string[]; color: 'blue' | 'red' }) {
   );
 }
 
-function RecordCard({ record, onDelete, highlightHeroId }: { record: BpRecord; onDelete: (id: string) => void; highlightHeroId?: string }) {
+function RecordCard({ record, onDelete, onEdit, highlightHeroId }: { record: BpRecord; onDelete: (id: string) => void; onEdit: (record: BpRecord) => void; highlightHeroId?: string }) {
   const [expanded, setExpanded] = useState(false);
   const myHero = record.myHeroId ? getHeroById(record.myHeroId) : null;
 
@@ -240,6 +242,13 @@ function RecordCard({ record, onDelete, highlightHeroId }: { record: BpRecord; o
               className="p-1.5 rounded-lg text-ui-muted hover:text-ui-text hover:bg-white/5 transition-colors"
             >
               {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={() => onEdit(record)}
+              className="p-1.5 rounded-lg text-ui-muted hover:text-ui-primary hover:bg-ui-primary/10 transition-colors"
+              title="编辑记录"
+            >
+              <Pencil className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onDelete(record.id)}
@@ -300,6 +309,7 @@ export function BpRecords() {
   const stats = useMemo(() => getStats(), [records, getStats]);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [heroFilter, setHeroFilter] = useState<string>('ALL');
+  const [editingRecord, setEditingRecord] = useState<BpRecord | null>(null);
 
   // 收集所有有 myHeroId 的记录中的英雄列表
   const myHeroOptions = useMemo(() => {
@@ -510,11 +520,17 @@ export function BpRecords() {
             </div>
           ) : (
             filteredRecords.map((record) => (
-              <RecordCard key={record.id} record={record} onDelete={deleteRecord} highlightHeroId={heroFilter !== 'ALL' ? heroFilter : undefined} />
+              <RecordCard key={record.id} record={record} onDelete={deleteRecord} onEdit={setEditingRecord} highlightHeroId={heroFilter !== 'ALL' ? heroFilter : undefined} />
             ))
           )}
         </div>
       </div>
+
+      <RecordEditModal
+        open={!!editingRecord}
+        record={editingRecord}
+        onClose={() => setEditingRecord(null)}
+      />
 
       {/* Clear confirmation modal */}
       {showConfirmClear && (
