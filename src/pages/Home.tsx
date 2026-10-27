@@ -247,14 +247,54 @@ export function Home() {
             }
           />
 
-          <main className="flex-1 flex flex-col min-h-0">
+          <main className="flex-1 flex flex-col md:flex-row min-h-0">
+            {/* 左侧栏：ADB 实时画面 */}
+            <aside className="w-full md:w-60 lg:w-72 flex-none border-b md:border-b-0 md:border-r border-white/5 p-3 md:overflow-y-auto max-h-[220px] md:max-h-none overflow-y-auto space-y-3">
+              <AdbPreview adb={adb} />
+
+              {/* 识别状态 */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <h3 className="text-[11px] font-semibold text-ui-muted mb-2">识别状态</h3>
+                <div className="space-y-1.5 text-[11px]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-ui-muted">连接</span>
+                    <span className={cn(adb.info.connected ? 'text-emerald-400' : 'text-ui-muted')}>
+                      {adb.info.connected ? '已连接' : '未连接'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ui-muted">监听</span>
+                    <span className={cn(adb.info.monitoring ? 'text-emerald-400' : 'text-ui-muted')}>
+                      {adb.info.monitoring ? '运行中' : '已停止'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ui-muted">阶段</span>
+                    <span className="text-ui-text">
+                      {adb.info.phase === 'ban' ? '禁用' : adb.info.phase === 'pick' ? '选将' : adb.info.phase === 'final' ? '已完成' : '待机'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ui-muted">我方阵营</span>
+                    <span className={cn(
+                      adb.info.userSide === 'BLUE' ? 'text-sky-400' : adb.info.userSide === 'RED' ? 'text-rose-400' : 'text-ui-muted',
+                    )}>
+                      {adb.info.userSide === 'BLUE' ? '蓝方' : adb.info.userSide === 'RED' ? '红方' : '未识别'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ui-muted">已识别 ban</span>
+                    <span className="text-ui-text">{adb.info.banCount}</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* 右侧：BP 界面 */}
+            <div className="flex-1 flex flex-col min-w-0 min-h-0">
             <section className="flex-none p-3 md:p-4 border-b border-white/5">
               <div className="max-w-6xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-start gap-3 mb-3">
-                  <div className="w-full md:w-[240px] md:flex-none">
-                    <AdbPreview adb={adb} />
-                  </div>
-                  <div className="flex-1 flex justify-center">
+                <div className="flex justify-center mb-3">
                     <TurnIndicator
                     phase={state.phase}
                     activeSide={activeSide}
@@ -265,7 +305,6 @@ export function Home() {
                     pickTurnIndex={state.pickTurnIndex}
                       totalPicks={PICK_SEQUENCE.length}
                     />
-                  </div>
                 </div>
                 <BpStage
                   state={state}
@@ -350,6 +389,7 @@ export function Home() {
                 </div>
               </section>
             )}
+            </div>
           </main>
         </>
       )}
