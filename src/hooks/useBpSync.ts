@@ -124,12 +124,17 @@ export function useBpSync() {
         .join('|');
       if (pkey !== lastPickKey.current) {
         lastPickKey.current = pkey;
+        // 「最后调整」阶段所有 pick 已锁定（无倒计时遮挡）→ 高置信结果可修正之前的值
+        const isFinal = raw.phase === 'final';
         for (const pk of raw.picks) {
           if (pk.empty || !pk.hero_id) continue;
           const side: Side = pk.side === 'blue' ? 'BLUE' : 'RED';
           const idx = Math.max(0, pk.index - 1);
           const arr = side === 'BLUE' ? store.bluePicks : store.redPicks;
-          if (arr[idx] && arr[idx] !== pk.hero_id) continue;
+          if (arr[idx] && arr[idx] !== pk.hero_id) {
+            // 已有值且不同：只有在「最后调整」且置信度高时才覆盖（修正倒计时误判）
+            if (!(isFinal && pk.confident)) continue;
+          }
           store.setPickAt(side, idx, pk.hero_id);
         }
         // 双方 10 个 pick 全部就位 → 自动进入 FINISHED（触发阵容分析）
