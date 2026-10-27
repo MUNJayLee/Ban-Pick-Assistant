@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, Swords, Sparkles, NotebookText, ScanLine, X, Ban } from 'lucide-react';
+import { BarChart3, Swords, Sparkles, NotebookText, X, Ban } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
 import { BpHeader } from '@/components/BpHeader';
-import { ScreenshotImport } from '@/components/ScreenshotImport';
 import { BpStage } from '@/components/BpStage';
 import { HeroPool } from '@/components/HeroPool';
 import { RecommendationPanel } from '@/components/RecommendationPanel';
@@ -10,6 +9,8 @@ import { TurnIndicator } from '@/components/TurnIndicator';
 import { AnalysisSummary } from '@/components/AnalysisSummary';
 import { DataDashboard } from '@/components/DataDashboard';
 import { BpRecords } from '@/components/BpRecords';
+import { AdbStatusBar } from '@/components/AdbStatusBar';
+import { useBpSync } from '@/hooks/useBpSync';
 import { useBpStore } from '@/store/bpStore';
 import { recommendHeroes } from '@/services/recommendationService';
 import { calculateTeamStrength, calculateWinProbability, getAllHeroes, getHeroById } from '@/services/heroService';
@@ -32,8 +33,8 @@ function getActiveSideFromState(state: BpState): Side | null {
 
 export function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('bp');
-  const [showImport, setShowImport] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const adb = useBpSync();
   const [editingSlot, setEditingSlot] = useState<{ side: Side; kind: 'ban' | 'pick'; index: number } | null>(null);
   const [slotQuery, setSlotQuery] = useState('');
   const [lastUpdated, setLastUpdated] = useState<string>(() => {
@@ -187,13 +188,7 @@ export function Home() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowImport(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-ui-primary/30 text-ui-primary-light bg-ui-primary/10 hover:bg-ui-primary/20 transition-colors"
-          >
-            <ScanLine className="w-3.5 h-3.5" />
-            截图导入
-          </button>
+          <AdbStatusBar adb={adb} />
           <div className="flex items-center bg-ui-surface rounded-xl p-1 border border-white/8 shadow-surface">
           <TabButton
             active={activeTab === 'bp'}
@@ -343,7 +338,6 @@ export function Home() {
         </>
       )}
 
-      {showImport && <ScreenshotImport onClose={() => setShowImport(false)} />}
 
       {/* 手动指定槽位弹层 */}
       {editingSlot && (

@@ -330,6 +330,40 @@ def detect_bp(img):
     }
 
 
+def detect_user_side(img, red_threshold=1.8):
+    """判断我方阵营（左侧菱形框颜色）。
+
+    王者 BP 界面：我方永远在左，敌方在右。
+    左侧头像的菱形框颜色 = 我方阵营（红框=红方，蓝框=蓝方）。
+    实测区分度：左侧红 75.4% vs 蓝 4.1%；右侧红 7.8% vs 蓝 89%。
+
+    返回 'RED' / 'BLUE' / None（判断不出）
+    """
+    H, W = img.shape[:2]
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h = hsv[:, :, 0].astype(int)
+    s = hsv[:, :, 1].astype(int)
+    v = hsv[:, :, 2].astype(int)
+    sat = (s > 90) & (v > 90)
+    # 左侧头像区（x 3%~13%，y 8%~72%）——只取我方
+    x0, x1 = int(W * 0.03), int(W * 0.13)
+    y0, y1 = int(H * 0.08), int(H * 0.72)
+    region = np.zeros((H, W), bool)
+    region[y0:y1, x0:x1] = True
+    mask = sat & region
+    n = int(mask.sum())
+    if n < 300:
+        return None
+    hh = h[mask]
+    red = int((((hh < 12) | (hh > 165))).sum())
+    blue = int(((hh >= 95) & (hh <= 135)).sum())
+    if red >= blue * red_threshold:
+        return 'RED'
+    if blue >= red * red_threshold:
+        return 'BLUE'
+    return None
+
+
 def recognize_bans(img, bank):
     """识别顶部 ban 位（空 ban 位跳过）。
 

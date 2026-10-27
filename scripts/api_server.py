@@ -33,7 +33,7 @@ from pydantic import BaseModel
 
 import recognize_screenshot as R
 from live_recognize import (
-    FeatureBank, detect_phase, recognize_bans, format_bans, normalize,
+    FeatureBank, detect_phase, recognize_bans, format_bans, normalize, detect_user_side,
     _run, CREATE_NO_WINDOW, DEFAULT_ADB, TARGET_WIDTH, CONFIDENT_GAP,
 )
 
@@ -48,6 +48,7 @@ _state = {
     'phase': 'other',        # ban / pick / final / other
     'phase_score': 0.0,
     'bans': [],              # [{side,index,hero_id,name,score,gap,confident}]
+    'user_side': None,       # 'BLUE' / 'RED' / None（我方阵营）
     'monitoring': False,
     'last_update': None,
     'error': None,
@@ -176,6 +177,13 @@ def _bp_worker(interval=2.0):
                 prev_phase = phase
                 update_state(phase=phase, phase_score=round(pscore, 2), error=None)
 
+            # 阵营识别（左侧框颜色）——只在 BP 界面才判断，避免其他游戏误判
+            side = detect_user_side(img) if phase in ('ban', 'pick', 'final') else None
+            with _lock:
+                prev_side = _state['user_side']
+            if side and side != prev_side:
+                update_state(user_side=side)
+
             if phase == 'ban':
                 bans = recognize_bans(img, bank)
                 key = tuple((b['side'], b['hero_id']) for b in bans)
@@ -262,6 +270,32 @@ def api_capture():
                 'width': img.shape[1], 'height': img.shape[0]}
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+@app.post('/api/recognize/once')
+def api_recognize_once():
+    """手动识别一次：抓帧 → 阶段 + 阵营 + ban，并推送到前端状态。"""
+    adb = find_adb()
+    with _lock:
+        serial = _state['device']
+    if not adb or not serial:
+        raise HTTPException(400, '未选择设备')
+    try:
+        img = normalize(capture(adb, serial))
+    except Exception as e:
+        raise HTTPException(500, str(e))
+    phase, score = detect_phase(img)
+    side = detect_user_side(img) if phase in ('ban', 'pick', 'final') else None
+    bans = []
+    if phase == 'ban':
+        try:
+            bans = recognize_bans(img, get_bank())
+        except Exception:
+            bans = []
+    update_state(phase=phase, phase_score=round(score, 2),
+                 user_side=side, bans=bans, error=None)
+    return {'ok': True, 'phase': phase, 'user_side': side,
+            'ban_count': len(bans), 'bans': bans}
 
 
 @app.post('/api/bp/start')
