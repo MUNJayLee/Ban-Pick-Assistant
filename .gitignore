@@ -105,3 +105,7 @@ training_data/_debug/
 # 大模型（可用脚本重新生成）
 /models/*.onnx
 /models/*.pth
+
+# 数据备份文件
+*.bak_*
+*.bak-*
