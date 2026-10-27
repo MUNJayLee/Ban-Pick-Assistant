@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Play, Square, RefreshCw, ScanLine, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getHeroById } from '@/services/heroService';
 import type { useBpSync } from '@/hooks/useBpSync';
 
 type AdbApi = ReturnType<typeof useBpSync>;
@@ -171,6 +172,20 @@ export function AdbControlPanel({ adb, onOpenConfig }: Props) {
           <span className="text-ui-muted">已识别 pick</span>
           <span className="text-ui-text">{info.pickCount}</span>
         </div>
+        <div className="flex items-center justify-between">
+          <span className="text-ui-muted">玩家楼层</span>
+          <span className={cn(info.playerFloor ? 'text-amber-300' : 'text-ui-muted')}>
+            {info.playerFloor ? `${info.playerFloor} 楼` : '未识别'}
+          </span>
+        </div>
+        {info.myHeroId && (
+          <div className="flex items-center justify-between">
+            <span className="text-ui-muted">我的英雄</span>
+            <span className="text-ui-accent text-[11px] font-semibold truncate max-w-[90px]" title={info.myHeroId}>
+              {getHeroById(info.myHeroId)?.name || info.myHeroId}
+            </span>
+          </div>
+        )}
       </div>
 
       {info.error && (

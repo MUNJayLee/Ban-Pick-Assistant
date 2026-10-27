@@ -34,7 +34,7 @@ from pydantic import BaseModel
 import recognize_screenshot as R
 from live_recognize import (
     FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize,
-    detect_user_side, detect_game_result, detect_result_hero,
+    detect_user_side, detect_game_result, detect_result_hero, detect_player_floor,
     _run, CREATE_NO_WINDOW, DEFAULT_ADB, TARGET_WIDTH, CONFIDENT_GAP,
 )
 
@@ -52,6 +52,8 @@ _state = {
     'user_side': None,       # 'BLUE' / 'RED' / None（我方阵营）
     'picks': [],             # [{side,index,hero_id,name,confident,empty}]
     'game_result': None,     # {is_result,result,is_mvp,delta} 对局结算
+    'player_floor': None,    # 玩家楼层（1~5，我方）
+    'my_hero_id': None,      # 自动识别的「我的英雄」
     'monitoring': False,
     'last_update': None,
     'error': None,
@@ -167,6 +169,7 @@ def _bp_worker(interval=2.0):
     prev_bans_key = None
     prev_picks_key = None
     last_result_check = 0.0
+    last_floor_check = 0.0
     while not _bp_stop.is_set():
         try:
             with _lock:
@@ -182,7 +185,9 @@ def _bp_worker(interval=2.0):
                 prev_phase = phase
                 updates = {'phase': phase, 'phase_score': round(pscore, 2), 'error': None}
                 if phase == 'ban':
-                    updates['game_result'] = None  # 新一局开始，清空上一局结算
+                    updates['game_result'] = None
+                    updates['player_floor'] = None
+                    updates['my_hero_id'] = None
                 update_state(**updates)
 
             # 阵营识别（左侧框颜色）——只在 BP 界面才判断，避免其他游戏误判
@@ -207,6 +212,20 @@ def _bp_worker(interval=2.0):
                 if pkey != prev_picks_key:
                     prev_picks_key = pkey
                     update_state(picks=picks)
+                # 玩家楼层识别（OCR 较慢，15 秒一次）→ 该楼位的英雄即「我的英雄」
+                if time.time() - last_floor_check > 15:
+                    last_floor_check = time.time()
+                    floor, _names = detect_player_floor(img)
+                    if floor:
+                        target = next((x for x in picks
+                                       if x['side'] == 'blue' and x['index'] == floor
+                                       and x.get('hero_id')), None)
+                        if target:
+                            update_state(player_floor=floor,
+                                         my_hero_id=target['hero_id'])
+                            print('[%s] 玩家 %d 楼 -> 我的英雄: %s' % (
+                                datetime.now().strftime('%H:%M:%S'),
+                                floor, target['name']))
                     n_blue = sum(1 for x in picks if x['side'] == 'blue' and x['hero_id'])
                     n_red = sum(1 for x in picks if x['side'] == 'red' and x['hero_id'])
                     print('[%s] picks: 我方 %d / 敌方 %d' % (
@@ -346,13 +365,27 @@ def api_recognize_once():
             gr['my_hero_id'] = my_hero['hero_id'] if my_hero else None
             gr['my_hero_name'] = my_hero['name'] if my_hero else None
             game_result = gr
+    # 手动识别时也尝试识别玩家楼层（pick/final 阶段）
+    player_floor = None
+    my_hero_id = None
+    if phase in ('pick', 'final') and picks:
+        floor, _names = detect_player_floor(img)
+        if floor:
+            target = next((x for x in picks
+                           if x['side'] == 'blue' and x['index'] == floor
+                           and x.get('hero_id')), None)
+            if target:
+                player_floor = floor
+                my_hero_id = target['hero_id']
     update_state(phase=phase, phase_score=round(score, 2),
                  user_side=side, bans=bans, picks=picks,
-                 game_result=game_result, error=None)
+                 game_result=game_result, player_floor=player_floor,
+                 my_hero_id=my_hero_id, error=None)
     return {'ok': True, 'phase': phase, 'user_side': side,
             'ban_count': len(bans), 'bans': bans,
             'pick_count': sum(1 for x in picks if x['hero_id']), 'picks': picks,
-            'game_result': game_result}
+            'game_result': game_result,
+            'player_floor': player_floor, 'my_hero_id': my_hero_id}
 
 
 @app.post('/api/bp/start')

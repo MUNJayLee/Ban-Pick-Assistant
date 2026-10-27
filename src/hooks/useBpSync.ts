@@ -20,6 +20,8 @@ export interface BpSyncInfo {
   banCount: number;
   pickCount: number;
   gameResult: { result: 'WIN' | 'LOSE' | null; isMvp: boolean; delta: number | null } | null;
+  playerFloor: number | null;
+  myHeroId: string | null;
   monitoring: boolean;
   error: string | null;
 }
@@ -30,6 +32,8 @@ interface RawState {
   phase_score: number;
   bans: Array<{ side: 'blue' | 'red'; index: number; hero_id: string; confident: boolean }>;
   picks?: Array<{ side: 'blue' | 'red'; index: number; hero_id: string | null; confident: boolean; empty: boolean }>;
+  player_floor?: number | null;
+  my_hero_id?: string | null;
   game_result?: {
     is_result: boolean;
     result: 'WIN' | 'LOSE' | null;
@@ -62,6 +66,8 @@ export function useBpSync() {
     banCount: 0,
     pickCount: 0,
     gameResult: null,
+    playerFloor: null,
+    myHeroId: null,
     monitoring: false,
     error: null,
   });
@@ -135,7 +141,15 @@ export function useBpSync() {
       }
     }
 
-    // ⑤ 对局结算自动回填：找最近 15 分钟内仍为 PENDING 的记录
+    // ⑤ 玩家楼层识别结果 → 自动标记「我的英雄」
+    if (raw.my_hero_id) {
+      const bp = useBpStore.getState();
+      if (!bp.myHeroId) {
+        bp.setMyHero(raw.my_hero_id);
+      }
+    }
+
+    // ⑥ 对局结算自动回填：找最近 15 分钟内仍为 PENDING 的记录
     if (raw.game_result?.is_result && raw.game_result.result) {
       try {
         const resultStore = useBpRecordStore.getState();
@@ -169,6 +183,8 @@ export function useBpSync() {
       userSide: raw.user_side,
       banCount: raw.bans?.length ?? 0,
       pickCount: (raw.picks || []).filter((p) => !p.empty && p.hero_id).length,
+      playerFloor: raw.player_floor ?? null,
+      myHeroId: raw.my_hero_id ?? null,
       gameResult: raw.game_result?.is_result
         ? { result: raw.game_result.result, isMvp: raw.game_result.is_mvp, delta: raw.game_result.delta }
         : null,

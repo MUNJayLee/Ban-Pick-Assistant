@@ -367,6 +367,68 @@ def detect_result_hero(img, bank):
     }
 
 
+def detect_player_floor(img):
+    """识别玩家所在楼层（巅峰赛名字为金黄色）。
+
+    做法（实测 4 个样本 3 个正确）：
+      1. OCR 左侧 32% 区域，只保留含「召唤师」的文本
+         （排除「铭文特权/150/预选」等同样是金色的 UI 干扰）
+      2. 按 y 排序 → 楼层（1~5）
+      3. 金色像素比例最高的名字 = 玩家
+
+    返回 (floor_1based, names) ；失败返回 (None, [])
+    """
+    ocr = _get_ocr()
+    if ocr is None:
+        return None, []
+    H, W = img.shape[:2]
+    crop = img[:, 0:max(1, int(W * 0.32))]
+    crop2 = cv2.resize(crop, (crop.shape[1] * 2, crop.shape[0] * 2),
+                       interpolation=cv2.INTER_CUBIC)
+    cw, ch = crop2.shape[1], crop2.shape[0]
+    try:
+        result, _ = ocr(crop2)
+    except Exception:
+        return None, []
+    if not result:
+        return None, []
+    hsv = cv2.cvtColor(crop2, cv2.COLOR_BGR2HSV)
+    h = hsv[:, :, 0].astype(int)
+    s = hsv[:, :, 1].astype(int)
+    v = hsv[:, :, 2].astype(int)
+    gold = (h >= 15) & (h <= 45) & (s > 90) & (v > 130)
+
+    names = []
+    for item in result:
+        try:
+            box, text, conf = item[0], str(item[1]), float(item[2])
+        except Exception:
+            continue
+        if conf < 0.5 or '召唤师' not in text:
+            continue
+        xs = [float(p[0]) for p in box]
+        ys = [float(p[1]) for p in box]
+        x0, x1 = int(min(xs)), int(max(xs))
+        y0, y1 = int(min(ys)), int(max(ys))
+        region = gold[max(0, y0):min(ch, y1), max(0, x0):min(cw, x1)]
+        n = max(1, region.size)
+        names.append({'text': text, 'y': (y0 + y1) / 2.0,
+                      'gold': int(region.sum()),
+                      'ratio': int(region.sum()) / float(n)})
+    if not names:
+        return None, []
+    names.sort(key=lambda r: r['y'])
+    merged = []
+    for nm in names:
+        if merged and abs(nm['y'] - merged[-1]['y']) < 80:
+            if nm['gold'] > merged[-1]['gold']:
+                merged[-1] = nm
+            continue
+        merged.append(nm)
+    best_idx = max(range(len(merged)), key=lambda i: merged[i]['ratio'])
+    return best_idx + 1, merged
+
+
 def detect_game_result(img):
     """识别对局结算界面（王者巅峰赛/排位）。
 
