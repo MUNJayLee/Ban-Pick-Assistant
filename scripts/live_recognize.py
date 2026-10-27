@@ -243,11 +243,15 @@ _OCR_ENGINE = None
 _OCR_UNAVAILABLE = False
 PHASE_KEYWORDS = [
     ('最后调整', 'final'),
+    # 「准备前往发育路/游走」= 选人确认阶段（真机 final）
+    ('准备前往', 'final'),
     ('等待其他玩家选择', 'pick'),
     ('请选择您的', 'pick'),        # 真机 pick 阶段实际文案
     ('禁英雄', 'ban'),
     ('等待其他玩家禁用', 'ban'),   # 真机 ban 阶段实际文案（推测）
     ('禁用英雄', 'ban'),
+    # 「禁用结果」= ban 完成后的结果展示（真机 ban 界面变体）
+    ('禁用结果', 'ban'),
 ]
 _PHASE_CACHE = {'sig': None, 'phase': 'other', 'score': 0.0}
 
