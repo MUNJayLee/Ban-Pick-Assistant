@@ -86,7 +86,11 @@ export function useBpSync() {
         for (const b of raw.bans) {
           const side: Side = b.side === 'blue' ? 'BLUE' : 'RED';
           // API 的 index 是 1-based，store 是 0-based
-          store.setBanAt(side, Math.max(0, b.index - 1), b.hero_id);
+          const idx = Math.max(0, b.index - 1);
+          // 已有值且与识别结果不同 -> 视为用户手动修改，保留不覆盖
+          const arr = side === 'BLUE' ? store.blueBans : store.redBans;
+          if (arr[idx] && arr[idx] !== b.hero_id) continue;
+          store.setBanAt(side, idx, b.hero_id);
         }
       }
     }

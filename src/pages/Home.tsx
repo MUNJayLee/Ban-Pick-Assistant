@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, Swords, Sparkles, NotebookText, X, Ban } from 'lucide-react';
+import { BarChart3, Swords, Sparkles, NotebookText, X, Ban, Settings } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
 import { BpHeader } from '@/components/BpHeader';
 import { BpStage } from '@/components/BpStage';
@@ -10,6 +10,8 @@ import { AnalysisSummary } from '@/components/AnalysisSummary';
 import { DataDashboard } from '@/components/DataDashboard';
 import { BpRecords } from '@/components/BpRecords';
 import { AdbStatusBar } from '@/components/AdbStatusBar';
+import { AdbPreview } from '@/components/AdbPreview';
+import { DeviceConfigModal } from '@/components/DeviceConfigModal';
 import { useBpSync } from '@/hooks/useBpSync';
 import { useBpStore } from '@/store/bpStore';
 import { recommendHeroes } from '@/services/recommendationService';
@@ -35,6 +37,7 @@ export function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('bp');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const adb = useBpSync();
+  const [showDeviceConfig, setShowDeviceConfig] = useState(false);
   const [editingSlot, setEditingSlot] = useState<{ side: Side; kind: 'ban' | 'pick'; index: number } | null>(null);
   const [slotQuery, setSlotQuery] = useState('');
   const [lastUpdated, setLastUpdated] = useState<string>(() => {
@@ -189,6 +192,14 @@ export function Home() {
 
         <div className="flex items-center gap-2">
           <AdbStatusBar adb={adb} />
+          <button
+            onClick={() => setShowDeviceConfig(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-white/12 text-ui-muted hover:text-ui-text hover:border-white/25 bg-white/5 transition-colors"
+            title="ADB 接入与调试"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            设备配置
+          </button>
           <div className="flex items-center bg-ui-surface rounded-xl p-1 border border-white/8 shadow-surface">
           <TabButton
             active={activeTab === 'bp'}
@@ -239,8 +250,12 @@ export function Home() {
           <main className="flex-1 flex flex-col min-h-0">
             <section className="flex-none p-3 md:p-4 border-b border-white/5">
               <div className="max-w-6xl mx-auto">
-                <div className="flex justify-center mb-3">
-                  <TurnIndicator
+                <div className="flex flex-col md:flex-row md:items-start gap-3 mb-3">
+                  <div className="w-full md:w-[240px] md:flex-none">
+                    <AdbPreview adb={adb} />
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    <TurnIndicator
                     phase={state.phase}
                     activeSide={activeSide}
                     phaseLabel={state.getPhaseLabel()}
@@ -248,8 +263,9 @@ export function Home() {
                     myBanCount={myBans.length}
                     enemyBanCount={enemyBans.length}
                     pickTurnIndex={state.pickTurnIndex}
-                    totalPicks={PICK_SEQUENCE.length}
-                  />
+                      totalPicks={PICK_SEQUENCE.length}
+                    />
+                  </div>
                 </div>
                 <BpStage
                   state={state}
@@ -396,6 +412,14 @@ export function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {showDeviceConfig && (
+        <DeviceConfigModal
+          open={showDeviceConfig}
+          onClose={() => setShowDeviceConfig(false)}
+          adb={adb}
+        />
       )}
     </div>
   );

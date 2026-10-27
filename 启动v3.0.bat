@@ -4,7 +4,7 @@ title WangZhe BP Assistant v3.0
 
 echo ============================================================
 echo   WangZhe BP Assistant v3.0
-echo   Web Console : http://localhost:5173/console
+echo   Web UI      : http://localhost:5173/
 echo   API Docs    : http://127.0.0.1:8900/docs
 echo ============================================================
 echo.
@@ -25,11 +25,11 @@ start "BP-Web" /min node scripts\dev-safe.mjs
 ping -n 8 127.0.0.1 >nul
 
 echo [3/3] Opening console page ...
-start http://localhost:5173/console
+start http://localhost:5173/
 
 echo.
 echo All started.
-echo   - Console : http://localhost:5173/console
+echo   - Web UI  : http://localhost:5173/
 echo   - API Docs: http://127.0.0.1:8900/docs
 echo.
 echo Closing this window will NOT stop the services.
