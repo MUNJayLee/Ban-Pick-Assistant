@@ -34,6 +34,7 @@ from pydantic import BaseModel
 import recognize_screenshot as R
 from live_recognize import (
     FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize,
+    recognize_picks_cached,
     detect_user_side, detect_game_result, detect_result_hero, detect_player_floor,
     _run, CREATE_NO_WINDOW, DEFAULT_ADB, TARGET_WIDTH, CONFIDENT_GAP,
 )
@@ -207,7 +208,7 @@ def _bp_worker(interval=2.0):
                                        format_bans(bans)))
                 prev_picks_key = None
             elif phase in ('pick', 'final'):
-                picks = recognize_picks(img, bank)
+                picks = recognize_picks_cached(img, bank)
                 pkey = tuple((x['side'], x['index'], x['hero_id']) for x in picks)
                 if pkey != prev_picks_key:
                     prev_picks_key = pkey
@@ -349,7 +350,7 @@ def api_recognize_once():
         if phase == 'ban':
             bans = recognize_bans(img, bank)
         elif phase in ('pick', 'final'):
-            picks = recognize_picks(img, bank)
+            picks = recognize_picks_cached(img, bank)
     except Exception:
         pass
     # 非 BP 界面时，手动识别也尝试检测结算

@@ -448,6 +448,41 @@ def detect_result_hero(img, bank):
     }
 
 
+_PICKS_CACHE = {'sig': None, 'picks': None}
+
+
+def _pick_signature(img):
+    """10 个 pick 位的快速签名（每个 4x4 降采样）。"""
+    H, W = img.shape[:2]
+    parts = []
+    for x_ratio in (0.0859, 1.0 - 0.0859):
+        x = int(round(W * x_ratio))
+        for i in range(5):
+            cy = int(round(H * (0.1713 + 0.1620 * i)))
+            half = max(8, int(round(W * 0.0234)))
+            crop = img[max(0, cy - half):cy + half,
+                       max(0, x - half):x + half]
+            if crop.size == 0:
+                parts.append(np.zeros(16, np.float32))
+                continue
+            parts.append(cv2.resize(crop, (4, 4)).astype(np.float32).flatten())
+    return np.concatenate(parts)
+
+
+def recognize_picks_cached(img, bank, empty_std=20.0, threshold=4.0):
+    """带缓存的 pick 识别：pick 位画面几乎没变时复用上次结果（毫秒级）。"""
+    global _PICKS_CACHE
+    sig = _pick_signature(img)
+    if _PICKS_CACHE['sig'] is not None:
+        diff = float(np.abs(sig - _PICKS_CACHE['sig']).mean())
+        if diff < threshold:
+            return _PICKS_CACHE['picks']
+    picks = recognize_picks(img, bank, empty_std)
+    _PICKS_CACHE['sig'] = sig
+    _PICKS_CACHE['picks'] = picks
+    return picks
+
+
 def detect_player_floor(img):
     """识别玩家所在楼层（巅峰赛名字为金黄色）。
 
