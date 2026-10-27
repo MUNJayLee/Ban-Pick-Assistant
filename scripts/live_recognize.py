@@ -246,6 +246,7 @@ PHASE_KEYWORDS = [
     ('等待其他玩家选择', 'pick'),
     ('禁英雄', 'ban'),
 ]
+_PHASE_CACHE = {'sig': None, 'phase': 'other', 'score': 0.0}
 
 
 def _get_ocr():
@@ -260,6 +261,74 @@ def _get_ocr():
     return _OCR_ENGINE
 
 
+def _count_ban_slots(img):
+    """数 ban 位圆个数（不识别英雄，毫秒级）。"""
+    left, right = R.detect_circles(img)
+    return len(R.validate_row(left)) + len(R.validate_row(right))
+
+
+def _count_filled_picks(img, empty_std=20.0):
+    """数非空 pick 位个数（只看灰度标准差，不识别英雄，毫秒级）。"""
+    H, W = img.shape[:2]
+    n = 0
+    for x_ratio in (0.0859, 1.0 - 0.0859):
+        x = int(round(W * x_ratio))
+        for i in range(5):
+            cy = int(round(H * (0.1713 + 0.1620 * i)))
+            half = max(8, int(round(W * 0.0234)))
+            crop = img[max(0, cy - half):cy + half,
+                       max(0, x - half):x + half]
+            if crop.size == 0:
+                continue
+            if float(cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY).std()) >= empty_std:
+                n += 1
+    return n
+
+
+def detect_phase_fast(img):
+    """基于布局快速判断阶段（毫秒级，不 OCR）。
+
+    返回 (phase, confident)：
+      ('final', True)  pick 位 >= 9 个有内容
+      ('pick', True)   pick 位 >= 1 个有内容，或 ban 位已满（等待选将）
+      ('ban', True)    ban 位 1~7 个（正在 ban）
+      ('unknown', False) 判断不出（ban 位 0 个，需 OCR 兜底）
+    """
+    ban = _count_ban_slots(img)
+    picks = _count_filled_picks(img)
+    if picks >= 9:
+        return 'final', True
+    if picks >= 1:
+        return 'pick', True
+    if ban >= 8:
+        # ban 位已满但还没人选 —— 处于「等待其他玩家选择」
+        return 'pick', True
+    if 1 <= ban <= 7:
+        return 'ban', True
+    return 'unknown', False
+
+
+def detect_phase_fast_ocr(img):
+    """布局无法判断时用 OCR 兜底（慢，~2s）。"""
+    ocr = _get_ocr()
+    if ocr is None:
+        return 'other', 0.0
+    H, W = img.shape[:2]
+    top = img[0:max(1, int(H * 0.25)), :]
+    top = cv2.resize(top, (top.shape[1] * 2, top.shape[0] * 2),
+                     interpolation=cv2.INTER_CUBIC)
+    try:
+        result, _ = ocr(top)
+    except Exception:
+        result = None
+    if result:
+        joined = ''.join(str(item[1]) for item in result)
+        for kw, phase in PHASE_KEYWORDS:
+            if kw in joined:
+                return phase, 1.0
+    return 'other', 0.0
+
+
 def detect_phase(img, use_ocr=True):
     """识别当前 BP 阶段。
 
@@ -272,25 +341,37 @@ def detect_phase(img, use_ocr=True):
     主方案：OCR 识别顶部 12% 横幅文字（实测 8/8 准确，含视频/真机各种分辨率）。
     兜底：OCR 不可用时回退模板匹配。
     """
-    if use_ocr:
-        ocr = _get_ocr()
-        if ocr is not None:
-            H, W = img.shape[:2]
-            # 顶部 25%：兼容手机全屏截图（横幅 y 1~9%）和带广告条的直播帧（横幅 y 10~17%）
-            top = img[0:max(1, int(H * 0.25)), :]
-            # 放大 2 倍提高小字识别率
-            top = cv2.resize(top, (top.shape[1] * 2, top.shape[0] * 2),
-                             interpolation=cv2.INTER_CUBIC)
-            try:
-                result, _ = ocr(top)
-            except Exception:
-                result = None
-            if result:
-                joined = ''.join(str(item[1]) for item in result)
-                for kw, phase in PHASE_KEYWORDS:
-                    if kw in joined:
-                        return phase, 1.0
-            return 'other', 0.0
+    global _PHASE_CACHE
+    H, W = img.shape[:2]
+    # ① 帧差缓存：顶部横幅几乎没变 → 复用上次 OCR 结果（毫秒级）
+    top = img[0:max(1, int(H * 0.25)), :]
+    sig = cv2.resize(top, (160, 45), interpolation=cv2.INTER_AREA).astype(np.float32)
+    if _PHASE_CACHE['sig'] is not None:
+        diff = float(np.abs(sig - _PHASE_CACHE['sig']).mean())
+        if diff < 5.0:
+            return _PHASE_CACHE['phase'], _PHASE_CACHE['score']
+    if not use_ocr:
+        return _detect_phase_tpl(img)
+    # ② OCR 识别（~2s，但只在顶部变化时执行）
+    ocr = _get_ocr()
+    if ocr is not None:
+        top2 = cv2.resize(top, (top.shape[1] * 2, top.shape[0] * 2),
+                          interpolation=cv2.INTER_CUBIC)
+        try:
+            result, _ = ocr(top2)
+        except Exception:
+            result = None
+        phase, score = 'other', 0.0
+        if result:
+            joined = ''.join(str(item[1]) for item in result)
+            for kw, ph in PHASE_KEYWORDS:
+                if kw in joined:
+                    phase, score = ph, 1.0
+                    break
+        _PHASE_CACHE['sig'] = sig
+        _PHASE_CACHE['phase'] = phase
+        _PHASE_CACHE['score'] = score
+        return phase, score
     return _detect_phase_tpl(img)
 
 
