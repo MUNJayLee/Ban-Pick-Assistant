@@ -52,7 +52,7 @@ FUSION_W_COLOR = 2.5
 MULTI_FRAMES = 3              # 多帧融合帧数
 # 融合分（RRF）量纲约 0~0.0574：0.0574 = ORB第1+颜色第1 的完美匹配。
 # top1-top2 分差 >= 0.003 视为可信（实测正确样本 gap 约 0.001~0.01）。
-CONFIDENT_GAP = 0.003
+CONFIDENT_GAP = 0.0025
 
 
 # ---------------------------------------------------------------------------
@@ -451,7 +451,7 @@ def detect_result_hero(img, bank):
         'score': round(top[1], 4),
         'gap': round(gap, 4),
         # 圆形遮罩后 gap 偏小，结算头像用专用阈值（实测正解 0.0021，误判 ≤0.0009）
-        'confident': gap >= 0.0015,
+        'confident': gap >= 0.0012,
     }
 
 
