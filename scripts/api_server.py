@@ -352,8 +352,31 @@ def api_devices():
 
 @app.post('/api/device/select')
 def api_select_device(req: DeviceReq):
-    update_state(device=req.serial)
-    return {'ok': True, 'device': req.serial}
+    serial = (req.serial or '').strip()
+    if not serial:
+        raise HTTPException(status_code=400, detail='serial 不能为空')
+    # 校验 serial 是否在 adb devices 在线列表（避免写入不存在的设备）
+    try:
+        adb = find_adb() or DEFAULT_ADB
+        r = _run([adb, 'devices'], capture_output=True, timeout=10)
+        lines = (r.stdout or b'').decode('utf-8', 'ignore').splitlines()
+        online = []
+        for line in lines[1:]:
+            parts = line.strip().split()
+            if len(parts) >= 2 and parts[1] == 'device':
+                online.append(parts[0])
+        if serial not in online:
+            raise HTTPException(
+                status_code=400,
+                detail='设备未连接或不在线: %s（当前在线: %s）'
+                        % (serial, ', '.join(online) if online else '无'),
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # adb 不可用时放行（允许离线场景）
+    update_state(device=serial)
+    return {'ok': True, 'device': serial}
 
 
 def _valid_ip(ip: str) -> bool:
@@ -385,7 +408,7 @@ def api_device_connect(payload: DeviceConnectPayload):
     target = '%s:%d' % (ip, port)
     adb = find_adb() or DEFAULT_ADB
     try:
-        r = _run([adb, 'connect', target], capture_output=True, timeout=20)
+        r = _run([adb, 'connect', target], capture_output=True, timeout=10)
         out = (r.stdout or b'').decode('utf-8', 'ignore').strip()
         err = (r.stderr or b'').decode('utf-8', 'ignore').strip()
     except Exception as e:

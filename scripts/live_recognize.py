@@ -648,6 +648,27 @@ def recognize_picks(img, bank, empty_std=25.0):
                 'confident': gap >= CONFIDENT_GAP,
                 'empty': False,
             })
+    # 同队去重：同一英雄不可能出现在同队两个位置（分路图标误识别时常见）
+    # 保留 gap 高的那个，其余置空
+    for side in ('blue', 'red'):
+        seen = {}  # hero_id -> pick 在下标
+        for idx, p in enumerate(picks):
+            if p['side'] != side or p['empty'] or not p['hero_id']:
+                continue
+            hid = p['hero_id']
+            if hid in seen:
+                prev = picks[seen[hid]]
+                if p['gap'] > prev['gap']:
+                    # 当前更好 → 前一个置空
+                    prev.update({'hero_id': None, 'name': '', 'gap': 0.0,
+                                 'confident': False, 'empty': True})
+                    seen[hid] = idx
+                else:
+                    # 前一个更好 → 当前置空
+                    p.update({'hero_id': None, 'name': '', 'gap': 0.0,
+                              'confident': False, 'empty': True})
+            else:
+                seen[hid] = idx
     return picks
 
 
