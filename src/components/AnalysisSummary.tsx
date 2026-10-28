@@ -115,7 +115,9 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     myHeroId: validMyHeroId,
     mySide,
     myRole: myHero?.roles[0],
-    actualResult: actual === 'PENDING' ? undefined : actual,
+    // 注意：必须保留 'PENDING'（不能转 undefined），
+    // 否则 useBpSync 的结算自动回填（找 actualResult === 'PENDING'）永远匹配不到草稿
+    actualResult: actual,
     rating: rating.trim() === '' ? undefined : Number(rating),
     isMvp: isMvp || undefined,
     medal: medal,
