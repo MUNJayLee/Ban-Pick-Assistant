@@ -192,3 +192,47 @@ API 8900    ✓ 运行中（22:35 启动版本）
 - [ ] 各局真实 ban/pick vs 识别结果（脚本已生成 `_diag/test_real_frames.json`）
 - [ ] R1 到底是哪个英雄（建议直接看 `_diag/live_pick_235838.png` 右上角）
 - [ ] 「最后调整」界面底部 6 个英雄头像是什么（可能是双方阵容展示）
+
+---
+
+## 八、素材核对页面（10-29 凌晨完成）
+
+### 需求
+用户：在现有界面加一个页面，核对收集的素材，人工判断正误，加备注栏提示裁切偏移。
+
+### 实现
+**入口**：顶部导航「核对」Tab
+
+**后端 API**（`scripts/api_server.py`）
+| 端点 | 说明 |
+|---|---|
+| `GET /api/review/frames` | 帧列表（最新在前） |
+| `GET /api/review/crop?frame=X&kind=ban&side=blue&index=1` | 裁切单个位置（放大 4 倍 base64）+ 识别结果 |
+| `GET /api/review/marks` | 已保存标注 |
+| `POST /api/review/mark` | 保存标注（correct + note） |
+
+**前端**（`src/components/ReviewPanel.tsx`，445 行）
+- 左侧：帧列表 + 类型筛选（ban/pick/selecting/other/全部）
+- 右侧：10 个位置卡片（裁切头像 + 识别英雄 + 置信度 + gap）
+- 每个卡片：✓/✗ 按钮 + 备注输入框（自动保存）
+- 自动选中第一个 ban 帧
+- Ban/Pick 模式切换
+- 统计（当前帧正确/错误数）
+
+**存储**：`_diag/review.json`
+
+### 使用方式
+```
+1. 打开 http://localhost:5173/
+2. 点顶部「核对」Tab
+3. 左侧选帧（默认 ban 筛选）
+4. 逐张看：
+   - 裁切头像是否居中（偏移的话在备注写「偏左/偏右/偏上/偏下」）
+   - 识别英雄名是否正确（错了在备注写真名，如「实际是孙膑」）
+   - 点 ✓ 或 ✗
+5. 会自动保存到 _diag/review.json
+```
+
+### 验证（已截图确认）
+- `_diag/review_page2.png`：UI 正常
+- 实测案例：`live_ban_235708.png` 蓝2 识别「庄周」（conf=True）**实际是孙膑**（绿发）→ 高置信错误，正是核对页要抓的
