@@ -271,6 +271,17 @@ def _bp_worker(interval=2.0):
                     if time.time() - last_diag_frame > 2:
                         last_diag_frame = time.time()
                         _diag_frame(img, 'selecting')
+                    # 选人界面顶部 ban 位已完整 → 补 ban（比等 final 更早）
+                    try:
+                        bans_now = recognize_bans(img, bank)
+                        with _lock:
+                            cur_bans = list(_state['bans'])
+                        if len(bans_now) >= 10 or len(bans_now) > len(cur_bans):
+                            update_state(bans=bans_now)
+                            _diag_log('pick 阶段补 ban: %d -> %d 个' % (
+                                len(cur_bans), len(bans_now)))
+                    except Exception:
+                        pass
                     continue
                 if time.time() - last_diag_frame > 2:
                     last_diag_frame = time.time()
@@ -283,7 +294,9 @@ def _bp_worker(interval=2.0):
                         cur_bans = list(_state['bans'])
                     # final 阶段（最后调整）阵容已锁定，顶部 10 个 ban 位一定齐全
                     # → 直接用最新完整识别（比旧的「蓝+红」合并更可靠）
-                    if len(bans_now) > len(cur_bans):
+                    # final（最后调整）顶部 10 个 ban 一定齐全且是最终版本
+                    # → 识别到 10 个就总是覆盖（修正 pick 阶段的临时值）
+                    if len(bans_now) >= 10 or len(bans_now) > len(cur_bans):
                         update_state(bans=bans_now)
                         _diag_log('final 补 ban: %d -> %d 个（%s）' % (
                             len(cur_bans), len(bans_now),
