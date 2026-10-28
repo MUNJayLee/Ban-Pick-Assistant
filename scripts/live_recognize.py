@@ -205,6 +205,45 @@ def _load_phase_templates():
     return _PHASE_TEMPLATES
 
 
+_SELECTING_CACHE = {'at': 0.0, 'value': False}
+
+
+def is_selecting_screen(img, threshold=15):
+    """检测是否「玩家选英雄」界面（不是 BP 抢位界面）。
+
+    关键差异（实测）：
+      - 选人界面：中间英雄池有大量文本（英雄名 + 场次），OCR 约 42 条
+      - BP 抢位界面：中间是 VS/空白，OCR 约 0 条
+
+    选人界面不能识别 pick（队伍头像是玩家预选，不是最终阵容）。
+    OCR 较慢，3 秒内复用上次结果。
+    """
+    now = __import__('time').time()
+    if now - _SELECTING_CACHE['at'] < 3.0:
+        return _SELECTING_CACHE['value']
+    H, W = img.shape[:2]
+    roi = img[int(H * 0.20):int(H * 0.75), int(W * 0.22):int(W * 0.78)]
+    if roi.size == 0:
+        return False
+    o = _get_ocr()
+    if not o:
+        return False
+    try:
+        res = o(roi)
+    except Exception:
+        return False
+    n = 0
+    if res and res[0]:
+        for line in res[0]:
+            t = line[1][0] if isinstance(line[1], (list, tuple)) else str(line[1])
+            if t and t.strip():
+                n += 1
+    value = n > threshold
+    _SELECTING_CACHE['at'] = now
+    _SELECTING_CACHE['value'] = value
+    return value
+
+
 def _detect_phase_tpl(img, threshold=0.55):
     """模板匹配兜底（OCR 不可用时）。见下方 detect_phase。"""
     tpls = _load_phase_templates()

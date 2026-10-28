@@ -139,11 +139,13 @@ export function useBpSync() {
           const idx = Math.max(0, pk.index - 1);
           const arr = side === 'BLUE' ? store.bluePicks : store.redPicks;
           // pick 阶段空位容易误判成英雄 → 只填高置信结果
-          // （最后调整阶段所有 pick 已锁定，可以放宽）
+          // （最后调整阶段所有 pick 已锁定，画面稳定，低置信也可以填）
           if (!pk.confident && !isFinal) continue;
           if (arr[idx] && arr[idx] !== pk.hero_id) {
-            // 已有值且不同：只有在「最后调整」且置信度高时才覆盖（修正倒计时误判）
-            if (!(isFinal && pk.confident)) continue;
+            // 已有值且不同：非 final 阶段只允许高置信覆盖（防倒计时误判）；
+            // final 阶段所有 pick 已锁定，直接采用最新识别（低置信也覆盖，
+            // 否则会停留在早期低置信的错值）
+            if (!isFinal) continue;
           }
           store.setPickAt(side, idx, pk.hero_id);
         }

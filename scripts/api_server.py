@@ -34,6 +34,7 @@ from pydantic import BaseModel
 
 import recognize_screenshot as R
 from live_recognize import (
+    is_selecting_screen,
     FeatureBank, detect_phase, recognize_bans, recognize_picks, format_bans, normalize,
     recognize_picks_cached,
     detect_user_side, detect_game_result, detect_result_hero, detect_player_floor,
@@ -192,8 +193,13 @@ def _diag_frame(img, tag):
                 os.remove(old)
             except Exception:
                 pass
-    except Exception:
-        pass
+    except Exception as e:
+        try:
+            with open(_DIAG_LOG, 'a', encoding='utf-8') as f:
+                f.write('%s _diag_frame(%s) 失败: %s\n' % (
+                    datetime.now().strftime('%H:%M:%S'), tag, e))
+        except Exception:
+            pass
 
 
 def _bp_worker(interval=2.0):
@@ -253,6 +259,17 @@ def _bp_worker(interval=2.0):
                                        format_bans(bans)))
                 prev_picks_key = None
             elif phase in ('pick', 'final'):
+                # 「玩家选英雄」界面：队伍头像是玩家预选，不是 BP 结果 → 不识别 pick
+                if is_selecting_screen(img):
+                    if prev_picks_key != '__selecting__':
+                        prev_picks_key = '__selecting__'
+                        _diag_log('选人界面，跳过 pick 识别')
+                        update_state(picks=[])
+                    # 仍然存帧（便于分析）
+                    if time.time() - last_diag_frame > 2:
+                        last_diag_frame = time.time()
+                        _diag_frame(img, 'selecting')
+                    continue
                 if time.time() - last_diag_frame > 2:
                     last_diag_frame = time.time()
                     _diag_frame(img, 'pick')
