@@ -177,6 +177,30 @@ def _diag_log(msg):
         pass
 
 
+def _vote_bans(votes, bans_now, min_votes=2):
+    """多帧投票：累计每帧 ban 识别结果，返回票数达标的稳定结果。
+
+    解决单帧不稳定问题（同一位置不同帧识别出不同英雄，如「后羿 vs 孙膑」）。
+    票数 >= min_votes 的位置才输出，取票数最高的英雄。
+
+    votes: {(side, index): {hero_id: [count, last_dict]}}
+    """
+    for b in bans_now:
+        key = (b['side'], b['index'])
+        d = votes.setdefault(key, {})
+        if b['hero_id'] in d:
+            d[b['hero_id']][0] += 1
+            d[b['hero_id']][1] = b
+        else:
+            d[b['hero_id']] = [1, b]
+    out = []
+    for key, d in votes.items():
+        best = max(d.values(), key=lambda x: x[0])
+        if best[0] >= min_votes:
+            out.append(best[1])
+    return out
+
+
 def _diag_frame(img, tag):
     """保存诊断帧（_diag/live_<tag>_<HHMMSS>.png），保留最近 40 张。"""
     try:
@@ -215,6 +239,7 @@ def _bp_worker(interval=2.0):
     last_result_check = 0.0
     last_floor_check = 0.0
     last_diag_frame = 0.0
+    ban_votes = {}   # 多帧投票：{(side, index): {hero_id: [count, last_dict]}}
     while not _bp_stop.is_set():
         try:
             with _lock:
@@ -234,6 +259,11 @@ def _bp_worker(interval=2.0):
                     updates['game_result'] = None
                     updates['player_floor'] = None
                     updates['my_hero_id'] = None
+                if phase == 'final':
+                    # final（最后调整）的 ban 位是最终版；
+                    # pick 阶段（选人界面）显示的是临时值 → 重新投票
+                    ban_votes.clear()
+                    _diag_log('final 阶段：重新投票 ban（丢弃 pick 阶段的临时值）')
                 update_state(**updates)
 
             # 阵营识别（左侧框颜色）——只在 BP 界面才判断，避免其他游戏误判
@@ -253,6 +283,7 @@ def _bp_worker(interval=2.0):
                 key = tuple((b['side'], b['hero_id']) for b in bans)
                 if key != prev_bans_key:
                     prev_bans_key = key
+                    ban_votes.clear()   # 新一局 / ban 结果变化 → 重新投票
                     update_state(bans=bans)
                     # 每次 ban 结果变化都存帧（红方 ban 可能只持续几秒，靠定时间隔会漏）
                     _diag_frame(img, 'ban')
@@ -271,15 +302,19 @@ def _bp_worker(interval=2.0):
                     if time.time() - last_diag_frame > 2:
                         last_diag_frame = time.time()
                         _diag_frame(img, 'selecting')
-                    # 选人界面顶部 ban 位已完整 → 补 ban（比等 final 更早）
+                    # 选人界面顶部 ban 位已完整 → 多帧投票补 ban（比等 final 更早）
                     try:
                         bans_now = recognize_bans(img, bank)
-                        with _lock:
-                            cur_bans = list(_state['bans'])
-                        if len(bans_now) >= 10 or len(bans_now) > len(cur_bans):
+                        voted = _vote_bans(ban_votes, bans_now)
+                        # 投票够 10 个用投票结果；不够（帧太少）用单帧兜底
+                        if len(voted) >= 10:
+                            with _lock:
+                                cur_bans = list(_state['bans'])
+                            update_state(bans=voted)
+                            _diag_log('pick 阶段投票补 ban: %d -> 10 个' % len(cur_bans))
+                        elif len(bans_now) >= 10:
                             update_state(bans=bans_now)
-                            _diag_log('pick 阶段补 ban: %d -> %d 个' % (
-                                len(cur_bans), len(bans_now)))
+                            _diag_log('pick 阶段单帧补 ban: -> 10 个')
                     except Exception:
                         pass
                     continue
@@ -290,18 +325,23 @@ def _bp_worker(interval=2.0):
                 # 到 pick/final 阶段顶部 ban 位一定齐全，补上缺失的
                 try:
                     bans_now = recognize_bans(img, bank)
-                    with _lock:
-                        cur_bans = list(_state['bans'])
-                    # final 阶段（最后调整）阵容已锁定，顶部 10 个 ban 位一定齐全
-                    # → 直接用最新完整识别（比旧的「蓝+红」合并更可靠）
                     # final（最后调整）顶部 10 个 ban 一定齐全且是最终版本
-                    # → 识别到 10 个就总是覆盖（修正 pick 阶段的临时值）
-                    if len(bans_now) >= 10 or len(bans_now) > len(cur_bans):
-                        update_state(bans=bans_now)
-                        _diag_log('final 补 ban: %d -> %d 个（%s）' % (
-                            len(cur_bans), len(bans_now),
+                    # → 多帧投票（解决单帧不稳定，如 R1 后羿/孙膑 来回变）
+                    voted = _vote_bans(ban_votes, bans_now)
+                    # 投票够 10 个用投票（稳定）；不够（final 帧太少）用单帧兜底（完整）
+                    if len(voted) >= 10:
+                        with _lock:
+                            cur_bans = list(_state['bans'])
+                        update_state(bans=voted)
+                        _diag_log('final 投票补 ban: %d -> 10 个（%s）' % (
+                            len(cur_bans),
                             ' '.join('%s%d=%s' % ('B' if b['side'] == 'blue' else 'R',
-                                                  b['index'], b['name']) for b in bans_now)))
+                                                  b['index'], b['name']) for b in voted)))
+                    elif len(bans_now) >= 10:
+                        with _lock:
+                            cur_bans = list(_state['bans'])
+                        update_state(bans=bans_now)
+                        _diag_log('final 单帧补 ban: %d -> 10 个（帧太少，用最后一帧）' % len(cur_bans))
                 except Exception:
                     pass
                 picks = recognize_picks_cached(img, bank)
