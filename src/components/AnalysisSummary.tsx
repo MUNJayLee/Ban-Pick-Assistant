@@ -49,15 +49,18 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
   const [medal, setMedal] = useState<'GOLD' | 'SILVER' | 'BRONZE' | undefined>(undefined);
   const draftCreated = useRef(false);
 
-  const existingRecord = useMemo(
-    () =>
-      records.find(
-        (r) =>
-          r.bluePicks.join(',') === state.bluePicks.join(',') &&
-          r.redPicks.join(',') === state.redPicks.join(',')
-      ),
-    [records, state]
-  );
+  // 已有记录匹配：picks + bans 都比（只比 picks 会把「同阵容不同 ban」误判为同一条）
+  const existingRecord = useMemo(() => {
+    const same = (a: string[] = [], b: string[] = []) =>
+      a.join(',') === b.join(',');
+    return records.find(
+      (r) =>
+        same(r.bluePicks, state.bluePicks) &&
+        same(r.redPicks, state.redPicks) &&
+        same(r.blueBans, state.blueBans) &&
+        same(r.redBans, state.redBans)
+    );
+  }, [records, state]);
 
   // 当已有记录时，从记录中恢复 actualResult 状态
   useEffect(() => {
@@ -83,13 +86,17 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     }
   }, [state.phase, existingRecord]);
 
-  const myHero = myHeroId ? getHeroById(myHeroId) : undefined;
-  const mySide: Side | undefined = myHeroId
-    ? state.bluePicks.includes(myHeroId)
+  // 校验：myHeroId 必须在双方阵容里（否则是脏数据，不能写进记录）
+  const validMyHeroId =
+    myHeroId &&
+    (state.bluePicks.includes(myHeroId) || state.redPicks.includes(myHeroId))
+      ? myHeroId
+      : undefined;
+  const myHero = validMyHeroId ? getHeroById(validMyHeroId) : undefined;
+  const mySide: Side | undefined = validMyHeroId
+    ? state.bluePicks.includes(validMyHeroId)
       ? 'BLUE'
-      : state.redPicks.includes(myHeroId)
-      ? 'RED'
-      : undefined
+      : 'RED'
     : undefined;
 
   const buildRecordPayload = (
@@ -105,7 +112,7 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
     redPower,
     favored,
     result,
-    myHeroId: myHeroId || undefined,
+    myHeroId: validMyHeroId,
     mySide,
     myRole: myHero?.roles[0],
     actualResult: actual === 'PENDING' ? undefined : actual,
@@ -116,7 +123,13 @@ export function AnalysisSummary({ state }: AnalysisSummaryProps) {
   });
 
   const handleSaveRecord = () => {
-    addRecord(buildRecordPayload('PENDING'));
+    const payload = buildRecordPayload('PENDING');
+    // 已有同一局记录 → 更新；否则新建（避免重复记录）
+    if (existingRecord) {
+      updateRecord(existingRecord.id, payload);
+    } else {
+      addRecord(payload);
+    }
   };
 
   /**
