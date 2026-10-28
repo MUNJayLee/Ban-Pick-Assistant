@@ -753,16 +753,57 @@ BAN_R_RATIO = 0.012
 BAN_EMPTY_STD = 15.0   # 空 ban 位灰度标准差阈值（真机实测：空位 6~8 / 有头像 19~55）
 
 
+def _recognize_positions(img, bank, positions, empty_std):
+    """按给定位置 [(side, index, (cx,cy,r))] 裁剪并识别。"""
+    out = []
+    for side, idx, (cx, cy, r) in positions:
+        crop = crop_avatar(img, int(round(cx)), int(round(cy)), int(round(r)))
+        if crop is None:
+            continue
+        gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+        if float(gray.std()) < empty_std:
+            continue  # 空 ban 位
+        fused = bank.fuse([bank.ranks(crop)])
+        top = fused[0]
+        second = fused[1] if len(fused) > 1 else (None, 0)
+        gap = top[1] - second[1]
+        out.append({
+            'side': side, 'index': idx,
+            'hero_id': top[0],
+            'name': bank.name.get(top[0], top[0]),
+            'score': round(top[1], 4),
+            'gap': round(gap, 4),
+            'confident': gap >= CONFIDENT_GAP,
+        })
+    return out
+
+
 def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
     """识别顶部 ban 位（空 ban 位跳过）。
 
-    坐标方案（实测最稳）：
-      - 左右各 5 个固定位置，按屏幕宽高比例换算（兼容不同分辨率）
-      - 空位判断：头像区域灰度标准差 < empty_std（空位 8~18 / 有头像 48~68）
-      - 弃用 HoughCircles（真机/视频帧上误检多）和 has_lock（几乎全 False）
+    坐标方案（双保险）：
+      1) 优先 HoughCircles + validate_row（自适应，和 adb_console 一致）
+         —— 今天实测 7 帧全部 left=5 right=5，坐标精确贴合
+      2) Hough 失败时 fallback 到固定比例坐标
+      空位判断：头像区域灰度标准差 < empty_std（空位 8~18 / 有头像 48~68）
 
     返回 [{side, index, hero_id, name, score, gap, confident}, ...]
     """
+    # ---- 1) Hough 检测圆（自适应）----
+    try:
+        left, right = R.detect_circles(img)
+        l2 = R.validate_row(left) if left else []
+        r2 = R.validate_row(right) if right else []
+        if len(l2) == 5 and len(r2) == 5:
+            positions = ([('blue', i + 1, c) for i, c in enumerate(l2)] +
+                         [('red', i + 1, c) for i, c in enumerate(r2)])
+            out = _recognize_positions(img, bank, positions, empty_std)
+            if out:
+                return out
+    except Exception:
+        pass
+
+    # ---- 2) fallback: 固定比例坐标 ----
     H, W = img.shape[:2]
     r = max(8, int(round(W * BAN_R_RATIO)))
     cy = int(round(H * BAN_Y_RATIO))

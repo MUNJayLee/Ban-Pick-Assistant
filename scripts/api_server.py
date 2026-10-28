@@ -185,10 +185,11 @@ def _diag_frame(img, tag):
         path = os.path.join(_DIAG_DIR, 'live_%s_%s.png' % (
             tag, datetime.now().strftime('%H%M%S')))
         cv2.imwrite(path, img)
-        # 清理旧的
+        # 清理旧的（按修改时间，不能按文件名——live_ban_* 按字母序最前会被优先删掉）
         import glob
-        files = sorted(glob.glob(os.path.join(_DIAG_DIR, 'live_*.png')))
-        for old in files[:-80]:
+        files = glob.glob(os.path.join(_DIAG_DIR, 'live_*.png'))
+        files.sort(key=lambda x: os.path.getmtime(x))
+        for old in files[:-150]:
             try:
                 os.remove(old)
             except Exception:
@@ -259,13 +260,14 @@ def _bp_worker(interval=2.0):
                                        format_bans(bans)))
                 prev_picks_key = None
             elif phase in ('pick', 'final'):
-                # 「玩家选英雄」界面：队伍头像是玩家预选，不是 BP 结果 → 不识别 pick
-                if is_selecting_screen(img):
-                    if prev_picks_key != '__selecting__':
-                        prev_picks_key = '__selecting__'
-                        _diag_log('选人界面，跳过 pick 识别')
+                # pick 阶段（选人界面）不识别 pick：队伍头像是玩家预选，不是最终阵容
+                # 只有 final（最后调整，阵容已锁定）才识别
+                if phase == 'pick':
+                    if prev_picks_key != '__pick_skip__':
+                        prev_picks_key = '__pick_skip__'
+                        _diag_log('pick 阶段（选人界面），跳过 pick 识别，等最后调整')
+                        # 清空上一局残留的 picks（否则前端显示旧阵容）
                         update_state(picks=[])
-                    # 仍然存帧（便于分析）
                     if time.time() - last_diag_frame > 2:
                         last_diag_frame = time.time()
                         _diag_frame(img, 'selecting')
@@ -279,13 +281,14 @@ def _bp_worker(interval=2.0):
                     bans_now = recognize_bans(img, bank)
                     with _lock:
                         cur_bans = list(_state['bans'])
-                    cur_red = [b for b in cur_bans if b['side'] == 'red']
-                    new_red = [b for b in bans_now if b['side'] == 'red']
-                    if len(new_red) > len(cur_red):
-                        # 合并：保留蓝方，红方用新识别的
-                        merged = [b for b in cur_bans if b['side'] == 'blue'] + new_red
-                        update_state(bans=merged)
-                        _diag_log('pick 阶段补 ban: 红方 %d -> %d' % (len(cur_red), len(new_red)))
+                    # final 阶段（最后调整）阵容已锁定，顶部 10 个 ban 位一定齐全
+                    # → 直接用最新完整识别（比旧的「蓝+红」合并更可靠）
+                    if len(bans_now) > len(cur_bans):
+                        update_state(bans=bans_now)
+                        _diag_log('final 补 ban: %d -> %d 个（%s）' % (
+                            len(cur_bans), len(bans_now),
+                            ' '.join('%s%d=%s' % ('B' if b['side'] == 'blue' else 'R',
+                                                  b['index'], b['name']) for b in bans_now)))
                 except Exception:
                     pass
                 picks = recognize_picks_cached(img, bank)
@@ -315,8 +318,9 @@ def _bp_worker(interval=2.0):
             else:
                 prev_bans_key = None
                 prev_picks_key = None
-                # 非 BP 阶段也存帧（诊断：万一 ban 被误判成 other，也能回看）
-                if time.time() - last_diag_frame > 2:
+                # 非 BP 阶段也存帧（诊断用），但降频到 20 秒，
+                # 避免大量 other 帧把 ban/pick 关键帧挤出保留窗口
+                if time.time() - last_diag_frame > 20:
                     last_diag_frame = time.time()
                     _diag_frame(img, 'other')
                 # 非 BP 阶段：定期检测对局结算界面（OCR 较慢，6 秒一次）
