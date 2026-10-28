@@ -35,6 +35,9 @@ export function ReviewPanel() {
   const [mode, setMode] = useState<'ban' | 'pick'>('ban');
   const [crops, setCrops] = useState<Record<string, CropData>>({});
   const [marks, setMarks] = useState<Record<string, Mark>>({});
+  const [summary, setSummary] = useState<{ total: number; marked: number; done: number; totalMarks: number }>({
+    total: 0, marked: 0, done: 0, totalMarks: 0,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -67,10 +70,26 @@ export function ReviewPanel() {
     }
   }, []);
 
+  const loadSummary = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/api/review/summary`);
+      const d = await r.json();
+      setSummary({
+        total: d.total_frames || 0,
+        marked: d.marked_frames || 0,
+        done: d.done_frames || 0,
+        totalMarks: d.total_marks || 0,
+      });
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   useEffect(() => {
     loadFrames();
     loadMarks();
-  }, [loadFrames, loadMarks]);
+    loadSummary();
+  }, [loadFrames, loadMarks, loadSummary]);
 
   // ---------- 加载当前帧的裁切 ----------
   const loadCrops = useCallback(async (frame: FrameInfo, m: 'ban' | 'pick') => {
@@ -173,6 +192,28 @@ export function ReviewPanel() {
     };
   }, [marks, selected, mode]);
 
+  const markAllCorrect = useCallback(async () => {
+    if (!selected) return;
+    const tasks: Array<Promise<unknown>> = [];
+    const next: Record<string, Mark> = {};
+    for (const side of SIDES) {
+      for (let i = 1; i <= 5; i++) {
+        const key = `${selected.name}|${mode}|${side}|${i}`;
+        next[key] = { correct: true, note: '' };
+        tasks.push(
+          fetch(`${API}/api/review/mark`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ frame: selected.name, kind: mode, side, index: i, correct: true, note: '' }),
+          }),
+        );
+      }
+    }
+    await Promise.all(tasks);
+    setMarks((prev) => ({ ...prev, ...next }));
+    void loadSummary();
+  }, [selected, mode, loadSummary]);
+
   const getMark = (side: string, index: number): Mark | undefined => {
     if (!selected) return undefined;
     return marks[`${selected.name}|${mode}|${side}|${index}`];
@@ -198,6 +239,7 @@ export function ReviewPanel() {
             onClick={() => {
               loadFrames();
               loadMarks();
+              loadSummary();
             }}
             className="rounded p-1 text-slate-400 hover:text-slate-200"
             title="刷新"
@@ -236,7 +278,9 @@ export function ReviewPanel() {
               )}
             >
               <div className="flex items-center justify-between">
-                <span className={cn('truncate', f.kind === 'ban' && 'text-amber-300')}>{f.name}</span>
+                <span className={cn('truncate', f.kind === 'ban' && 'text-amber-300')}>
+                  {Object.keys(marks).some((k) => k.startsWith(f.name + '|')) ? '✓ ' : ''}{f.name}
+                </span>
                 <span className="ml-1 shrink-0 text-slate-500">{f.mtime}</span>
               </div>
               <div className="mt-0.5 flex items-center gap-2 text-[10px] text-slate-500">
@@ -255,7 +299,16 @@ export function ReviewPanel() {
           ))}
         </div>
         <div className="border-t border-slate-700/50 px-3 py-2 text-[11px] text-slate-400">
-          已标注 <span className="text-cyan-300">{stats.total}</span> 个位置
+          <div className="mb-1 flex items-center justify-between">
+            <span>进度：<span className="text-cyan-300">{summary.done}</span>/{summary.total} 帧全标</span>
+            <span>{summary.totalMarks} 个标注</span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
+            <div
+              className="h-full rounded-full bg-cyan-500 transition-all"
+              style={{ width: `${summary.total ? Math.round((summary.done / summary.total) * 100) : 0}%` }}
+            />
+          </div>
         </div>
       </div>
 
@@ -293,6 +346,12 @@ export function ReviewPanel() {
                     {m === 'ban' ? 'Ban 位' : 'Pick 位'}
                   </button>
                 ))}
+                <button
+                  onClick={() => void markAllCorrect()}
+                  className="rounded-lg bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-200 ring-1 ring-emerald-500/40 transition hover:bg-emerald-500/30"
+                >
+                  本帧全部正确
+                </button>
                 <span className="ml-2 text-[11px] text-slate-500">
                   当前帧：正确 <span className="text-emerald-400">{stats.correct}</span> / 错误{' '}
                   <span className="text-rose-400">{stats.wrong}</span>

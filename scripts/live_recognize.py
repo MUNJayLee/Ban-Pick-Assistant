@@ -795,8 +795,16 @@ def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
         l2 = R.validate_row(left) if left else []
         r2 = R.validate_row(right) if right else []
         if len(l2) == 5 and len(r2) == 5:
-            positions = ([('blue', i + 1, c) for i, c in enumerate(l2)] +
-                         [('red', i + 1, c) for i, c in enumerate(r2)])
+            # 半径统一用中位数：B5 的 Hough 半径常偏小（20 vs 24），
+            # 导致裁切框偏紧/偏移
+            rs = sorted([c[2] for c in l2] + [c[2] for c in r2])
+            r_med = rs[len(rs) // 2]
+            # Hough 圆心整体向外偏（蓝方 +2~+7 右、红方 -3~-6 左）
+            # 按「向屏幕中心」微调 2px，修 B5「裁切框偏右」
+            positions = (
+                [('blue', i + 1, (cx - 2, cy, r_med)) for i, (cx, cy, _) in enumerate(l2)] +
+                [('red', i + 1, (cx + 2, cy, r_med)) for i, (cx, cy, _) in enumerate(r2)]
+            )
             out = _recognize_positions(img, bank, positions, empty_std)
             if out:
                 return out

@@ -844,6 +844,43 @@ def api_review_marks():
     return _load_reviews()
 
 
+@app.get('/api/review/summary')
+def api_review_summary():
+    """核对进度摘要：总帧数 / 已标注帧数 / 每帧标注数。"""
+    files = _glob_mod.glob(os.path.join(_DIAG_DIR, 'live_*.png'))
+    files.sort(key=os.path.getmtime, reverse=True)
+    marks = _load_reviews().get('marks', {})
+    frame_marks = {}
+    frame_correct = {}
+    for k, v in marks.items():
+        f = k.split('|')[0]
+        frame_marks[f] = frame_marks.get(f, 0) + 1
+        if v.get('correct'):
+            frame_correct[f] = frame_correct.get(f, 0) + 1
+    frames = []
+    for f in files:
+        base = os.path.basename(f)
+        parts = base.split('_')
+        n = frame_marks.get(base, 0)
+        frames.append({
+            'name': base,
+            'kind': parts[1] if len(parts) >= 3 else 'unknown',
+            'mtime': datetime.fromtimestamp(os.path.getmtime(f)).strftime('%H:%M:%S'),
+            'marks': n,
+            'correct': frame_correct.get(base, 0),
+            'done': n >= 10,
+        })
+    marked_frames = sum(1 for fr in frames if fr['marks'] > 0)
+    done_frames = sum(1 for fr in frames if fr['done'])
+    return {
+        'total_frames': len(files),
+        'marked_frames': marked_frames,
+        'done_frames': done_frames,
+        'total_marks': len(marks),
+        'frames': frames,
+    }
+
+
 @app.post('/api/review/mark')
 def api_review_mark(req: dict):
     """保存标注：{frame, kind, side, index, correct(bool), note(str)}"""
