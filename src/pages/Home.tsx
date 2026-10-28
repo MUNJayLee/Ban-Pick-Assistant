@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, Swords, Sparkles, NotebookText, X, Ban } from 'lucide-react';
+import { BarChart3, Swords, Sparkles, NotebookText, X, Ban, ImageIcon } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
 import { BpHeader } from '@/components/BpHeader';
 import { BpStage } from '@/components/BpStage';
@@ -10,6 +10,7 @@ import { AnalysisSummary } from '@/components/AnalysisSummary';
 import { DataDashboard } from '@/components/DataDashboard';
 import { BpRecords } from '@/components/BpRecords';
 import { AdbControlPanel } from '@/components/AdbControlPanel';
+import { ReviewPanel } from '@/components/ReviewPanel';
 import { AdbPreview } from '@/components/AdbPreview';
 import { DeviceConfigModal } from '@/components/DeviceConfigModal';
 import { useBpSync } from '@/hooks/useBpSync';
@@ -21,7 +22,7 @@ import { cn, isTauri } from '@/lib/utils';
 import { invoke } from '@tauri-apps/api/core';
 import type { Side, BpState } from '@/types';
 
-type Tab = 'bp' | 'data' | 'records';
+type Tab = 'bp' | 'data' | 'records' | 'review';
 
 function getActiveSideFromState(state: BpState): Side | null {
   if (state.phase === 'MY_BAN') return state.userSide;
@@ -209,6 +210,12 @@ export function Home() {
             icon={NotebookText}
             label="记录"
           />
+          <TabButton
+            active={activeTab === 'review'}
+            onClick={() => setActiveTab('review')}
+            icon={ImageIcon}
+            label="核对"
+          />
           </div>
         </div>
       </div>
@@ -221,6 +228,8 @@ export function Home() {
         />
       ) : activeTab === 'records' ? (
         <BpRecords />
+      ) : activeTab === 'review' ? (
+        <ReviewPanel />
       ) : (
         <>
           <BpHeader

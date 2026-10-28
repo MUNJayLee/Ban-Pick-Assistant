@@ -32,6 +32,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+import glob as _glob_mod
+import live_recognize as L
 import recognize_screenshot as R
 from live_recognize import (
     is_selecting_screen,
@@ -706,6 +708,163 @@ async def on_startup():
 # ---------------------------------------------------------------------------
 # main
 # ---------------------------------------------------------------------------
+# ===========================================================================
+# 素材核对（人工标注）：显示裁切头像 + 识别结果，人工判断对错 + 备注
+# ===========================================================================
+
+_REVIEW_PATH = os.path.join(_DIAG_DIR, 'review.json')
+
+
+def _load_reviews():
+    try:
+        if os.path.isfile(_REVIEW_PATH):
+            with open(_REVIEW_PATH, encoding='utf-8') as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {'marks': {}}
+
+
+def _save_reviews(data):
+    try:
+        os.makedirs(_DIAG_DIR, exist_ok=True)
+        with open(_REVIEW_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception:
+        return False
+
+
+def _slot_positions(img, kind):
+    """返回 [(side, index, cx, cy, r)]，用于裁切。"""
+    H, W = img.shape[:2]
+    out = []
+    if kind == 'ban':
+        # 优先 Hough（自适应）
+        try:
+            left, right = R.detect_circles(img)
+            l2 = R.validate_row(left) if left else []
+            r2 = R.validate_row(right) if right else []
+            if len(l2) == 5 and len(r2) == 5:
+                for i, (cx, cy, r) in enumerate(l2, 1):
+                    out.append(('blue', i, cx, cy, r))
+                for i, (cx, cy, r) in enumerate(r2, 1):
+                    out.append(('red', i, cx, cy, r))
+                return out
+        except Exception:
+            pass
+        # fallback 固定比例
+        r = max(8, int(round(W * L.BAN_R_RATIO)))
+        cy = int(round(H * L.BAN_Y_RATIO))
+        for i, xr in enumerate(L.BAN_X_RATIOS, 1):
+            out.append(('blue', i, W * xr, cy, r))
+            out.append(('red', i, W * (1.0 - xr), cy, r))
+    else:  # pick
+        r = max(8, int(round(W * 0.0234)))
+        for i in range(5):
+            cy = int(round(H * (0.1713 + 0.1620 * i)))
+            out.append(('blue', i + 1, W * 0.0859, cy, r))
+            out.append(('red', i + 1, W * (1.0 - 0.0859), cy, r))
+    return out
+
+
+@app.get('/api/review/frames')
+def api_review_frames(limit: int = 80):
+    """最近 N 帧（最新在前）。"""
+    files = _glob_mod.glob(os.path.join(_DIAG_DIR, 'live_*.png'))
+    files.sort(key=os.path.getmtime, reverse=True)
+    out = []
+    for f in files[:limit]:
+        base = os.path.basename(f)
+        parts = base.split('_')
+        out.append({
+            'name': base,
+            'kind': parts[1] if len(parts) >= 3 else 'unknown',
+            'mtime': datetime.fromtimestamp(os.path.getmtime(f)).strftime('%H:%M:%S'),
+            'size': os.path.getsize(f),
+        })
+    return {'frames': out, 'total': len(files)}
+
+
+@app.get('/api/review/crop')
+def api_review_crop(frame: str, kind: str = 'ban', side: str = 'blue', index: int = 1):
+    """裁切一个位置（放大 4 倍），返回 base64 + 识别结果。"""
+    if not frame or '/' in frame or '\\' in frame or '..' in frame:
+        raise HTTPException(status_code=400, detail='非法文件名')
+    path = os.path.join(_DIAG_DIR, frame)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail='帧不存在')
+    img = R.imread_unicode(path)
+    if img is None:
+        raise HTTPException(status_code=500, detail='读取失败')
+    n = L.normalize(img)
+    pos = _slot_positions(n, kind)
+    target = next((x for x in pos if x[0] == side and x[1] == index), None)
+    if not target:
+        raise HTTPException(status_code=404, detail='位置不存在: %s %d' % (side, index))
+    _, _, cx, cy, r = target
+    crop = L.crop_avatar(n, int(round(cx)), int(round(cy)), int(round(r)))
+    if crop is None or crop.size == 0:
+        raise HTTPException(status_code=500, detail='裁切失败')
+    big = cv2.resize(crop, (crop.shape[1] * 4, crop.shape[0] * 4), interpolation=cv2.INTER_NEAREST)
+    ok, buf = cv2.imencode('.png', big)
+    if not ok:
+        raise HTTPException(status_code=500, detail='编码失败')
+    b64 = base64.b64encode(buf.tobytes()).decode('ascii')
+    # 识别结果
+    hero = None
+    confident = None
+    gap = None
+    bank = get_bank()
+    if kind == 'ban':
+        bans = L.recognize_bans(n, bank)
+        b = next((x for x in bans if x['side'] == side and x['index'] == index), None)
+        if b:
+            hero = b['name']
+            confident = b['confident']
+            gap = b['gap']
+    else:
+        picks = L.recognize_picks(n, bank)
+        pp = next((x for x in picks if x['side'] == side and x['index'] == index), None)
+        if pp:
+            hero = None if pp['empty'] else pp['name']
+            confident = pp['confident']
+            gap = pp.get('gap')
+    return {
+        'ok': True,
+        'image': 'data:image/png;base64,' + b64,
+        'frame': frame, 'kind': kind, 'side': side, 'index': index,
+        'hero': hero, 'confident': confident, 'gap': gap,
+        'crop': {'cx': round(cx, 1), 'cy': round(cy, 1), 'r': round(r, 1)},
+    }
+
+
+@app.get('/api/review/marks')
+def api_review_marks():
+    return _load_reviews()
+
+
+@app.post('/api/review/mark')
+def api_review_mark(req: dict):
+    """保存标注：{frame, kind, side, index, correct(bool), note(str)}"""
+    frame = req.get('frame') or ''
+    if not frame or '/' in frame or '\\' in frame or '..' in frame:
+        raise HTTPException(status_code=400, detail='非法文件名')
+    data = _load_reviews()
+    key = '%s|%s|%s|%s' % (frame, req.get('kind', 'ban'), req.get('side', 'blue'), req.get('index', 1))
+    data.setdefault('marks', {})[key] = {
+        'frame': frame,
+        'kind': req.get('kind', 'ban'),
+        'side': req.get('side', 'blue'),
+        'index': req.get('index', 1),
+        'correct': bool(req.get('correct')),
+        'note': (req.get('note') or '').strip(),
+        'at': datetime.now().isoformat(timespec='seconds'),
+    }
+    ok = _save_reviews(data)
+    return {'ok': ok, 'marks': len(data.get('marks', {}))}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--port', type=int, default=8900)
