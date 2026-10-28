@@ -75,6 +75,8 @@ export function useBpSync() {
 
   // 上一次的 ban 指纹，用于去重
   const lastBanKey = useRef<string>('');
+  // 连续「bans 为空」计数：防止识别失败一帧就误判新一局并重置
+  const emptyBanStreak = useRef(0);
   const lastPickKey = useRef<string>('');
   const lastSide = useRef<Side | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -91,12 +93,17 @@ export function useBpSync() {
     }
 
     // ② 新一局检测：bans 清空且之前有数据 → 重置
+    // 防抖：连续 3 次（约 6 秒）bans 为空才认定新一局，
+    // 避免「识别失败一帧」就把用户手动填的数据全清掉
     if (!raw.bans || raw.bans.length === 0) {
-      if (lastBanKey.current !== '') {
+      emptyBanStreak.current += 1;
+      if (lastBanKey.current !== '' && emptyBanStreak.current >= 3) {
         lastBanKey.current = '';
+        emptyBanStreak.current = 0;
         store.reset();
       }
     } else {
+      emptyBanStreak.current = 0;
       // ③ 增量写入 ban 位（只写有变化的，避免覆盖手动 pick）
       const key = raw.bans
         .map((b) => `${b.side}${b.index}:${b.hero_id}`)
