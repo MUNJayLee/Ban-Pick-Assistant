@@ -187,7 +187,9 @@ export const useBpStore = create<BpStore>((set, get) => ({
     }
   },
 
-  reset: () => set(initialState),
+  // 注意：set(initialState) 是 merge 语义，不在 initialState 里的可选字段（myHeroId）会残留
+  // 必须显式清空，否则 reset 后上一局的「我的英雄」会带到新局
+  reset: () => set({ ...initialState, myHeroId: undefined }),
 
   setMyHero: (heroId) => set({ myHeroId: heroId }),
 
