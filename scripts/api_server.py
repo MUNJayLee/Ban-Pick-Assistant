@@ -875,9 +875,18 @@ def api_review_frame_raw(frame: str):
     """返回原始帧图片（大图预览用）。"""
     if not frame or '/' in frame or '\\' in frame or '..' in frame:
         raise HTTPException(status_code=400, detail='非法文件名')
+    # KI-6: 扩展名白名单（只允许 .png，防止读其他文件）
+    if not frame.lower().endswith('.png'):
+        raise HTTPException(status_code=400, detail='仅支持 .png 帧')
     path = os.path.join(_DIAG_DIR, frame)
     if not os.path.isfile(path):
         raise HTTPException(status_code=404, detail='帧不存在')
+    # KI-7: 0 字节文件返回 404（而不是 FileResponse 500）
+    try:
+        if os.path.getsize(path) == 0:
+            raise HTTPException(status_code=404, detail='帧文件为空')
+    except OSError:
+        raise HTTPException(status_code=404, detail='帧文件不可读')
     return FileResponse(path, media_type='image/png')
 
 
