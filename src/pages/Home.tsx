@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BarChart3, Swords, Sparkles, NotebookText, X, Ban, ImageIcon } from 'lucide-react';
 import { pinyin } from 'pinyin-pro';
 import { BpHeader } from '@/components/BpHeader';
@@ -55,6 +55,36 @@ export function Home() {
   });
 
   const state = useBpStore();
+
+  // 快捷键：Ctrl+Z 撤销 / Ctrl+Shift+R 重置
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        state.undo();
+      } else if (mod && e.shiftKey && (e.key === 'R' || e.key === 'r')) {
+        e.preventDefault();
+        if (
+          state.blueBans.length +
+            state.redBans.length +
+            state.bluePicks.length +
+            state.redPicks.length >
+          0
+        ) {
+          if (window.confirm('确定重置当前 BP？（Ctrl+Shift+R）')) {
+            state.reset();
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [state]);
   const activeSide = getActiveSideFromState(state);
   const isMyTurn = state.isMyTurn();
 
