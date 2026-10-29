@@ -17,6 +17,7 @@
 """
 import argparse
 import collections
+import glob
 import json
 import os
 import signal
@@ -106,8 +107,13 @@ def normalize(img):
 # ---------------------------------------------------------------------------
 # 特征库（加载一次）
 # ---------------------------------------------------------------------------
+_WARM_BANK = None       # 最近创建的 FeatureBank，供 warm_up()/OCR 加载后预热
+_WARMED_AFTER_OCR = False   # 首次 OCR 推理后是否已预热识别管线
+
+
 class FeatureBank:
-    def __init__(self):
+    def __init__(self, warm=True):
+        global _WARM_BANK
         manifest = json.load(open('avatars/manifest.json', encoding='utf-8'))
         self.ids = [m['id'] for m in manifest]
         self.name = {m['id']: m['name'] for m in manifest}
@@ -122,6 +128,9 @@ class FeatureBank:
                 self.des[m['id']] = d
             self.col[m['id']] = R._color_hist(raw)
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+        _WARM_BANK = self
+        if warm:
+            warm_up(self)
 
     def _match(self, a, b):
         ms = self.bf.knnMatch(a, b, k=2)
@@ -150,6 +159,40 @@ class FeatureBank:
                     1.0 / (FUSION_K + OR.get(h, 999)) + \
                     FUSION_W_COLOR / (FUSION_K + CR.get(h, 999))
         return sorted(comb.items(), key=lambda kv: -kv[1])
+
+
+def warm_up(bank=None):
+    """预热识别管线，消除冷启动首次 recognize_* 的额外开销。
+
+    实测：冷启动首次 recognize_bans ~1.4s，稳态 ~0.3s；差额来自
+    Hough/ORB/BFMatcher/颜色直方图/分路模板的首次调用与 OCR 冷加载后的进程态。
+    API 服务启动时（get_bank() 建库后）或 FeatureBank 初始化时调用一次即可。
+
+    返回预热耗时（毫秒）。
+    """
+    global _WARM_BANK
+    t0 = time.time()
+    bank = bank if bank is not None else _WARM_BANK
+    try:
+        # 1) Hough 圆检测（合成画面，走完整个检测流程）
+        H, W = 864, 1920
+        frame = np.zeros((H, W, 3), np.uint8)
+        for x in (140, 200, 260, 320, 380):
+            cv2.circle(frame, (x, 44), 24, (210, 190, 170), -1)
+            cv2.circle(frame, (W - x, 44), 24, (160, 170, 210), -1)
+        R.detect_circles(frame)
+        # 2) ORB + BFMatcher + 颜色直方图（用带纹理的合成头像，确保走完整匹配）
+        if bank is not None:
+            rng = np.random.RandomState(0)
+            for _ in range(4):
+                bank.ranks(rng.randint(0, 255, (96, 96, 3), np.uint8))
+            bank.fuse([bank.ranks(rng.randint(0, 255, (96, 96, 3), np.uint8))])
+        # 3) 分路图标模板加载
+        _load_lane_templates()
+        is_lane_icon(np.zeros((96, 96, 3), np.uint8))
+    except Exception:
+        pass
+    return (time.time() - t0) * 1000.0
 
 
 # ---------------------------------------------------------------------------
@@ -302,6 +345,14 @@ def _get_ocr():
         try:
             from rapidocr_onnxruntime import RapidOCR
             _OCR_ENGINE = RapidOCR()
+            # OCR 冷加载后，进程内首个识别调用会受加载残余开销影响
+            # （实测首个 ban 识别从稳态 0.3s 涨到 ~1.4s）。
+            # 这里先跑一次小图推理 + 识别管线预热，把冷开销留在 OCR 初始化阶段。
+            try:
+                _OCR_ENGINE(np.zeros((64, 64, 3), np.uint8))
+            except Exception:
+                pass
+            warm_up(_WARM_BANK)
         except Exception:
             _OCR_UNAVAILABLE = True
     return _OCR_ENGINE
@@ -387,7 +438,7 @@ def detect_phase(img, use_ocr=True):
     主方案：OCR 识别顶部 12% 横幅文字（实测 8/8 准确，含视频/真机各种分辨率）。
     兜底：OCR 不可用时回退模板匹配。
     """
-    global _PHASE_CACHE
+    global _PHASE_CACHE, _WARMED_AFTER_OCR
     H, W = img.shape[:2]
     # ① 帧差缓存：顶部横幅几乎没变 → 复用上次 OCR 结果（毫秒级）
     top = img[0:max(1, int(H * 0.35)), :]
@@ -407,6 +458,11 @@ def detect_phase(img, use_ocr=True):
             result, _ = ocr(top2)
         except Exception:
             result = None
+        # 首次 OCR 推理后预热识别管线：OCR 冷加载/首次大图推理的残余开销会拖慢
+        # 紧接着的首次 ban/pick 识别（实测首次 1.4s，预热后 0.3s）
+        if not _WARMED_AFTER_OCR:
+            _WARMED_AFTER_OCR = True
+            warm_up(_WARM_BANK)
         phase, score = 'other', 0.0
         if result:
             joined = ''.join(str(item[1]) for item in result)
@@ -644,7 +700,7 @@ def detect_game_result(img):
             'delta': delta, 'texts': texts}
 
 
-def recognize_picks(img, bank, empty_std=25.0):
+def recognize_picks(img, bank, empty_std=25.0, skip_lane_icons=True):
     """识别左右各 5 个 pick 位（方形头像）。
 
     坐标基准（1920x864 归一化画面，实测自巅峰赛截图）：
@@ -654,7 +710,12 @@ def recognize_picks(img, bank, empty_std=25.0):
 
     空位判断：空 pick 位是深色均匀背景，灰度标准差很低（实测 11 vs 有头像 44~66）。
 
-    返回 [{side, index, hero_id, name, score, gap, confident, empty}, ...]
+    分路图标判断（skip_lane_icons=True，默认开）：
+      pick 阶段玩家还没选英雄时，pick 位显示的是分路偏好图标/段位徽章，
+      不是英雄头像（同队去重挡不住，会识别出高置信假英雄）。
+      匹配 assets/lane_icons/ 模板后标记为空位 + lane_icon=True。
+
+    返回 [{side, index, hero_id, name, score, gap, confident, empty, lane_icon}, ...]
     """
     H, W = img.shape[:2]
     picks = []
@@ -672,7 +733,15 @@ def recognize_picks(img, bank, empty_std=25.0):
             if float(gray.std()) < empty_std:
                 picks.append({'side': side, 'index': i + 1, 'hero_id': None,
                               'name': '', 'score': 0.0, 'gap': 0.0,
-                              'confident': False, 'empty': True})
+                              'confident': False, 'empty': True, 'lane_icon': False})
+                continue
+            # 分路图标 / 未选择徽章 → 不是英雄，直接当空位（省一次 ORB 匹配）
+            lane_score = _lane_match_score(crop) if skip_lane_icons else -1.0
+            if skip_lane_icons and lane_score >= LANE_ICON_THRESHOLD:
+                picks.append({'side': side, 'index': i + 1, 'hero_id': None,
+                              'name': '', 'score': 0.0, 'gap': 0.0,
+                              'confident': False, 'empty': True, 'lane_icon': True,
+                              'lane_score': round(lane_score, 3)})
                 continue
             fused = bank.fuse([bank.ranks(crop)])
             top = fused[0]
@@ -686,6 +755,7 @@ def recognize_picks(img, bank, empty_std=25.0):
                 'gap': round(gap, 4),
                 'confident': gap >= CONFIDENT_GAP,
                 'empty': False,
+                'lane_icon': False,
             })
     # 同队去重：同一英雄不可能出现在同队两个位置（分路图标误识别时常见）
     # 保留 gap 高的那个，其余置空
@@ -754,55 +824,64 @@ BAN_EMPTY_STD = 15.0   # 空 ban 位灰度标准差阈值（真机实测：空�
 
 
 # ---------------------------------------------------------------------------
-# 分路图标检测（选人界面「未选择」位置显示的是分路偏好图标，不是英雄）
+# 分路图标 / 「未选择」徽章检测
+#
+# 选人界面（selecting/pick 阶段）尚未选将的 pick 位显示的不是英雄头像，
+# 而是：分路偏好图标（翼形=游走、交叉剑=对抗路、斜杠=中路、龙=打野）、
+# 段位/熟练度徽章（金色 S）。这些必须识别为「未选择」，不能当英雄。
+#
+# 模板来源（按 pick 位固定坐标裁切，48x48 灰度）：
+#   A 套：live_selecting_234213/234229 真机帧（暗红/金色徽章渲染）
+#   B 套：shot_1787928343974 真机帧（BP pick 阶段蓝/金色图标渲染）
+# ⚠ 历史踩坑：不要用 ban 行头像做模板——ban 位显示的是真实被 ban 英雄，
+#   误当分路图标会导致 recognize_bans(skip_lane_icons=True) 删掉真实 ban。
 # ---------------------------------------------------------------------------
 _LANE_TEMPLATES = None
 _LANE_TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   '..', 'assets', 'lane_icons')
+LANE_ICON_THRESHOLD = 0.65   # 实测：分路图标 0.70~1.0，真实英雄头像 ≤0.38
 
 
 def _load_lane_templates():
-    """加载分路图标模板（assets/lane_icons/*.png），并生成多尺度版本。
-
-    检测用固定比例坐标裁剪（与模板一致），所以单尺度即可。
-    """
+    """加载分路图标模板（assets/lane_icons/lane_*.png，统一 48x48 灰度）。"""
     global _LANE_TEMPLATES
     if _LANE_TEMPLATES is not None:
         return _LANE_TEMPLATES
-    base = []
+    tpls = []
     if os.path.isdir(_LANE_TEMPLATE_DIR):
-        for name in ('lane_top.png', 'lane_mid.png', 'lane_adc.png',
-                     'lane_jungle.png', 'lane_support.png'):
-            path = os.path.join(_LANE_TEMPLATE_DIR, name)
-            if not os.path.isfile(path):
-                continue
+        for path in sorted(glob.glob(os.path.join(_LANE_TEMPLATE_DIR, 'lane_*.png'))):
             img = R.imread_unicode(path)
             if img is None:
                 continue
-            base.append(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
-    # 固定坐标检测（与模板同尺寸 48x48）→ 单尺度即可，无需多尺度（省 CPU）
-    _LANE_TEMPLATES = base
-    return base
+            g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
+            tpls.append(cv2.resize(g, (48, 48), interpolation=cv2.INTER_AREA))
+    _LANE_TEMPLATES = tpls
+    return tpls
 
 
-def is_lane_icon(crop, threshold=0.67):
-    """检测裁切图是否是「分路图标」（未选择）。
-
-    实测：分路图标匹配自身 ~1.0、跨分路 0.45~0.55；英雄头像 < 0.44。
-    阈值 0.67：实测分路图标 0.70~0.90、英雄最高 0.64（瑶粉发被误判为对抗路）。
-    """
-    if crop is None or crop.size == 0:
-        return False
+def _lane_match_score(crop):
+    """返回裁切图与分路图标模板的最佳匹配分（0~1），无模板/异常返回 -1。"""
+    if crop is None or getattr(crop, 'size', 0) == 0:
+        return -1.0
     tpls = _load_lane_templates()
     if not tpls:
-        return False
+        return -1.0
     try:
-        g = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+        g = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY) if crop.ndim == 3 else crop
         g = cv2.resize(g, (48, 48), interpolation=cv2.INTER_AREA)
-        best = max(float(cv2.matchTemplate(g, t, cv2.TM_CCOEFF_NORMED)[0][0]) for t in tpls)
-        return best >= threshold
+        return max(float(cv2.matchTemplate(g, t, cv2.TM_CCOEFF_NORMED)[0][0])
+                   for t in tpls)
     except Exception:
-        return False
+        return -1.0
+
+
+def is_lane_icon(crop, threshold=LANE_ICON_THRESHOLD):
+    """裁切图是否「分路图标 / 未选择徽章」（不是英雄头像）。
+
+    实测（真机帧）：分路图标匹配自身 0.94~1.00，pick 位内裁切 0.66~0.89；
+    真实英雄头像（官方/游戏内）最高 0.38。阈值 0.65 两侧都有余量。
+    """
+    return _lane_match_score(crop) >= threshold
 
 
 def _recognize_positions(img, bank, positions, empty_std, skip_keys=None):
