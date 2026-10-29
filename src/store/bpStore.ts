@@ -6,6 +6,8 @@ const BAN_COUNT = 5;
 const PICK_COUNT = PICK_SEQUENCE.length;
 
 interface BpStore extends BpState {
+  /** 内部操作历史栈（不持久化，用于 undo 精确恢复） */
+  _history: BpState[];
   setUserSide: (side: Side) => void;
   /** 选择/输入一个英雄（当前阶段自动判断是加入我方 Ban、敌方 Ban 还是 Pick） */
   selectHero: (heroId: string) => void;
@@ -40,6 +42,68 @@ const initialState: BpState = {
   phase: 'MY_BAN',
   pickTurnIndex: 0,
 };
+
+// ---------------------------------------------------------------------------
+// 撤销栈 / 填位工具
+// ---------------------------------------------------------------------------
+/** 快照当前业务状态（不含 _history），用于 undo 恢复 */
+function snapshot(state: BpState): BpState {
+  return {
+    userSide: state.userSide,
+    blueBans: [...state.blueBans],
+    redBans: [...state.redBans],
+    bluePicks: [...state.bluePicks],
+    redPicks: [...state.redPicks],
+    phase: state.phase,
+    pickTurnIndex: state.pickTurnIndex,
+  };
+}
+
+/** 把当前状态压入历史栈（返回要合并进 set 的 partial） */
+function pushHistory(state: BpStore): { _history: BpState[] } {
+  const h = state._history || [];
+  return { _history: [...h, snapshot(state)].slice(-50) };
+}
+
+/**
+ * 填入一个槽位：优先填数组里第一个空位（''），没有空位才追加到末尾。
+ * - 返回 null 表示已满
+ * - 修复「点击非顺序槽位后，selectHero 追加到末尾导致顺序错乱」
+ */
+function fillSlot(arr: string[], heroId: string, max: number): string[] | null {
+  const copy = [...arr];
+  const idx = copy.indexOf('');
+  if (idx >= 0) {
+    copy[idx] = heroId;
+    return copy;
+  }
+  if (copy.length >= max) return null;
+  copy.push(heroId);
+  return copy;
+}
+
+/**
+ * 计算「下一个该填的 turn 下标」：按 PICK_SEQUENCE 顺序，
+ * 找到第一个「该方已填数量还不够」的 turn。
+ * 与 fillSlot（填空位）配合，支持乱序点击槽位后继续按顺序补位。
+ */
+function nextTurnIndex(bluePicks: string[], redPicks: string[]): number {
+  const blueFilled = bluePicks.filter(Boolean).length;
+  const redFilled = redPicks.filter(Boolean).length;
+  let b = 0;
+  let r = 0;
+  for (let i = 0; i < PICK_SEQUENCE.length; i += 1) {
+    const t = PICK_SEQUENCE[i];
+    if (t.side === 'BLUE') {
+      if (b >= blueFilled) return i;
+      b += 1;
+    } else {
+      if (r >= redFilled) return i;
+      r += 1;
+    }
+  }
+  return PICK_SEQUENCE.length;
+}
 
 function opposite(side: Side): Side {
   return side === 'BLUE' ? 'RED' : 'BLUE';
@@ -88,6 +152,7 @@ function advancePhase(state: BpState): BpPhase {
 
 export const useBpStore = create<BpStore>((set, get) => ({
   ...initialState,
+  _history: [],
 
   setUserSide: (side) => {
     // 只切换阵营，保留已填的 ban/pick。
@@ -99,19 +164,17 @@ export const useBpStore = create<BpStore>((set, get) => ({
     const state = get();
     if (state.phase === 'FINISHED') return;
 
-    if (state.phase === 'MY_BAN') {
-      const side = getMySide(state);
-      const bans = [...getBans(state, side), heroId];
-      if (bans.length > BAN_COUNT) return;
-      set({ ...setBans(state, side, bans), phase: advancePhase({ ...state, ...setBans(state, side, bans) }) });
-      return;
-    }
-
-    if (state.phase === 'ENEMY_BAN') {
-      const side = getEnemySide(state);
-      const bans = [...getBans(state, side), heroId];
-      if (bans.length > BAN_COUNT) return;
-      set({ ...setBans(state, side, bans), phase: advancePhase({ ...state, ...setBans(state, side, bans) }) });
+    if (state.phase === 'MY_BAN' || state.phase === 'ENEMY_BAN') {
+      const side = state.phase === 'MY_BAN' ? getMySide(state) : getEnemySide(state);
+      // 优先填第一个空位（手动点槽位清空后留下的 ''），没有才追加到末尾
+      const bans = fillSlot(getBans(state, side), heroId, BAN_COUNT);
+      if (!bans) return;
+      const nextState = setBans(state, side, bans);
+      set({
+        ...nextState,
+        ...pushHistory(state),
+        phase: advancePhase({ ...state, ...nextState }),
+      });
       return;
     }
 
@@ -119,89 +182,48 @@ export const useBpStore = create<BpStore>((set, get) => ({
       const turn = PICK_SEQUENCE[state.pickTurnIndex];
       if (!turn) return;
       const side = turn.side;
-      const picks = [...getPicks(state, side), heroId];
-      if (picks.length > 5) return;
-      const nextState: Partial<BpState> = {
-        ...setPicks(state, side, picks),
-        pickTurnIndex: state.pickTurnIndex + 1,
-      };
-      set({ ...nextState, phase: advancePhase({ ...state, ...nextState } as BpState) });
+      const picks = fillSlot(getPicks(state, side), heroId, 5);
+      if (!picks) return;
+      const nextState = setPicks(state, side, picks);
+      const nextBlue = side === 'BLUE' ? picks : state.bluePicks;
+      const nextRed = side === 'RED' ? picks : state.redPicks;
+      // 按 PICK_SEQUENCE 计算下一个 turn（不是简单数量相加，兼容乱序点槽位）
+      const turnIdx = nextTurnIndex(nextBlue, nextRed);
+      set({
+        ...nextState,
+        ...pushHistory(state),
+        pickTurnIndex: turnIdx,
+        phase: turnIdx >= PICK_COUNT ? 'FINISHED' : 'PICK',
+      });
     }
   },
 
   undo: () => {
     const state = get();
-
-    if (state.phase === 'FINISHED') {
-      // 从完成状态撤销，回退最后一个 pick
-      const lastTurn = PICK_SEQUENCE[PICK_COUNT - 1];
-      set({
-        phase: 'PICK',
-        pickTurnIndex: PICK_COUNT - 1,
-        ...setPicks(state, lastTurn.side, getPicks(state, lastTurn.side).slice(0, -1)),
-      });
-      return;
-    }
-
-    if (state.phase === 'PICK') {
-      if (state.pickTurnIndex === 0 && state.bluePicks.length === 0 && state.redPicks.length === 0) {
-        // 选英雄阶段尚未选择，回到敌方 Ban 阶段并移除最后一个敌方 Ban
-        const enemySide = getEnemySide(state);
-        set({
-          phase: 'ENEMY_BAN',
-          ...setBans(state, enemySide, getBans(state, enemySide).slice(0, -1)),
-        });
-        return;
-      }
-      const prevTurn = PICK_SEQUENCE[state.pickTurnIndex - 1];
-      set({
-        pickTurnIndex: state.pickTurnIndex - 1,
-        ...setPicks(state, prevTurn.side, getPicks(state, prevTurn.side).slice(0, -1)),
-      });
-      return;
-    }
-
-    if (state.phase === 'ENEMY_BAN') {
-      const enemySide = getEnemySide(state);
-      const enemyBans = getBans(state, enemySide);
-      if (enemyBans.length === 0) {
-        // 敌方 Ban 为空，回到我方 Ban 并移除最后一个我方 Ban
-        const mySide = getMySide(state);
-        set({
-          phase: 'MY_BAN',
-          ...setBans(state, mySide, getBans(state, mySide).slice(0, -1)),
-        });
-      } else {
-        set({
-          ...setBans(state, enemySide, enemyBans.slice(0, -1)),
-        });
-      }
-      return;
-    }
-
-    if (state.phase === 'MY_BAN') {
-      const mySide = getMySide(state);
-      set({
-        ...setBans(state, mySide, getBans(state, mySide).slice(0, -1)),
-      });
-    }
+    const h = state._history || [];
+    if (!h.length) return;
+    const prev = h[h.length - 1];
+    // 精确恢复快照（含空格位/phase/pickTurnIndex），不再按数量反推
+    set({ ...snapshot(prev), _history: h.slice(0, -1) });
   },
 
   // 注意：set(initialState) 是 merge 语义，不在 initialState 里的可选字段（myHeroId）会残留
   // 必须显式清空，否则 reset 后上一局的「我的英雄」会带到新局
-  reset: () => set({ ...initialState, myHeroId: undefined }),
+  reset: () => set({ ...initialState, _history: [], myHeroId: undefined }),
 
   setMyHero: (heroId) => set({ myHeroId: heroId }),
 
   importBans: (blueBans, redBans, userSide) => {
     const state = get();
+    const turnIdx = nextTurnIndex(state.bluePicks, state.redPicks);
     set({
       blueBans: blueBans.slice(0, 5),
       redBans: redBans.slice(0, 5),
-      // 保留识别期间已经选的 pick（不清空），并按已有 pick 数继续轮次
+      // 保留识别期间已经选的 pick（不清空），按 PICK_SEQUENCE 继续轮次
       userSide,
       phase: 'PICK',
-      pickTurnIndex: state.bluePicks.length + state.redPicks.length,
+      pickTurnIndex: turnIdx,
+      ...pushHistory(state),
     });
   },
 
@@ -209,10 +231,10 @@ export const useBpStore = create<BpStore>((set, get) => ({
     const state = get();
     if (state.phase === 'MY_BAN') {
       // 我方 ban 结束（可能有空 ban），进入敌方 ban
-      set({ phase: 'ENEMY_BAN' });
+      set({ phase: 'ENEMY_BAN', ...pushHistory(state) });
     } else if (state.phase === 'ENEMY_BAN') {
       // 敌方 ban 结束（可能有空 ban），进入 Pick
-      set({ phase: 'PICK', pickTurnIndex: 0 });
+      set({ phase: 'PICK', pickTurnIndex: 0, ...pushHistory(state) });
     }
   },
 
@@ -222,7 +244,7 @@ export const useBpStore = create<BpStore>((set, get) => ({
     const arr = [...state[key]];
     while (arr.length < index) arr.push('');
     arr[index] = heroId;
-    set({ [key]: arr });
+    set({ [key]: arr, ...pushHistory(state) });
   },
 
   setPickAt: (side, index, heroId) => {
@@ -233,10 +255,12 @@ export const useBpStore = create<BpStore>((set, get) => ({
     arr[index] = heroId;
     const blueArr = side === 'BLUE' ? arr : state.bluePicks;
     const redArr = side === 'RED' ? arr : state.redPicks;
+    const turnIdx = nextTurnIndex(blueArr, redArr);
     set({
       [key]: arr,
-      phase: 'PICK',
-      pickTurnIndex: blueArr.filter(Boolean).length + redArr.filter(Boolean).length,
+      ...pushHistory(state),
+      phase: turnIdx >= PICK_COUNT ? 'FINISHED' : 'PICK',
+      pickTurnIndex: turnIdx,
     });
   },
 

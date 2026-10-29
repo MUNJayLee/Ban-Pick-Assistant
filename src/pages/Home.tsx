@@ -142,6 +142,18 @@ export function Home() {
       .slice(0, 20);
   }, [allHeroes, pinyinMap, slotQuery]);
 
+  /**
+   * 统一选人入口：如果正在编辑某个槽位（用户点了位置），优先填入该槽位；
+   * 否则按 BP 顺序填入。修复「点击切换槽位后再点英雄池，结果落到末尾」问题。
+   */
+  function handleSelectHero(heroId: string) {
+    if (editingSlot) {
+      assignSlot(heroId);
+    } else {
+      state.selectHero(heroId);
+    }
+  }
+
   function assignSlot(heroId: string) {
     if (!editingSlot) return;
     if (editingSlot.kind === 'ban') {
@@ -389,7 +401,7 @@ export function Home() {
                   <HeroPool
                     state={state}
                     recommendations={recommendations}
-                    onSelect={state.selectHero}
+                    onSelect={handleSelectHero}
                   />
                 </div>
 
@@ -400,7 +412,7 @@ export function Home() {
                     phase={state.phase}
                     isMyTurn={isMyTurn}
                     operator={operator}
-                    onSelect={state.selectHero}
+                    onSelect={handleSelectHero}
                     state={state}
                   />
                 </div>
