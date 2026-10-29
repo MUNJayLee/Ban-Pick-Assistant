@@ -4,18 +4,28 @@
 // 背景（用户反馈）：
 //   「填入撤销的时候有点问题哦，顺序上，你让测试小鱼试试，点击切换再输入顺序会乱」
 //
-// 结论（2026-10-29 复现）：
+// 复现结论（2026-10-29，修复前）：
 //   1) 点击某个槽位手动填入英雄时，setPickAt/setBanAt 会用 '' 补齐前导空位
 //      （如蓝3 = ['', '', hero]）；
-//   2) undo() 不是操作栈，而是按 pickTurnIndex / phase「反推」上一步，
+//   2) 旧 undo() 不是操作栈，而是按 pickTurnIndex / phase「反推」上一步，
 //      且只对数组做 slice(0, -1)（删尾）；
 //   3) 于是「手动填非顺序位 → 撤销 → 再顺序填入」时：撤销后数组仍保留前导空位，
 //      selectHero 用 append 追加到数组尾部 → 英雄再次落到第 3 位（而不是第 1 个空位）；
 //   4) 手动替换/清空槽位后撤销还会删错阵营、删错英雄，甚至抛 TypeError
 //      （pickTurnIndex=0 但 picks 数组长度>0 时 PICK_SEQUENCE[-1] 为 undefined）。
 //
-// 本文件是「期望行为」的断言；当前已知缺陷以 knownBug 标记（不计入失败，
-// 修复后会自动变成 FIXED 提示）。默认退出码 0；加 --strict 时若有未修复 BUG 退出 1。
+// 修复（Lead commit b1d7e99）：undo 改操作栈精确快照恢复；selectHero/fillSlot 优先填
+// 第一个空位；nextTurnIndex 按 PICK_SEQUENCE 找下一个未填够的 turn；setPickAt/
+// setBanAt/skipBan/importBans 均 push 快照；崩溃自然消失。
+//
+// 本文件现在同时是「修复验证 + 回归守卫」：
+//   - 普通断言必须通过；
+//   - 原缺陷用例仍带 knownBug 标记：若将来退化会再次打印 [BUG]，修复状态打印 [FIXED]。
+//   默认退出码 0（BUG 只报告）；加 --strict 时若有未修复 BUG 退出 1。
+//
+// 注意：撤销语义已从「按数量反推」变为「精确快照恢复」：
+//   - 撤销清空操作 = 恢复清空前（保留英雄）
+//   - 撤销 skipBan（进入 PICK）= 回到 skipBan 前的 ENEMY_BAN，ban 数据不变
 //
 // 跑法：
 //   node scripts/_test_bp_undo.mjs            # 常规（BUG 只提示）
@@ -199,25 +209,30 @@ check('B3 再填入：英雄应落蓝1', { blue: [HERO.B], red: [] },
 
 // =====================================================================
 // C. 手动填入的槽位不是当前回合时，撤销要撤销「最近一次操作」
+//    注：新语义下 pickTurnIndex 由 nextTurnIndex 计算（第一个未填够的 turn）。
+//    蓝方手填 2 个（蓝1/蓝2）→ 蓝方 quota 里 turn[0] 已覆盖，下一个未填够的是
+//    turn[1]（红方第 1 个）→ turn=1 是正确值（不是已填数量 2）。
 // =====================================================================
 section('C. 顺序填入蓝1 → 点击蓝2填入 → 撤销（应撤销最近的蓝2）');
 pickPhase();
 bp().selectHero(HERO.A); // 蓝1
 bp().setPickAt('BLUE', 1, HERO.B); // 点蓝2填入
-check('C1 填入后状态', { phase: 'PICK', turn: 2, blue: [HERO.A, HERO.B], red: [] }, snap());
+check('C1 填入后状态：蓝2 已填、下一回合为红1（turn=1）',
+  { phase: 'PICK', turn: 1, blue: [HERO.A, HERO.B], red: [] }, snap(),
+  { note: 'nextTurnIndex：蓝方已填 2 个仍在 turn[0] 覆盖范围，第一个未填够的是 turn[1] 红方' });
 bp().undo();
 check('C2 撤销后：应只回退最近的蓝2，蓝1保留',
   { phase: 'PICK', turn: 1, blue: [HERO.A], red: [] }, snap(),
   {
     knownBug: true,
     bugId: 'BUG-2',
-    note: 'undo 按 pickTurnIndex=2 反推 prevTurn=PICK_SEQUENCE[1]=RED，去删红方（空操作），蓝2B 残留',
+    note: '修复前：undo 按 pickTurnIndex=2 反推 prevTurn=PICK_SEQUENCE[1]=RED，去删红方（空操作），蓝2B 残留',
   });
 
 // =====================================================================
-// D. 清空槽位后撤销（不应崩溃，不应删别的英雄）
+// D. 清空槽位后撤销（不应崩溃；撤销清空 = 恢复清空前）
 // =====================================================================
-section('D. 点蓝1填入 → 清空蓝1 → 撤销（当前会抛 TypeError）');
+section('D. 点蓝1填入 → 清空蓝1 → 撤销（应恢复清空前，不崩溃）');
 pickPhase();
 bp().setPickAt('BLUE', 0, HERO.A);
 bp().setPickAt('BLUE', 0, ''); // 清空该位：数组长度 1（['']），非空数 0
@@ -228,11 +243,11 @@ check('D2 撤销不应抛异常', { threw: false }, { threw: undoResult.threw },
   {
     knownBug: true,
     bugId: 'BUG-3',
-    note: `实际抛 ${undoResult.name}: ${undoResult.message}（PICK_SEQUENCE[-1] 为 undefined）`,
+    note: `修复前抛 ${undoResult.name}: ${undoResult.message}（PICK_SEQUENCE[-1] 为 undefined）`,
   });
-check('D3 撤销后状态可预测（不夹带其他英雄）', { phase: 'ENEMY_BAN', blue: [], red: [] },
-  { phase: snap().phase, blue: snap().blue, red: snap().red },
-  { knownBug: true, bugId: 'BUG-3', note: '崩溃发生在 set 之前，状态停在 PICK' });
+check('D3 撤销清空 = 精确恢复清空前（PICK + 蓝1 英雄）',
+  { phase: 'PICK', turn: 1, blue: [HERO.A], red: [] }, snap(),
+  { note: '新语义：Ctrl+Z 撤销「清空」这一步 → 回到清空前状态（英雄回来）' });
 
 // =====================================================================
 // E. 手动替换已有槽位后撤销：应恢复「前值」
@@ -270,18 +285,19 @@ check('F2 再填入 ban：应落我方 ban1', { blueBans: [HERO.B] },
   });
 
 // =====================================================================
-// G. 基准：PICK 空撤销回 ENEMY_BAN（删敌方最后一个 ban）
+// G. 基准：PICK 空撤销 = 撤销「进入 PICK」（skipBan 快照恢复）
 // =====================================================================
-section('G. 基准：PICK 阶段空撤销 → 回 ENEMY_BAN');
+section('G. 基准：PICK 阶段空撤销 → 回 ENEMY_BAN（ban 数据保留）');
 bp().reset();
 bp().setBanAt('BLUE', 0, HERO.A);
 bp().skipBan(); // → ENEMY_BAN
 bp().setBanAt('RED', 0, HERO.F);
 bp().skipBan(); // → PICK
 bp().undo();
-check('G1 回 ENEMY_BAN 且删敌方最后一个 ban',
-  { phase: 'ENEMY_BAN', blueBans: [HERO.A], redBans: [] },
-  { phase: bp().phase, blueBans: bp().blueBans, redBans: bp().redBans });
+check('G1 回 ENEMY_BAN 且敌方 ban 保留（撤销的是 skipBan，不是删 ban）',
+  { phase: 'ENEMY_BAN', blueBans: [HERO.A], redBans: [HERO.F] },
+  { phase: bp().phase, blueBans: bp().blueBans, redBans: bp().redBans },
+  { note: '新语义：操作栈精确恢复 skipBan 前的快照（旧逻辑会 slice 掉最后一个 ban）' });
 
 // =====================================================================
 // H. 基准：FINISHED 撤销 → 回 PICK 并删最后一个 pick
@@ -313,8 +329,60 @@ check('I1 切到红方后，下一次填入仍按游戏顺序落蓝1', { side: '
   { note: 'PICK_SEQUENCE 恒为蓝先选（游戏规则），切换阵营只影响「我方/敌方」标注' });
 
 // =====================================================================
-// 汇总
+// J. 操作栈：多步撤销逐级精确恢复
 // =====================================================================
+section('J. 操作栈：多步撤销逐级恢复（fill×3 → undo×4）');
+pickPhase();
+bp().selectHero(HERO.A); // 蓝1
+bp().selectHero(HERO.F); // 红1
+bp().selectHero(HERO.G); // 红2
+bp().undo();
+check('J1 undo×1：回到只填蓝1+红1', { phase: 'PICK', turn: 2, blue: [HERO.A], red: [HERO.F] }, snap());
+bp().undo();
+check('J2 undo×2：回到只填蓝1', { phase: 'PICK', turn: 1, blue: [HERO.A], red: [] }, snap());
+bp().undo();
+check('J3 undo×3：回到刚进入 PICK（全空）', { phase: 'PICK', turn: 0, blue: [], red: [] }, snap());
+bp().undo();
+check('J4 undo×4：回到 skipBan 前（ENEMY_BAN）', { phase: 'ENEMY_BAN', turn: 0, blue: [], red: [] }, snap());
+
+// =====================================================================
+// K. 重置清空撤销栈；L. 超出栈深度的 undo 不崩溃
+// =====================================================================
+section('K/L. reset 清栈 + 连续 undo 超栈深不崩溃');
+bp().reset();
+pickPhase();
+bp().selectHero(HERO.A);
+bp().reset();
+const resetUndo = capture(() => bp().undo());
+check('K1 reset 后 undo 为空操作（不进历史）',
+  { threw: false, phase: 'MY_BAN', blue: [], red: [] },
+  { threw: resetUndo.threw, phase: bp().phase, blue: bp().bluePicks, red: bp().redPicks });
+
+pickPhase();
+bp().selectHero(HERO.A);
+bp().selectHero(HERO.F);
+const deepUndo = capture(() => {
+  for (let i = 0; i < 20; i += 1) bp().undo();
+});
+check('L1 连续 undo 20 次不崩溃，最终回到最早快照（MY_BAN）',
+  { threw: false, phase: 'MY_BAN', blue: [], red: [] },
+  { threw: deepUndo.threw, phase: bp().phase, blue: bp().bluePicks, red: bp().redPicks },
+  { note: '历史栈最多 50 条；耗尽后 undo 为 no-op' });
+
+// =====================================================================
+// M. nextTurnIndex：乱序手填后，下一回合 = 第一个「该方未填够」的 turn
+// =====================================================================
+section('M. nextTurnIndex：乱序手填后回合计算');
+pickPhase();
+bp().setPickAt('BLUE', 1, HERO.A); // 手填蓝2（蓝1 空）
+check('M1 蓝方已填 1（蓝2），下一回合应为红1（turn=1）', { turn: 1, blue: ['_', HERO.A] },
+  { turn: snap().turn, blue: snap().blue });
+bp().setPickAt('RED', 0, HERO.F); // 手填红1
+check('M2 红方已填 1，下一回合应为红2（turn=2，红方还需 2 个中的第 2 个）',
+  { turn: 2, blue: ['_', HERO.A], red: [HERO.F] },
+  { turn: snap().turn, blue: snap().blue, red: snap().red });
+
+
 const total = RESULTS.length;
 const passed = RESULTS.filter((r) => r.pass && !r.knownBug).length;
 const failed = RESULTS.filter((r) => !r.pass && !r.knownBug).length;
