@@ -764,8 +764,7 @@ _LANE_TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def _load_lane_templates():
     """加载分路图标模板（assets/lane_icons/*.png），并生成多尺度版本。
 
-    多尺度的原因：Hough 半径在不同帧有波动（20~27），
-    模板固定 48x48 会因缩放差异导致匹配分下降。
+    检测用固定比例坐标裁剪（与模板一致），所以单尺度即可。
     """
     global _LANE_TEMPLATES
     if _LANE_TEMPLATES is not None:
@@ -781,23 +780,9 @@ def _load_lane_templates():
             if img is None:
                 continue
             base.append(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
-    # 每个模板生成 3 个尺度：0.88 / 1.0 / 1.12（居中缩放，黑边填充）
-    tpls = []
-    for t in base:
-        for scale in (0.88, 1.0, 1.12):
-            w = max(8, int(round(48 * scale)))
-            r = cv2.resize(t, (w, w), interpolation=cv2.INTER_AREA)
-            canvas = np.full((48, 48), t.mean(), dtype=np.uint8)
-            if w >= 48:
-                # 太大：居中裁剪
-                off = (w - 48) // 2
-                canvas = r[off:off + 48, off:off + 48]
-            else:
-                off = (48 - w) // 2
-                canvas[off:off + w, off:off + w] = r
-            tpls.append(canvas)
-    _LANE_TEMPLATES = tpls
-    return tpls
+    # 固定坐标检测（与模板同尺寸 48x48）→ 单尺度即可，无需多尺度（省 CPU）
+    _LANE_TEMPLATES = base
+    return base
 
 
 def is_lane_icon(crop, threshold=0.67):
