@@ -705,6 +705,13 @@ async def ws_endpoint(websocket: WebSocket):
 async def on_startup():
     global _loop
     _loop = asyncio.get_running_loop()
+    # 预热：启动时加载特征库（含 warm_up 预热识别管线），OCR 冷加载放后台线程，
+    # 避免首个 ban 帧识别时才付冷启动开销（实测首次 ~1.4s → 稳态 ~0.3s）
+    try:
+        get_bank()
+        threading.Thread(target=L._get_ocr, daemon=True).start()
+    except Exception:
+        pass
     print('API 服务已启动')
 
 
@@ -743,16 +750,20 @@ def _slot_positions(img, kind):
     H, W = img.shape[:2]
     out = []
     if kind == 'ban':
-        # 优先 Hough（自适应）
+        # 优先 Hough（自适应）—— 坐标和半径必须与 recognize_bans 完全一致：
+        #   1) 半径用 5+5 个圆的中位数（B5 的 Hough 半径常偏小）
+        #   2) 圆心向屏幕中心微调 2px（蓝方 -2、红方 +2，修「裁切框偏右」）
         try:
             left, right = R.detect_circles(img)
             l2 = R.validate_row(left) if left else []
             r2 = R.validate_row(right) if right else []
             if len(l2) == 5 and len(r2) == 5:
-                for i, (cx, cy, r) in enumerate(l2, 1):
-                    out.append(('blue', i, cx, cy, r))
-                for i, (cx, cy, r) in enumerate(r2, 1):
-                    out.append(('red', i, cx, cy, r))
+                rs = sorted([c[2] for c in l2] + [c[2] for c in r2])
+                r_med = rs[len(rs) // 2]
+                for i, (cx, cy, _r) in enumerate(l2, 1):
+                    out.append(('blue', i, cx - 2, cy, r_med))
+                for i, (cx, cy, _r) in enumerate(r2, 1):
+                    out.append(('red', i, cx + 2, cy, r_med))
                 return out
         except Exception:
             pass
