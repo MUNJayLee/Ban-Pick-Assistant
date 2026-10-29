@@ -52,6 +52,53 @@ async function shot(name) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** 轮询等待条件成立（页面慢加载/高负载时比固定 sleep 稳定）。 */
+async function waitFor(expression, timeoutMs = 15000, intervalMs = 400) {
+  const deadline = Date.now() + timeoutMs;
+  let last = null;
+  while (Date.now() < deadline) {
+    try {
+      last = await evaluate(expression);
+      if (last) return last;
+    } catch { /* 页面导航中 evaluate 可能失败 */ }
+    await sleep(intervalMs);
+  }
+  return last;
+}
+
+
+async function checkEnv() {
+  const problems = [];
+  try {
+    const res = await fetch(URL_APP, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) problems.push(`前端 dev server 返回 HTTP ${res.status}：${URL_APP}`);
+  } catch {
+    problems.push(`前端 dev server 未启动：${URL_APP}`);
+  }
+  if (!fs.existsSync(EDGE)) problems.push(`Edge 可执行文件不存在：${EDGE}`);
+  try {
+    const res = await fetch('http://127.0.0.1:8900/api/health', { signal: AbortSignal.timeout(2000) });
+    if (!res.ok) problems.push(`API 服务异常：HTTP ${res.status}`);
+  } catch {
+    problems.push('API 服务（8900）未启动：核对页/状态同步相关断言会失败');
+  }
+  if (problems.length) {
+    console.error('='.repeat(78));
+    console.error('  [环境未就绪] 前端运行时测试无法执行：');
+    for (const p of problems) console.error('   - ' + p);
+    console.error('');
+    console.error('  请先准备环境后重跑：');
+    console.error('    1) 启动前端 dev server：npm run dev（端口 5173）');
+    console.error('    2) 启动 API 服务：python scripts/api_server.py（端口 8900）');
+    console.error('    3) 确认 Edge 路径：' + EDGE);
+    console.error('');
+    console.error('  本次未执行任何用例（不是测试失败）。');
+    console.error('='.repeat(78));
+    process.exit(2);
+  }
+}
+
+
 async function listTargets() {
   for (let i = 0; i < 40; i++) {
     try {
@@ -66,6 +113,7 @@ async function listTargets() {
 }
 
 async function main() {
+  await checkEnv();
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-edge-'));
   const args = [
@@ -251,7 +299,69 @@ async function main() {
     await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1000, deviceScaleFactor: 1, mobile: false });
     const jsErr = await evaluate(`window.__dshTestProbeLastError ?? null`).catch(() => null);
     if (jsErr) rec('探针', 'null', String(jsErr), false);
+
+    // ---- 9) 素材核对页 + API 断开容错 ----
+    console.log('\n--- 9) 素材核对页 / API 断开容错 ---');
+    await send('Page.navigate', { url: URL_APP + '#review' });
+    await waitFor(`document.body.innerText.includes('live_') || document.body.innerText.includes('进度')`);
+    await sleep(500);
+    const review = await evaluate(`(() => {
+      const t = document.body.innerText;
+      return {
+        len: t.length,
+        hasReview: t.includes('核对') || t.includes('素材'),
+        hasProgress: t.includes('进度') || t.includes('标注'),
+        hasFrame: t.includes('live_'),
+        rootChildren: document.getElementById('root')?.children.length ?? 0,
+        excerpt: t.slice(0, 200).replace(/\\s+/g, ' '),
+      };
+    })()`);
+    rec('核对页（#review）可访问并渲染', '含帧列表/进度，root 有子节点',
+      `len=${review.len} frame=${review.hasFrame} progress=${review.hasProgress} root=${review.rootChildren}`,
+      review.hasReview && review.hasProgress && review.rootChildren > 0);
+    await shot('test_front_review.png');
+
+    // 模拟 API 断开（CSS/JS 资源不受影响，只拦 8900 的请求）
+    await send('Network.setBlockedURLs', {
+      urls: ['*127.0.0.1:8900*', '*localhost:8900*'],
+    });
+    await send('Page.navigate', { url: URL_APP + '?offline=1#review' });
+    await waitFor(`document.body.innerText.includes('无法连接 API') || document.body.innerText.includes('请确认服务已启动')`, 10000);
+    await sleep(500);
+    const offline = await evaluate(`(() => {
+      const t = document.body.innerText;
+      return {
+        hasError: t.includes('无法连接 API') || t.includes('请确认服务已启动'),
+        rootChildren: document.getElementById('root')?.children.length ?? 0,
+        excerpt: t.slice(0, 300).replace(/\\s+/g, ' '),
+      };
+    })()`);
+    rec('API 断开时给出清晰提示', '含「无法连接 API / 请确认服务已启动」',
+      `hasError=${offline.hasError} excerpt=${offline.excerpt.slice(0, 120)}`,
+      offline.hasError);
+    rec('API 断开时页面不白屏', 'root 有子节点',
+      `rootChildren=${offline.rootChildren}`, offline.rootChildren > 0);
+    await shot('test_front_review_offline.png');
+
+    // 恢复网络：核对页应自动恢复出帧列表
+    await send('Network.setBlockedURLs', { urls: [] });
+    await send('Page.navigate', { url: URL_APP + '?r=' + Date.now() + '#review' });
+    await waitFor(`document.body.innerText.includes('live_')`, 20000);
+    await sleep(800);
+    const recovered = await evaluate(`(() => {
+      const t = document.body.innerText;
+      return {
+        hasFrame: t.includes('live_'),
+        hasError: t.includes('无法连接 API'),
+        len: t.length,
+      };
+    })()`);
+    rec('API 恢复后核对页自动恢复', '重新出现帧列表且无错误横幅',
+      `frame=${recovered.hasFrame} error=${recovered.hasError} len=${recovered.len}`,
+      recovered.hasFrame && !recovered.hasError);
+    await shot('test_front_review_recovered.png');
   } finally {
+    try { await send('Network.setBlockedURLs', { urls: [] }); } catch {}
     try { ws?.close(); } catch {}
     try { child.kill(); } catch {}
     await sleep(300);
