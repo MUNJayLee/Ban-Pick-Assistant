@@ -12,8 +12,9 @@ interface HeroSearchProps {
   placeholder?: string;
 }
 
-function normalizeSearch(text: string) {
-  return text
+function normalizeSearch(text: string | undefined | null) {
+  // 30 个英雄缺 title（数据源缺失），必须容错，否则搜索时崩溃
+  return (text || '')
     .toLowerCase()
     .replace(/[\s·•]/g, '')
     .trim();
