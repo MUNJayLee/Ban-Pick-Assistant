@@ -753,8 +753,81 @@ BAN_R_RATIO = 0.012
 BAN_EMPTY_STD = 15.0   # 空 ban 位灰度标准差阈值（真机实测：空位 6~8 / 有头像 19~55）
 
 
-def _recognize_positions(img, bank, positions, empty_std):
-    """按给定位置 [(side, index, (cx,cy,r))] 裁剪并识别。"""
+# ---------------------------------------------------------------------------
+# 分路图标检测（选人界面「未选择」位置显示的是分路偏好图标，不是英雄）
+# ---------------------------------------------------------------------------
+_LANE_TEMPLATES = None
+_LANE_TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  '..', 'assets', 'lane_icons')
+
+
+def _load_lane_templates():
+    """加载分路图标模板（assets/lane_icons/*.png），并生成多尺度版本。
+
+    多尺度的原因：Hough 半径在不同帧有波动（20~27），
+    模板固定 48x48 会因缩放差异导致匹配分下降。
+    """
+    global _LANE_TEMPLATES
+    if _LANE_TEMPLATES is not None:
+        return _LANE_TEMPLATES
+    base = []
+    if os.path.isdir(_LANE_TEMPLATE_DIR):
+        for name in ('lane_top.png', 'lane_mid.png', 'lane_adc.png',
+                     'lane_jungle.png', 'lane_support.png'):
+            path = os.path.join(_LANE_TEMPLATE_DIR, name)
+            if not os.path.isfile(path):
+                continue
+            img = R.imread_unicode(path)
+            if img is None:
+                continue
+            base.append(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
+    # 每个模板生成 3 个尺度：0.88 / 1.0 / 1.12（居中缩放，黑边填充）
+    tpls = []
+    for t in base:
+        for scale in (0.88, 1.0, 1.12):
+            w = max(8, int(round(48 * scale)))
+            r = cv2.resize(t, (w, w), interpolation=cv2.INTER_AREA)
+            canvas = np.full((48, 48), t.mean(), dtype=np.uint8)
+            if w >= 48:
+                # 太大：居中裁剪
+                off = (w - 48) // 2
+                canvas = r[off:off + 48, off:off + 48]
+            else:
+                off = (48 - w) // 2
+                canvas[off:off + w, off:off + w] = r
+            tpls.append(canvas)
+    _LANE_TEMPLATES = tpls
+    return tpls
+
+
+def is_lane_icon(crop, threshold=0.67):
+    """检测裁切图是否是「分路图标」（未选择）。
+
+    实测：分路图标匹配自身 ~1.0、跨分路 0.45~0.55；英雄头像 < 0.44。
+    阈值 0.67：实测分路图标 0.70~0.90、英雄最高 0.64（瑶粉发被误判为对抗路）。
+    """
+    if crop is None or crop.size == 0:
+        return False
+    tpls = _load_lane_templates()
+    if not tpls:
+        return False
+    try:
+        g = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+        g = cv2.resize(g, (48, 48), interpolation=cv2.INTER_AREA)
+        best = max(float(cv2.matchTemplate(g, t, cv2.TM_CCOEFF_NORMED)[0][0]) for t in tpls)
+        return best >= threshold
+    except Exception:
+        return False
+
+
+def _recognize_positions(img, bank, positions, empty_std, skip_keys=None):
+    """按给定位置 [(side, index, (cx,cy,r))] 裁剪并识别。
+
+    skip_keys: {(side, index)} 集合，这些位置跳过（分路图标/未选择）。
+    分路图标检测在 recognize_bans 里用固定坐标预计算（与模板一致），
+    避免 Hough 半径波动导致匹配分下降。
+    """
+    skip_keys = skip_keys or set()
     out = []
     for side, idx, (cx, cy, r) in positions:
         crop = crop_avatar(img, int(round(cx)), int(round(cy)), int(round(r)))
@@ -763,6 +836,8 @@ def _recognize_positions(img, bank, positions, empty_std):
         gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
         if float(gray.std()) < empty_std:
             continue  # 空 ban 位
+        if (side, idx) in skip_keys:
+            continue  # 分路图标（玩家未选择，显示的是分路偏好）
         fused = bank.fuse([bank.ranks(crop)])
         top = fused[0]
         second = fused[1] if len(fused) > 1 else (None, 0)
@@ -778,7 +853,7 @@ def _recognize_positions(img, bank, positions, empty_std):
     return out
 
 
-def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
+def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD, skip_lane_icons=False):
     """识别顶部 ban 位（空 ban 位跳过）。
 
     坐标方案（双保险）：
@@ -789,6 +864,21 @@ def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
 
     返回 [{side, index, hero_id, name, score, gap, confident}, ...]
     """
+    H, W = img.shape[:2]
+
+    # 分路图标检测（固定坐标，与模板一致；只在 pick/final 启用）
+    lane_keys = set()
+    if skip_lane_icons:
+        r_fixed = max(8, int(round(W * BAN_R_RATIO)))
+        cy_fixed = int(round(H * BAN_Y_RATIO))
+        for _side, _ratios in (('blue', BAN_X_RATIOS),
+                               ('red', [1.0 - x for x in BAN_X_RATIOS])):
+            for _idx, _xr in enumerate(_ratios, 1):
+                _cx = int(round(W * _xr))
+                _crop = crop_avatar(img, _cx, cy_fixed, r_fixed)
+                if _crop is not None and is_lane_icon(_crop):
+                    lane_keys.add((_side, _idx))
+
     # ---- 1) Hough 检测圆（自适应）----
     try:
         left, right = R.detect_circles(img)
@@ -805,14 +895,13 @@ def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
                 [('blue', i + 1, (cx - 2, cy, r_med)) for i, (cx, cy, _) in enumerate(l2)] +
                 [('red', i + 1, (cx + 2, cy, r_med)) for i, (cx, cy, _) in enumerate(r2)]
             )
-            out = _recognize_positions(img, bank, positions, empty_std)
+            out = _recognize_positions(img, bank, positions, empty_std, lane_keys)
             if out:
                 return out
     except Exception:
         pass
 
     # ---- 2) fallback: 固定比例坐标 ----
-    H, W = img.shape[:2]
     r = max(8, int(round(W * BAN_R_RATIO)))
     cy = int(round(H * BAN_Y_RATIO))
     out = []
@@ -826,6 +915,8 @@ def recognize_bans(img, bank, empty_std=BAN_EMPTY_STD):
             gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
             if float(gray.std()) < empty_std:
                 continue  # 空 ban 位
+            if (side, idx) in lane_keys:
+                continue  # 分路图标
             fused = bank.fuse([bank.ranks(crop)])
             top = fused[0]
             second = fused[1] if len(fused) > 1 else (None, 0)

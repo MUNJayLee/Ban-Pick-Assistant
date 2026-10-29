@@ -28,7 +28,8 @@ import cv2
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -306,7 +307,7 @@ def _bp_worker(interval=2.0):
                         _diag_frame(img, 'selecting')
                     # 选人界面顶部 ban 位已完整 → 多帧投票补 ban（比等 final 更早）
                     try:
-                        bans_now = recognize_bans(img, bank)
+                        bans_now = recognize_bans(img, bank, skip_lane_icons=True)
                         voted = _vote_bans(ban_votes, bans_now)
                         # 投票够 10 个用投票结果；不够（帧太少）用单帧兜底
                         if len(voted) >= 10:
@@ -326,7 +327,9 @@ def _bp_worker(interval=2.0):
                 # 补识别 ban：ban 阶段红方 ban 位可能延迟显示/不显示，
                 # 到 pick/final 阶段顶部 ban 位一定齐全，补上缺失的
                 try:
-                    bans_now = recognize_bans(img, bank)
+                    # final 阶段是真实 ban（阵容已锁定），不过滤分路图标
+                    # （分路图标与盾山等蓝色机械英雄视觉相似，过滤会误伤）
+                    bans_now = recognize_bans(img, bank, skip_lane_icons=False)
                     # final（最后调整）顶部 10 个 ban 一定齐全且是最终版本
                     # → 多帧投票（解决单帧不稳定，如 R1 后羿/孙膑 来回变）
                     voted = _vote_bans(ban_votes, bans_now)
@@ -816,13 +819,23 @@ def api_review_crop(frame: str, kind: str = 'ban', side: str = 'blue', index: in
     confident = None
     gap = None
     bank = get_bank()
+    lane_icon = False
     if kind == 'ban':
+        # 先检测是否分路图标（未选择）
+        try:
+            crop_tmp = L.crop_avatar(n, int(round(cx)), int(round(cy)), int(round(r)))
+            lane_icon = bool(L.is_lane_icon(crop_tmp)) if crop_tmp is not None else False
+        except Exception:
+            lane_icon = False
         bans = L.recognize_bans(n, bank)
         b = next((x for x in bans if x['side'] == side and x['index'] == index), None)
         if b:
             hero = b['name']
             confident = b['confident']
             gap = b['gap']
+        if lane_icon:
+            hero = None
+            confident = False
     else:
         picks = L.recognize_picks(n, bank)
         pp = next((x for x in picks if x['side'] == side and x['index'] == index), None)
@@ -835,8 +848,20 @@ def api_review_crop(frame: str, kind: str = 'ban', side: str = 'blue', index: in
         'image': 'data:image/png;base64,' + b64,
         'frame': frame, 'kind': kind, 'side': side, 'index': index,
         'hero': hero, 'confident': confident, 'gap': gap,
+        'lane_icon': lane_icon,
         'crop': {'cx': round(cx, 1), 'cy': round(cy, 1), 'r': round(r, 1)},
     }
+
+
+@app.get('/api/review/frame_raw')
+def api_review_frame_raw(frame: str):
+    """返回原始帧图片（大图预览用）。"""
+    if not frame or '/' in frame or '\\' in frame or '..' in frame:
+        raise HTTPException(status_code=400, detail='非法文件名')
+    path = os.path.join(_DIAG_DIR, frame)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail='帧不存在')
+    return FileResponse(path, media_type='image/png')
 
 
 @app.get('/api/review/marks')
@@ -879,6 +904,28 @@ def api_review_summary():
         'total_marks': len(marks),
         'frames': frames,
     }
+
+
+@app.get('/api/review/export')
+def api_review_export(format: str = 'json'):
+    """导出标注：json / csv。"""
+    data = _load_reviews()
+    marks = data.get('marks', {})
+    if format == 'csv':
+        import csv as _csv
+        import io as _io
+        buf = _io.StringIO()
+        w = _csv.writer(buf)
+        w.writerow(['frame', 'kind', 'side', 'index', 'correct', 'note', 'at'])
+        for v in marks.values():
+            w.writerow([v.get('frame'), v.get('kind'), v.get('side'), v.get('index'),
+                        '1' if v.get('correct') else '0', v.get('note') or '', v.get('at')])
+        return Response(
+            content='\ufeff' + buf.getvalue(),   # BOM 让 Excel 正确识别中文
+            media_type='text/csv; charset=utf-8',
+            headers={'Content-Disposition': 'attachment; filename=review_marks.csv'},
+        )
+    return data
 
 
 @app.post('/api/review/mark')
