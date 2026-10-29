@@ -14,6 +14,9 @@
 //   3. 选择敌方 pick（红方英雄）→ 允许
 //   4. 先选我的英雄，再把该英雄从阵容删掉 → 保存前警告 + 保存后清空
 //   5. 旧脏数据（myHeroId=ban 英雄）→ 打开弹窗即警告，保存后清空
+//   6. ban 英雄不在「我的英雄」可选列表
+//   7. 槽位选择器：禁用已出场英雄（ban+pick 不可重复），但排除当前编辑槽位自身的英雄
+//      （允许重选/覆盖）—— Lead a9fe27e 修复，15 个已出场 - 当前槽位 1 = 14 个禁用
 // 另验证：选择器标题区分（「选择英雄」/「选择我的英雄（仅双方已选）」）、
 //         候选数量 = 双方 picks 去重数。
 //
@@ -503,7 +506,11 @@ async function main() {
     await closePicker();
     await closeModalIfOpen();
 
-    // ---------- 7. 修复完整性核对：commit 描述「槽位选择：禁用已出场英雄」 ----------
+    // ---------- 7. 槽位选择器：禁用已出场英雄，但排除「当前槽位自身」 ----------
+    // 设计（Lead a9fe27e）：槽位选择禁用已出场英雄（ban+pick 不可重复），
+    //   但当前编辑槽位自己的英雄必须可选（允许重选/覆盖，否则改不动）。
+    // fixture：已出场 15 个（10 picks + 5 个去重 ban），当前槽位「蓝方选人 2」= 孙尚香
+    //   → 禁用 = 15 - 1（当前槽位自身）= 14
     await seedAndReload([CLEAN, DIRTY]);
     await openEditForNote(CLEAN.note);
     await openSlotPicker('蓝方选人 2');
@@ -511,13 +518,25 @@ async function main() {
     const slotStats = await pickerStats('选择英雄');
     const usedNames = ['狄仁杰', '孙尚香', '后羿', '马可波罗', '赵云',
       '瑶', '妲己', '安琪拉', '小乔', '甄姬', '廉颇', '张飞', '露娜', '孙膑', '张良'];
-    const disabledUsed = (slotStats?.disabled || []).filter((n) => usedNames.includes(n)).length;
-    rec('7.0 槽位选择器应禁用已出场英雄（commit 描述核对）',
-      { usedDisabled: usedNames.length, total: 133 },
-      { usedDisabled: disabledUsed, total: slotStats?.total },
-      disabledUsed === usedNames.length && slotStats?.total === 133,
-      'commit 4a6bd16 描述「槽位选择：禁用已出场英雄（ban+pick 不可重复）」，实现中 disabled 条件带 !picker',
-      { incomplete: true });
+    const disabledUsed = (slotStats?.disabled || []).filter((n) => usedNames.includes(n));
+    const enabledUsed = (slotStats?.enabled || []).filter((n) => usedNames.includes(n));
+    rec('7.0 槽位选择器禁用已出场英雄（排除当前槽位自身）',
+      { usedDisabled: 14, usedEnabled: ['孙尚香'], total: 133 },
+      { usedDisabled: disabledUsed.length, usedEnabled: enabledUsed, total: slotStats?.total },
+      disabledUsed.length === 14 && enabledUsed.length === 1 && enabledUsed[0] === '孙尚香'
+        && slotStats?.total === 133,
+      '已出场 15 个 - 当前槽位自身（孙尚香）1 个 = 14 个禁用');
+    rec('7.1 当前槽位自身英雄可选（允许重选/覆盖）',
+      { sunshangxiangDisabled: false },
+      { sunshangxiangDisabled: (slotStats?.disabled || []).includes('孙尚香') },
+      !(slotStats?.disabled || []).includes('孙尚香'));
+    const clickUsed = await clickHero('狄仁杰'); // 已出场（bluePicks[0]）→ disabled
+    await sleep(250);
+    const stillOpen = (await pickerTitle()) === 'slot';
+    rec('7.2 点击已出场的其他英雄无效（选择器仍开）',
+      { clickFound: true, stillOpen: true }, { clickFound: clickUsed, stillOpen },
+      clickUsed === true && stillOpen, '狄仁杰已被 bluePicks[0] 使用 → disabled=true');
+    await shot('test_record_edit_slot_picker.png');
     await closePicker();
     await closeModalIfOpen();
   } finally {
