@@ -832,12 +832,16 @@ def api_review_crop(frame: str, kind: str = 'ban', side: str = 'blue', index: in
     bank = get_bank()
     lane_icon = False
     if kind == 'ban':
-        # 先检测是否分路图标（未选择）
-        try:
-            crop_tmp = L.crop_avatar(n, int(round(cx)), int(round(cy)), int(round(r)))
-            lane_icon = bool(L.is_lane_icon(crop_tmp)) if crop_tmp is not None else False
-        except Exception:
-            lane_icon = False
+        # 分路图标检测只在「选人/BP pick 阶段」做：
+        #   ban 阶段（live_ban_*）显示的是真实被 ban 英雄（含盾山等蓝色机械，
+        #   与对抗路图标视觉相似），不能按分路图标过滤，否则误删真实 ban。
+        _is_lane_phase = ('selecting' in frame) or ('pick' in frame)
+        if _is_lane_phase:
+            try:
+                crop_tmp = L.crop_avatar(n, int(round(cx)), int(round(cy)), int(round(r)))
+                lane_icon = bool(L.is_lane_icon(crop_tmp)) if crop_tmp is not None else False
+            except Exception:
+                lane_icon = False
         bans = L.recognize_bans(n, bank)
         b = next((x for x in bans if x['side'] == side and x['index'] == index), None)
         if b:
@@ -851,6 +855,8 @@ def api_review_crop(frame: str, kind: str = 'ban', side: str = 'blue', index: in
         picks = L.recognize_picks(n, bank)
         pp = next((x for x in picks if x['side'] == side and x['index'] == index), None)
         if pp:
+            # pick 阶段的分路图标（玩家未选英雄）→ 标记 lane_icon，hero 置空
+            lane_icon = bool(pp.get('lane_icon'))
             hero = None if pp['empty'] else pp['name']
             confident = pp['confident']
             gap = pp.get('gap')
