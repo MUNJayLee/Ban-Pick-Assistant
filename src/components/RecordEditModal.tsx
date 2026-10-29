@@ -35,27 +35,35 @@ function HeroSlot({
   heroId,
   label,
   side,
+  kind = 'pick',
   onClick,
   onClear,
 }: {
   heroId?: string;
   label: string;
   side: 'BLUE' | 'RED';
+  /** pick=正常；ban=红色禁用风 + 斜线 + 灰度，便于一眼区分 */
+  kind?: 'pick' | 'ban';
   onClick: () => void;
   onClear: () => void;
 }) {
   const hero = heroId ? getHeroById(heroId) : undefined;
+  const isBan = kind === 'ban';
   return (
     <div className="relative group">
       <button
         onClick={onClick}
         className={cn(
-          'w-full aspect-square rounded-lg border flex flex-col items-center justify-center overflow-hidden transition-colors',
+          'relative w-full aspect-square rounded-lg border flex flex-col items-center justify-center overflow-hidden transition-colors',
           hero
-            ? side === 'BLUE'
-              ? 'border-ui-primary/40 bg-ui-primary/10'
-              : 'border-ui-danger/40 bg-ui-danger/10'
-            : 'border-white/10 border-dashed bg-white/3 hover:border-white/25',
+            ? isBan
+              ? 'border-rose-500/50 bg-rose-500/8 grayscale-[0.7]'
+              : side === 'BLUE'
+                ? 'border-ui-primary/40 bg-ui-primary/10'
+                : 'border-ui-danger/40 bg-ui-danger/10'
+            : isBan
+              ? 'border-rose-500/25 border-dashed bg-rose-500/4 hover:border-rose-500/45'
+              : 'border-white/10 border-dashed bg-white/3 hover:border-white/25',
         )}
         title={label}
       >
@@ -67,7 +75,20 @@ function HeroSlot({
             </span>
           </>
         ) : (
-          <span className="text-[10px] text-ui-muted/60">空</span>
+          <span className={cn('text-[10px]', isBan ? 'text-rose-400/50' : 'text-ui-muted/60')}>
+            {isBan ? '空 Ban' : '空'}
+          </span>
+        )}
+        {/* Ban 位斜线遮罩（一眼区分 ban / pick） */}
+        {isBan && hero && (
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            aria-hidden="true"
+          >
+            <line x1="0" y1="100" x2="100" y2="0" stroke="rgba(244,63,94,0.55)" strokeWidth="7" />
+          </svg>
         )}
       </button>
       {hero && (
@@ -211,7 +232,7 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
     const setPicks = side === 'BLUE' ? setBluePicks : setRedPicks;
     const setBans = side === 'BLUE' ? setBlueBans : setRedBans;
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <div
           className={cn(
             'text-[11px] font-bold',
@@ -220,37 +241,51 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
         >
           {side === 'BLUE' ? '蓝方' : '红方'}
         </div>
-        <div className="grid grid-cols-5 gap-1">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <HeroSlot
-              key={`p${i}`}
-              heroId={picks[i]}
-              label={`${side === 'BLUE' ? '蓝' : '红'}方选人 ${i + 1}`}
-              side={side}
-              onClick={() => setPicker({ side, type: 'pick', index: i })}
-              onClear={() => {
-                const next = [...picks];
-                next[i] = '';
-                setPicks(next);
-              }}
-            />
-          ))}
+        {/* 选人行 */}
+        <div className="flex items-center gap-1.5">
+          <span className="w-9 shrink-0 text-right text-[9px] font-semibold text-ui-muted">
+            选人
+          </span>
+          <div className="grid grid-cols-5 gap-1 flex-1">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <HeroSlot
+                key={`p${i}`}
+                heroId={picks[i]}
+                label={`${side === 'BLUE' ? '蓝' : '红'}方选人 ${i + 1}`}
+                side={side}
+                kind="pick"
+                onClick={() => setPicker({ side, type: 'pick', index: i })}
+                onClear={() => {
+                  const next = [...picks];
+                  next[i] = '';
+                  setPicks(next);
+                }}
+              />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-5 gap-1 opacity-80">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <HeroSlot
-              key={`b${i}`}
-              heroId={bans[i]}
-              label={`${side === 'BLUE' ? '蓝' : '红'}方禁用 ${i + 1}`}
-              side={side}
-              onClick={() => setPicker({ side, type: 'ban', index: i })}
-              onClear={() => {
-                const next = [...bans];
-                next[i] = '';
-                setBans(next);
-              }}
-            />
-          ))}
+        {/* Ban 行（红色 + 斜线，明显区别于选人） */}
+        <div className="flex items-center gap-1.5">
+          <span className="w-9 shrink-0 text-right text-[9px] font-semibold text-rose-400/80">
+            Ban
+          </span>
+          <div className="grid grid-cols-5 gap-1 flex-1">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <HeroSlot
+                key={`b${i}`}
+                heroId={bans[i]}
+                label={`${side === 'BLUE' ? '蓝' : '红'}方禁用 ${i + 1}`}
+                side={side}
+                kind="ban"
+                onClick={() => setPicker({ side, type: 'ban', index: i })}
+                onClear={() => {
+                  const next = [...bans];
+                  next[i] = '';
+                  setBans(next);
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
