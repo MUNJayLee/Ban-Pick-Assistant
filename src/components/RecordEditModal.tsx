@@ -164,15 +164,6 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
     return heroes.filter((h) => h.name.includes(q) || h.id.toLowerCase().includes(q));
   }, [heroes, pickerSearch]);
 
-  /** 我方已选（用于「我的英雄」校验）。 */
-  const mySidePicks = useMemo(() => {
-    // 我的英雄必须同时存在于某一方 picks 里；优先蓝方，其次红方
-    const inBlue = bluePicks.includes(myHeroId ?? '');
-    const inRed = redPicks.includes(myHeroId ?? '');
-    if (inRed && !inBlue) return redPicks;
-    return bluePicks;
-  }, [bluePicks, redPicks, myHeroId]);
-
   if (!open || !record) return null;
 
   const setSlot = (key: SlotKey, heroId: string | undefined) => {
@@ -476,20 +467,26 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
             </div>
             <div className="flex-1 overflow-y-auto p-3 grid grid-cols-6 sm:grid-cols-8 gap-2">
               {filteredHeroes.map((h: Hero) => {
-                // 槽位选择：禁用已出场英雄（ban + pick 都不能重复）
+                // 槽位选择：禁用已出场英雄（ban + pick 都不能重复），
+                //   但允许重选「当前这个槽位自己的英雄」（避免改不动）
                 // 我的英雄选择：只允许双方 picks 里的英雄（ban 位不可选）
-                const used = picker ? allUsedIds.has(h.id) : !myHeroCandidates.has(h.id);
+                const currentSlotHero = picker
+                  ? slotArray(picker.side, picker.type, { bluePicks, redPicks, blueBans, redBans })[
+                      picker.index
+                    ]
+                  : undefined;
+                const used = picker
+                  ? allUsedIds.has(h.id) && h.id !== currentSlotHero
+                  : !myHeroCandidates.has(h.id);
                 return (
                   <button
                     key={h.id}
                     onClick={() => (picker ? pickHeroForSlot(h.id) : pickMyHero(h.id))}
                     className={cn(
                       'flex flex-col items-center gap-0.5 p-1 rounded-lg transition-colors',
-                      used && !picker
-                        ? 'opacity-30 cursor-not-allowed'
-                        : 'hover:bg-white/8',
+                      used ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/8',
                     )}
-                    disabled={used && !picker}
+                    disabled={used}
                     title={h.name}
                   >
                     <HeroAvatar heroId={h.id} size="sm" />
