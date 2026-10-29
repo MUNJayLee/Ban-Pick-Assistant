@@ -112,7 +112,7 @@ _WARMED_AFTER_OCR = False   # 首次 OCR 推理后是否已预热识别管线
 
 
 class FeatureBank:
-    def __init__(self, warm=True):
+    def __init__(self, warm=False):
         global _WARM_BANK
         manifest = json.load(open('avatars/manifest.json', encoding='utf-8'))
         self.ids = [m['id'] for m in manifest]
@@ -130,7 +130,7 @@ class FeatureBank:
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING)
         _WARM_BANK = self
         if warm:
-            warm_up(self)
+            warm_up(self)  # 仅 API 启动时显式 warm=True（且 warn_up 已用真实头像，<100ms）
 
     def _match(self, a, b):
         ms = self.bf.knnMatch(a, b, k=2)
@@ -181,12 +181,14 @@ def warm_up(bank=None):
             cv2.circle(frame, (x, 44), 24, (210, 190, 170), -1)
             cv2.circle(frame, (W - x, 44), 24, (160, 170, 210), -1)
         R.detect_circles(frame)
-        # 2) ORB + BFMatcher + 颜色直方图（用带纹理的合成头像，确保走完整匹配）
-        if bank is not None:
-            rng = np.random.RandomState(0)
-            for _ in range(4):
-                bank.ranks(rng.randint(0, 255, (96, 96, 3), np.uint8))
-            bank.fuse([bank.ranks(rng.randint(0, 255, (96, 96, 3), np.uint8))])
+        # 2) ORB + BFMatcher + 颜色直方图（用真实头像预热）
+        #    ⚠ 不要用随机噪声图：噪声会产生数百个 ORB 关键点，匹配慢 20 倍
+        #    （实测 warm_up 从 19s 降到 <50ms）
+        if bank is not None and bank.ids:
+            # 1 个头像走一次 ranks 就足以初始化 ORB/BFMatcher/颜色直方图
+            raw = R.imread_unicode('avatars/%s.jpg' % bank.ids[0])
+            if raw is not None:
+                bank.ranks(cv2.resize(raw, (96, 96)))
         # 3) 分路图标模板加载
         _load_lane_templates()
         is_lane_icon(np.zeros((96, 96, 3), np.uint8))
