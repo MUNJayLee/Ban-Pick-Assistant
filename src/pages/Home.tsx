@@ -16,13 +16,22 @@ import { DeviceConfigModal } from '@/components/DeviceConfigModal';
 import { useBpSync } from '@/hooks/useBpSync';
 import { useBpStore } from '@/store/bpStore';
 import { recommendGrouped } from '@/services/recommendation';
-import { calculateTeamStrength, calculateWinProbability, getAllHeroes, getHeroById } from '@/services/heroService';
+import { calculateTeamStrength, calculateWinProbability, getAllHeroes } from '@/services/heroService';
 import { PICK_SEQUENCE } from '@/data/config';
 import { cn, isTauri } from '@/lib/utils';
 import { invoke } from '@tauri-apps/api/core';
 import type { Side, BpState } from '@/types';
 
 type Tab = 'bp' | 'data' | 'records' | 'review';
+
+const TABS: Tab[] = ['bp', 'data', 'records', 'review'];
+
+/** 从 URL hash 读取 Tab（支持 #review 直达核对页，刷新后保持当前页）。 */
+function tabFromHash(): Tab {
+  if (typeof window === 'undefined') return 'bp';
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  return (TABS as string[]).includes(hash) ? (hash as Tab) : 'bp';
+}
 
 function getActiveSideFromState(state: BpState): Side | null {
   if (state.phase === 'MY_BAN') return state.userSide;
@@ -35,7 +44,7 @@ function getActiveSideFromState(state: BpState): Side | null {
 }
 
 export function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('bp');
+  const [activeTab, setActiveTab] = useState<Tab>(tabFromHash);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const adb = useBpSync();
   const [showDeviceConfig, setShowDeviceConfig] = useState(false);
@@ -55,6 +64,20 @@ export function Home() {
   });
 
   const state = useBpStore();
+
+  // Tab 与 URL hash 双向同步（#review 可直接打开核对页，刷新后保持当前 Tab）
+  useEffect(() => {
+    const onHashChange = () => setActiveTab(tabFromHash());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const switchTab = (tab: Tab) => {
+    setActiveTab(tab);
+    if (window.location.hash !== `#${tab}`) {
+      window.history.replaceState(null, '', `#${tab}`);
+    }
+  };
 
   // 快捷键：Ctrl+Z 撤销 / Ctrl+Shift+R 重置
   useEffect(() => {
@@ -224,25 +247,25 @@ export function Home() {
           <div className="flex items-center bg-ui-surface rounded-xl p-1 border border-white/8 shadow-surface">
           <TabButton
             active={activeTab === 'bp'}
-            onClick={() => setActiveTab('bp')}
+            onClick={() => switchTab('bp')}
             icon={Swords}
             label="BP 模拟"
           />
           <TabButton
             active={activeTab === 'data'}
-            onClick={() => setActiveTab('data')}
+            onClick={() => switchTab('data')}
             icon={BarChart3}
             label="数据看板"
           />
           <TabButton
             active={activeTab === 'records'}
-            onClick={() => setActiveTab('records')}
+            onClick={() => switchTab('records')}
             icon={NotebookText}
             label="记录"
           />
           <TabButton
             active={activeTab === 'review'}
-            onClick={() => setActiveTab('review')}
+            onClick={() => switchTab('review')}
             icon={ImageIcon}
             label="核对"
           />

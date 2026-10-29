@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Ban, Trophy, Sparkles, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Ban, Trophy, Sparkles, ThumbsUp, ThumbsDown, AlertTriangle, CheckCircle2, Plus } from 'lucide-react';
 import { HeroAvatar } from '@/components/HeroAvatar';
 import { PositionBadge } from '@/components/PositionBadge';
 import type { HeroRecommendation, BpPhase, BpState } from '@/types';
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { getHeroById } from '@/services/heroService';
 import { uploadFeedback } from '@/services/syncService';
 import { positionLabel, type GroupedResult } from '@/services/recommendation';
+import { PICK_SEQUENCE } from '@/data/config';
 
 interface RecommendationPanelProps {
   recommendations: HeroRecommendation[];
@@ -20,6 +21,27 @@ interface RecommendationPanelProps {
 }
 
 type FeedbackMap = Record<string, 'up' | 'down'>;
+
+/** 下一个要填入的槽位文案（「一键填入」提示用）。 */
+function nextSlotLabel(state?: BpState, isMyTurn?: boolean): string | null {
+  if (!state || !isMyTurn) return null;
+  const mySide = state.userSide;
+  const myBans = mySide === 'BLUE' ? state.blueBans : state.redBans;
+  const enemySide = mySide === 'BLUE' ? 'RED' : 'BLUE';
+  const enemyBans = enemySide === 'BLUE' ? state.blueBans : state.redBans;
+  if (state.phase === 'MY_BAN') {
+    return myBans.length >= 5 ? '我方 Ban 已满' : `我方 Ban 第 ${myBans.length + 1} 位`;
+  }
+  if (state.phase === 'ENEMY_BAN') {
+    return enemyBans.length >= 5 ? '敌方 Ban 已满' : `敌方 Ban 第 ${enemyBans.length + 1} 位`;
+  }
+  if (state.phase === 'PICK') {
+    const turn = PICK_SEQUENCE[state.pickTurnIndex];
+    if (!turn) return null;
+    return turn.side === mySide ? `我方 ${turn.description}` : `敌方 ${turn.description}`;
+  }
+  return null;
+}
 
 /** 单条推荐卡片。 */
 function HeroRow({
@@ -98,31 +120,50 @@ function HeroRow({
         />
       </div>
 
-      {/* 推荐反馈 */}
-      <div className="mt-1.5 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-[9px] text-ui-muted-subtle mr-1">这条推荐</span>
-        <button
-          onClick={(e) => onFeedback(e, rec.heroId, true)}
-          className={cn(
-            'p-1 rounded transition-colors',
-            feedback[rec.heroId] === 'up'
-              ? 'text-ui-success bg-ui-success/15'
-              : 'text-ui-muted hover:text-ui-success hover:bg-ui-success/10',
+      {/* 一键填入 + 推荐反馈 */}
+      <div className="mt-1.5 flex items-center justify-between gap-1">
+        <span className="text-[9px] text-ui-muted-subtle">点击卡片一键填入</span>
+        <div className="flex items-center gap-1">
+          {onSelect && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(rec.heroId);
+              }}
+              className="inline-flex items-center gap-0.5 rounded-md border border-ui-primary/25 bg-ui-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-ui-primary-light transition-colors hover:bg-ui-primary/25"
+              title="一键填入我方阵容"
+            >
+              <Plus className="h-2.5 w-2.5" />
+              填入
+            </button>
           )}
-        >
-          <ThumbsUp className="w-3 h-3" />
-        </button>
-        <button
-          onClick={(e) => onFeedback(e, rec.heroId, false)}
-          className={cn(
-            'p-1 rounded transition-colors',
-            feedback[rec.heroId] === 'down'
-              ? 'text-ui-danger bg-ui-danger/15'
-              : 'text-ui-muted hover:text-ui-danger hover:bg-ui-danger/10',
-          )}
-        >
-          <ThumbsDown className="w-3 h-3" />
-        </button>
+          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <button
+              onClick={(e) => onFeedback(e, rec.heroId, true)}
+              className={cn(
+                'p-1 rounded transition-colors',
+                feedback[rec.heroId] === 'up'
+                  ? 'text-ui-success bg-ui-success/15'
+                  : 'text-ui-muted hover:text-ui-success hover:bg-ui-success/10',
+              )}
+              title="推荐有用"
+            >
+              <ThumbsUp className="w-3 h-3" />
+            </button>
+            <button
+              onClick={(e) => onFeedback(e, rec.heroId, false)}
+              className={cn(
+                'p-1 rounded transition-colors',
+                feedback[rec.heroId] === 'down'
+                  ? 'text-ui-danger bg-ui-danger/15'
+                  : 'text-ui-muted hover:text-ui-danger hover:bg-ui-danger/10',
+              )}
+              title="推荐不准"
+            >
+              <ThumbsDown className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -164,6 +205,7 @@ export function RecommendationPanel({
   };
 
   const hasGroups = Boolean(grouped && grouped.groups.length > 0);
+  const targetSlot = nextSlotLabel(state, isMyTurn);
 
   return (
     <div className="flex flex-col h-full">
@@ -181,6 +223,12 @@ export function RecommendationPanel({
             <span className="text-ui-muted-subtle">（{operator.role}）</span>
           </p>
         )}
+        {targetSlot && (
+          <p className="mt-1 inline-flex items-center gap-1 rounded-md border border-ui-accent/20 bg-ui-accent/10 px-1.5 py-0.5 text-[10px] text-ui-accent">
+            <Plus className="h-3 w-3" />
+            点击推荐一键填入：{targetSlot}
+          </p>
+        )}
         {!isMyTurn && phase !== 'FINISHED' && (
           <p className="text-[11px] text-ui-muted-subtle mt-1">
             非我方操作，可输入对方选择或等待切换
@@ -191,40 +239,77 @@ export function RecommendationPanel({
       <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2">
         {hasGroups ? (
           <>
-            {/* 缺位提示 */}
-            {grouped!.gap.missing.length > 0 && (
-              <div className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/25 flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-amber-300">我方缺位</span>
-                <span className="text-[11px] text-amber-200/90">
-                  {grouped!.gap.missing.map((p) => positionLabel(p)).join('、')}
-                </span>
+            {/* 缺位高亮：缺哪路用红色徽章醒目提示 */}
+            {grouped!.gap.covered.length === 0 ? (
+              <div className="flex items-center gap-1.5 rounded-lg border border-ui-accent/25 bg-ui-accent/10 px-2.5 py-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-ui-accent" />
+                <span className="text-[10px] font-bold text-ui-accent">尚未选择英雄</span>
+                <span className="ml-auto text-[9px] text-ui-accent/70">推荐将按分路补齐</span>
+              </div>
+            ) : grouped!.gap.missing.length > 0 ? (
+              <div className="rounded-xl border border-ui-danger/30 bg-ui-danger/10 px-2.5 py-2">
+                <div className="flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 text-ui-danger" />
+                  <span className="text-[11px] font-bold text-ui-danger">阵容缺口</span>
+                  <span className="text-[9px] text-ui-danger/70">补位优先</span>
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {grouped!.gap.missing.map((p) => (
+                    <span
+                      key={p}
+                      className="rounded border border-ui-danger/30 bg-ui-danger/20 px-1.5 py-0.5 text-[10px] font-bold text-ui-danger"
+                    >
+                      缺 {positionLabel(p)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 rounded-lg border border-ui-success/25 bg-ui-success/10 px-2.5 py-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-ui-success" />
+                <span className="text-[10px] font-bold text-ui-success">五路齐全</span>
+                <span className="ml-auto text-[9px] text-ui-success/70">优先补强 / 克制位</span>
               </div>
             )}
 
             {/* 按分路分组 */}
-            {grouped!.groups.map((g) => (
-              <div key={g.position} className="space-y-1.5">
-                <div className="flex items-center gap-1.5 px-1 pt-1">
-                  <span className="text-[11px] font-bold text-ui-text">{g.positionLabel}</span>
-                  {g.isMissing && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                      缺
+            {grouped!.groups.map((g) => {
+              const coveredNames = (grouped!.gap.coverage[g.position] ?? [])
+                .map((id) => getHeroById(id)?.name || id)
+                .join('/');
+              return (
+                <div key={g.position} className="space-y-1.5">
+                  <div
+                    className={cn(
+                      'flex items-center gap-1.5 px-1 pt-1',
+                      g.isMissing && 'rounded-lg border border-ui-danger/20 bg-ui-danger/10 px-2 py-1',
+                    )}
+                  >
+                    <span className={cn('text-[11px] font-bold', g.isMissing ? 'text-ui-danger' : 'text-ui-text')}>
+                      {g.positionLabel}
                     </span>
-                  )}
-                  <span className="text-[9px] text-ui-muted/60 ml-auto">{g.heroes.length} 候选</span>
+                    {g.isMissing ? (
+                      <span className="rounded border border-ui-danger/30 bg-ui-danger/20 px-1.5 py-0.5 text-[9px] font-bold text-ui-danger">
+                        缺
+                      </span>
+                    ) : (
+                      <span className="truncate text-[9px] text-ui-muted-subtle">已选 {coveredNames || '-'}</span>
+                    )}
+                    <span className="ml-auto shrink-0 text-[9px] text-ui-muted/60">{g.heroes.length} 候选</span>
+                  </div>
+                  {g.heroes.map((rec, i) => (
+                    <HeroRow
+                      key={`${g.position}-${rec.heroId}`}
+                      rec={rec}
+                      index={i}
+                      onSelect={onSelect}
+                      feedback={feedback}
+                      onFeedback={handleFeedback}
+                    />
+                  ))}
                 </div>
-                {g.heroes.map((rec, i) => (
-                  <HeroRow
-                    key={`${g.position}-${rec.heroId}`}
-                    rec={rec}
-                    index={i}
-                    onSelect={onSelect}
-                    feedback={feedback}
-                    onFeedback={handleFeedback}
-                  />
-                ))}
-              </div>
-            ))}
+              );
+            })}
           </>
         ) : recommendations.length === 0 ? (
           <EmptyState phase={phase} isMyTurn={isMyTurn} />
