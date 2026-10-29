@@ -508,14 +508,18 @@ export function ReviewPanel() {
                             <span
                               className={cn(
                                 'rounded px-1',
-                                c.lane_icon
+                                c.lane_icon && selected.kind === 'selecting'
                                   ? 'bg-purple-500/20 text-purple-300'
                                   : c.confident
                                     ? 'text-emerald-400'
                                     : 'text-amber-400',
                               )}
                             >
-                              {c.lane_icon ? '图标' : c.confident ? '高' : '低'}
+                              {c.lane_icon && selected.kind === 'selecting'
+                                ? '图标'
+                                : c.confident
+                                  ? '高'
+                                  : '低'}
                             </span>
                           )}
                         </div>
@@ -527,7 +531,7 @@ export function ReviewPanel() {
                           )}
                         </div>
                         <div className="mb-1 truncate text-center text-xs font-medium text-slate-200">
-                          {c?.lane_icon ? (
+                          {c?.lane_icon && selected.kind === 'selecting' ? (
                             <span className="text-purple-300">分路图标</span>
                           ) : (
                             c?.hero || '（空）'
