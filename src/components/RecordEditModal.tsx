@@ -126,6 +126,17 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
     [bluePicks, redPicks, blueBans, redBans],
   );
 
+  // 「我的英雄」候选集 = 双方 picks（不含 ban）：
+  // 我的英雄必须是本局实际选出的英雄；ban 位英雄不可能是我的英雄。
+  // 之前错误地用 allUsedIds（含 ban），导致用户能选 ban 英雄，保存时被静默清掉。
+  const myHeroCandidates = useMemo(
+    () => new Set([...bluePicks, ...redPicks].filter(Boolean)),
+    [bluePicks, redPicks],
+  );
+
+  // 「我的英雄」是否有效（必须在双方 picks 里）；无效时保存会被清掉，需提示用户
+  const myHeroValid = !!myHeroId && myHeroCandidates.has(myHeroId);
+
   const filteredHeroes = useMemo(() => {
     const q = pickerSearch.trim().toLowerCase();
     if (!q) return heroes;
@@ -297,8 +308,13 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
                 </button>
               )}
               <span className="text-[10px] text-ui-muted-subtle">
-                （必须在我方阵容里，保存时会自动校验）
+                （必须在本局双方已选英雄里）
               </span>
+              {myHeroId && !myHeroValid && (
+                <span className="text-[10px] text-amber-400">
+                  ⚠ 当前英雄不在本局已选阵容里，保存时会被清空
+                </span>
+              )}
             </div>
           </div>
 
@@ -401,6 +417,9 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl border border-white/10 bg-[#0b1018] shadow-2xl">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-white/8">
+              <span className="text-[11px] font-semibold text-ui-accent shrink-0">
+                {picker ? '选择英雄' : '选择我的英雄（仅双方已选）'}
+              </span>
               <Search className="w-4 h-4 text-ui-muted" />
               <input
                 autoFocus
@@ -422,7 +441,9 @@ export function RecordEditModal({ open, record, onClose }: RecordEditModalProps)
             </div>
             <div className="flex-1 overflow-y-auto p-3 grid grid-cols-6 sm:grid-cols-8 gap-2">
               {filteredHeroes.map((h: Hero) => {
-                const used = allUsedIds.has(h.id);
+                // 槽位选择：禁用已出场英雄（ban + pick 都不能重复）
+                // 我的英雄选择：只允许双方 picks 里的英雄（ban 位不可选）
+                const used = picker ? allUsedIds.has(h.id) : !myHeroCandidates.has(h.id);
                 return (
                   <button
                     key={h.id}
