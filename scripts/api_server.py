@@ -294,14 +294,21 @@ def _bp_worker(interval=2.0):
                                        format_bans(bans)))
                 prev_picks_key = None
             elif phase in ('pick', 'final'):
-                # pick 阶段（选人界面）不识别 pick：队伍头像是玩家预选，不是最终阵容
-                # 只有 final（最后调整，阵容已锁定）才识别
+                # pick 阶段（选人界面）也识别 pick：
+                # 头像随玩家选人逐步出现，高置信的先填上（低置信前端会跳过）；
+                # final（最后调整，阵容已锁定）再覆盖修正为最终值。
                 if phase == 'pick':
-                    if prev_picks_key != '__pick_skip__':
-                        prev_picks_key = '__pick_skip__'
-                        _diag_log('pick 阶段（选人界面），跳过 pick 识别，等最后调整')
-                        # 清空上一局残留的 picks（否则前端显示旧阵容）
-                        update_state(picks=[])
+                    try:
+                        picks = recognize_picks_cached(img, bank)
+                        pkey = tuple((x['side'], x['index'], x['hero_id']) for x in picks)
+                        if pkey != prev_picks_key:
+                            prev_picks_key = pkey
+                            update_state(picks=picks)
+                            n_blue = sum(1 for x in picks if x['side'] == 'blue' and x['hero_id'])
+                            n_red = sum(1 for x in picks if x['side'] == 'red' and x['hero_id'])
+                            _diag_log('pick 阶段识别: 我方 %d / 敌方 %d' % (n_blue, n_red))
+                    except Exception:
+                        pass
                     if time.time() - last_diag_frame > 2:
                         last_diag_frame = time.time()
                         _diag_frame(img, 'selecting')
