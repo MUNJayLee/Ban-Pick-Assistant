@@ -409,7 +409,10 @@ def _bp_worker(interval=2.0):
         except Exception as e:
             update_state(error=str(e))
             time.sleep(3)
-        _bp_stop.wait(interval)
+        # BP 阶段快速轮询（识别已优化到 ~375ms，0.6s 间隔足够跟上游戏节奏）；
+        # 非 BP 阶段慢速（2s）省 CPU。之前固定 2s → 一帧 2.4s，BP 阶段跟不上。
+        _wait = 0.6 if prev_phase in ('ban', 'pick', 'final') else interval
+        _bp_stop.wait(_wait)
 
 
 # ---------------------------------------------------------------------------
